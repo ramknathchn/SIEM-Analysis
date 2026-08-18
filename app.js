@@ -1227,13 +1227,13 @@ function renderTriageTable(events) {
   });
 }
 
-// Filter Events based on search bar & dropdowns
-function filterEvents() {
-  const query = document.getElementById("search-input").value.toLowerCase();
-  const severityFilter = document.getElementById("severity-select").value;
-  const providerFilter = document.getElementById("provider-select").value;
+// Helper to get currently filtered anomaly events
+function getFilteredEvents() {
+  const query = (document.getElementById("search-input") ? document.getElementById("search-input").value : "").toLowerCase();
+  const severityFilter = document.getElementById("severity-select") ? document.getElementById("severity-select").value : "ALL";
+  const providerFilter = document.getElementById("provider-select") ? document.getElementById("provider-select").value : "ALL";
 
-  const filtered = anomalyEvents.filter(evt => {
+  return anomalyEvents.filter(evt => {
     const matchesQuery = evt.actor.user_name.toLowerCase().includes(query) ||
                          evt.anomaly_details.scenario.toLowerCase().includes(query) ||
                          evt.src_endpoint.ip.includes(query) ||
@@ -1243,8 +1243,198 @@ function filterEvents() {
 
     return matchesQuery && matchesSeverity && matchesProvider;
   });
+}
 
+// Filter Events based on search bar & dropdowns
+function filterEvents() {
+  const filtered = getFilteredEvents();
   renderTriageTable(filtered);
+}
+
+// Export Filtered Telemetry Table with Full Inspect Content
+function exportFilteredTelemetryReport() {
+  const filtered = getFilteredEvents();
+  if (!filtered || filtered.length === 0) {
+    alert("No anomaly records match the active filter criteria to export.");
+    return;
+  }
+
+  const query = document.getElementById("search-input") ? document.getElementById("search-input").value : "None";
+  const severityFilter = document.getElementById("severity-select") ? document.getElementById("severity-select").value : "ALL";
+  const providerFilter = document.getElementById("provider-select") ? document.getElementById("provider-select").value : "ALL";
+  const timestamp = new Date().toISOString();
+
+  // Calculate Filtered Summary Metrics
+  const avgRisk = (filtered.reduce((acc, curr) => acc + curr.anomaly_details.risk_score, 0) / filtered.length).toFixed(1);
+  const criticalCount = filtered.filter(e => e.anomaly_details.severity === "CRITICAL").length;
+  const highCount = filtered.filter(e => e.anomaly_details.severity === "HIGH").length;
+  const fpCount = filtered.filter(e => e.anomaly_details.severity === "FALSE POSITIVE").length;
+
+  // Build Tabulated Telemetry Rows
+  let summaryRowsHtml = filtered.map(e => `
+    <tr>
+      <td style="font-family:monospace; font-weight:bold">${e.event_id}</td>
+      <td style="font-size:0.8rem">${e.timestamp}</td>
+      <td><strong>${e.cloud_provider}</strong></td>
+      <td style="font-family:monospace; color:#0284c7">${e.actor.user_name}</td>
+      <td>${e.anomaly_details.scenario}</td>
+      <td style="font-family:monospace">${e.src_endpoint.ip} (${e.src_endpoint.country})</td>
+      <td style="font-weight:bold; text-align:center">${e.anomaly_details.risk_score}</td>
+      <td style="font-weight:bold; text-align:center">${e.anomaly_details.blast_radius_score}</td>
+      <td style="text-align:center"><span class="badge badge-${e.anomaly_details.severity.toLowerCase().replace(/\s+/g, '-')}">${e.anomaly_details.severity}</span></td>
+    </tr>
+  `).join("");
+
+  // Build Detailed Inspect Content Sections
+  let inspectSectionsHtml = filtered.map((e, index) => {
+    const userEvents = anomalyEvents.filter(x => x.actor.user_name === e.actor.user_name);
+    const aiSummaryText = e.anomaly_details.genai_explanation;
+    const mitreViewHtml = buildMitreDefenseView(e);
+
+    return `
+      <div style="page-break-inside:avoid; border:1px solid #cbd5e1; border-radius:8px; padding:1.25rem; margin-bottom:1.5rem; background:#ffffff; box-shadow:0 2px 8px rgba(0,0,0,0.05)">
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #0284c7; padding-bottom:0.5rem; margin-bottom:1rem">
+          <h3 style="margin:0; color:#0f172a; font-size:1.1rem">
+            #${index + 1} Inspection Details: <span style="color:#0284c7">${e.event_id}</span> - ${e.actor.user_name}
+          </h3>
+          <span class="badge badge-${e.anomaly_details.severity.toLowerCase().replace(/\s+/g, '-')}">${e.anomaly_details.severity}</span>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem; margin-bottom:1rem; font-size:0.85rem">
+          <div>
+            <strong>Cloud Provider:</strong> ${e.cloud_provider}<br>
+            <strong>Category / Class:</strong> ${e.category_name} / ${e.class_name}<br>
+            <strong>Origin Endpoint:</strong> ${e.src_endpoint.ip} (${e.src_endpoint.city}, ${e.src_endpoint.country})<br>
+            <strong>ISP Provider:</strong> ${e.src_endpoint.isp}
+          </div>
+          <div>
+            <strong>UEBA ML Risk Score:</strong> ${e.anomaly_details.risk_score} / 100<br>
+            <strong>Blast Radius Score:</strong> ${e.anomaly_details.blast_radius_score} / 100<br>
+            <strong>30m Session Velocity Spike:</strong> ${e.anomaly_details.session_30m_event_count} events (${e.anomaly_details.baseline_delta_ratio}x baseline)<br>
+            <strong>90-Day Daily Baseline:</strong> ${e.anomaly_details.baseline_90d_avg_daily_events} events/day
+          </div>
+        </div>
+
+        <!-- AI Plain English Summary -->
+        <div style="background:#f8fafc; border-left:4px solid #0284c7; padding:0.75rem 1rem; margin-bottom:1rem; border-radius:0 6px 6px 0">
+          <strong style="color:#0284c7; font-size:0.85rem">🤖 AI Plain English Incident Summary & Baseline Delta Analysis:</strong>
+          <p style="margin:0.4rem 0 0 0; font-size:0.88rem; line-height:1.5; color:#334155">${aiSummaryText}</p>
+        </div>
+
+        <!-- MITRE ATT&CK & D3FEND Content -->
+        <div style="margin-bottom:1rem">
+          ${mitreViewHtml}
+        </div>
+
+        <!-- 1-Click SOC Remediation Playbook -->
+        <div style="background:#0f172a; color:#f8fafc; border-radius:6px; padding:0.75rem 1rem">
+          <strong style="color:#38bdf8; font-size:0.85rem">⚡ SOC Remediation Action: ${e.anomaly_details.remediation_playbook.action}</strong>
+          <pre style="margin:0.4rem 0 0 0; font-family:monospace; font-size:0.8rem; background:#020617; padding:0.5rem; border-radius:4px; color:#4ade80; overflow-x:auto">${e.anomaly_details.remediation_playbook.cli_command}</pre>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  // Complete HTML Document String
+  const reportHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cloud Anomaly Telemetry & Inspection Report</title>
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #0f172a; background: #f8fafc; margin: 0; padding: 2rem; }
+    h1 { color: #0284c7; margin-bottom: 0.2rem; font-size: 1.6rem; }
+    .header-sub { color: #64748b; font-size: 0.88rem; margin-bottom: 1.5rem; }
+    .meta-box { background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; display: flex; gap: 2rem; font-size: 0.88rem; }
+    .table-container { width: 100%; overflow-x: auto; margin-bottom: 2rem; }
+    table { width: 100%; border-collapse: collapse; background: #ffffff; border-radius: 8px; overflow: hidden; border: 1px solid #cbd5e1; font-size: 0.85rem; }
+    th { background: #f1f5f9; color: #334155; padding: 0.75rem; text-align: left; border-bottom: 2px solid #cbd5e1; }
+    td { padding: 0.65rem 0.75rem; border-bottom: 1px solid #e2e8f0; }
+    .badge { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: bold; font-size: 0.75rem; }
+    .badge-critical { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
+    .badge-high { background: #ffedd5; color: #ea580c; border: 1px solid #fdba74; }
+    .badge-medium { background: #fef9c3; color: #ca8a04; border: 1px solid #fde047; }
+    .badge-false-positive { background: #f3e8ff; color: #9333ea; border: 1px solid #d8b4fe; }
+    .badge-info { background: #e0f2fe; color: #0284c7; border: 1px solid #7dd3fc; }
+    @media print {
+      body { padding: 0; background: #ffffff; }
+      .no-print { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="no-print" style="margin-bottom:1.5rem; display:flex; justify-content:space-between; align-items:center">
+    <button onclick="window.print()" style="background:#0284c7; color:#fff; border:none; padding:0.6rem 1.25rem; border-radius:6px; font-weight:bold; cursor:pointer">🖨️ Print / Save as PDF</button>
+    <span style="font-size:0.85rem; color:#64748b">Cloud Access Anomaly Detection & UEBA SIEM Platform</span>
+  </div>
+
+  <h1>📊 Active Cloud Access Anomaly Telemetry Report</h1>
+  <div class="header-sub">Exported Filtered Anomaly Dataset with Complete AI Inspection & MITRE ATT&CK/D3FEND Breakdown</div>
+
+  <div class="meta-box">
+    <div>
+      <strong>Report Timestamp:</strong> ${timestamp}<br>
+      <strong>Search Query Filter:</strong> ${query}<br>
+      <strong>Severity Filter:</strong> ${severityFilter}
+    </div>
+    <div>
+      <strong>Cloud Provider Filter:</strong> ${providerFilter}<br>
+      <strong>Total Filtered Anomalies:</strong> ${filtered.length} Record(s)<br>
+      <strong>Average ML Risk Score:</strong> ${avgRisk} / 100
+    </div>
+    <div>
+      <strong>Critical Alerts:</strong> ${criticalCount}<br>
+      <strong>High Risk Anomalies:</strong> ${highCount}<br>
+      <strong>False Positives:</strong> ${fpCount}
+    </div>
+  </div>
+
+  <h2>1. Tabulated Anomaly Telemetry Master Table</h2>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Event ID</th>
+          <th>Timestamp</th>
+          <th>Cloud</th>
+          <th>Identity / User</th>
+          <th>Scenario Trigger</th>
+          <th>Origin IP (Country)</th>
+          <th>ML Risk</th>
+          <th>Blast Score</th>
+          <th>Severity</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${summaryRowsHtml}
+      </tbody>
+    </table>
+  </div>
+
+  <h2>2. Detailed Telemetry Inspection & MITRE ATT&CK/D3FEND Breakdown</h2>
+  ${inspectSectionsHtml}
+
+</body>
+</html>`;
+
+  // Trigger Blob Download for filtered telemetry report
+  const blob = new Blob([reportHtml], { type: "text/html" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `filtered_anomaly_telemetry_report_${new Date().toISOString().slice(0,10)}.html`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  // Also open report in new printable window
+  const printWindow = window.open("", "_blank");
+  if (printWindow) {
+    printWindow.document.write(reportHtml);
+    printWindow.document.close();
+  }
 }
 
 // Render Interactive Chart.js Visualizations
