@@ -1,0 +1,187 @@
+[
+  {
+    "event_id": "OCSF-UEBA-2026-001",
+    "timestamp": "2026-08-18T08:14:22Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "AWS",
+    "actor": {
+      "user_name": "alex.morgan@cloudorg.internal",
+      "user_arn": "arn:aws:iam::123456789012:user/alex.morgan",
+      "assigned_roles": ["DeveloperAccess", "SecurityAnalyst-Dormant"]
+    },
+    "src_endpoint": {
+      "ip": "198.51.100.45",
+      "country": "Germany",
+      "city": "Frankfurt",
+      "isp": "CloudHosting-DE"
+    },
+    "anomaly_details": {
+      "scenario": "Impossible Travel Velocity",
+      "severity": "CRITICAL",
+      "risk_score": 94.5,
+      "blast_radius_score": 88.0,
+      "baseline_90d_avg_daily_events": 45,
+      "session_30m_event_count": 310,
+      "baseline_delta_ratio": 6.88,
+      "mitre_attack": {
+        "technique_id": "T1078.004",
+        "technique_name": "Valid Accounts: Cloud Accounts",
+        "tactic": "Initial Access & Privilege Escalation"
+      },
+      "genai_explanation": "User alex.morgan authenticated from Frankfurt 14 minutes after active session in New York (travel speed 3,800 mph). Session volume spiked 6.8x above 90-day baseline with access to unassigned production KMS keys.",
+      "remediation_playbook": {
+        "action": "Isolate Identity & Revoke Tokens",
+        "cli_command": "aws iam revoke-security-credentials --user-name alex.morgan && aws ec2 stop-instances --instance-ids i-089a1b2c"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-002",
+    "timestamp": "2026-08-18T09:30:15Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "MFA Spamming & Session Hijack",
+    "cloud_provider": "Azure / Entra ID",
+    "actor": {
+      "user_name": "sarah.chen@cloudorg.internal",
+      "user_arn": "entra://cloudorg.onmicrosoft.com/users/sarah.chen",
+      "assigned_roles": ["Global Administrator"]
+    },
+    "src_endpoint": {
+      "ip": "203.0.113.88",
+      "country": "Russia",
+      "city": "Moscow",
+      "isp": "VPN-Proxy-Net"
+    },
+    "anomaly_details": {
+      "scenario": "MFA Fatigue Prompt Spamming",
+      "severity": "HIGH",
+      "risk_score": 87.2,
+      "blast_radius_score": 92.5,
+      "baseline_90d_avg_daily_events": 120,
+      "session_30m_event_count": 480,
+      "baseline_delta_ratio": 4.00,
+      "mitre_attack": {
+        "technique_id": "T1621",
+        "technique_name": "Multi-Factor Authentication Request Generation",
+        "tactic": "Credential Access"
+      },
+      "genai_explanation": "Account experienced 32 consecutive denied MFA push notifications in 4 minutes before approval from an untrusted Moscow IP. User immediately requested Azure Key Vault secret export.",
+      "remediation_playbook": {
+        "action": "Disable User & Reset MFA Credentials",
+        "cli_command": "Update-MgUser -UserId 'sarah.chen@cloudorg.internal' -AccountEnabled $false && Revoke-MgUserSignInSession -UserId 'sarah.chen@cloudorg.internal'"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-003",
+    "timestamp": "2026-08-18T10:05:00Z",
+    "category_name": "Resource Access & IAM",
+    "class_name": "Dormant IAM Privilege Drift",
+    "cloud_provider": "AWS",
+    "actor": {
+      "user_name": "svc_ci_deployer",
+      "user_arn": "arn:aws:iam::123456789012:user/svc_ci_deployer",
+      "assigned_roles": ["FullAdministratorAccess-Dormant"]
+    },
+    "src_endpoint": {
+      "ip": "198.51.100.102",
+      "country": "United States",
+      "city": "Ashburn",
+      "isp": "AWS-EC2-Compute"
+    },
+    "anomaly_details": {
+      "scenario": "Dormant Admin Account Reactivation",
+      "severity": "CRITICAL",
+      "risk_score": 96.8,
+      "blast_radius_score": 98.0,
+      "baseline_90d_avg_daily_events": 0,
+      "session_30m_event_count": 890,
+      "baseline_delta_ratio": 890.00,
+      "mitre_attack": {
+        "technique_id": "T1098.001",
+        "technique_name": "Account Manipulation: Additional Cloud Credentials",
+        "tactic": "Persistence & Privilege Escalation"
+      },
+      "genai_explanation": "Service account dormant for 142 days suddenly invoked PutUserPolicy creating an unrestricted inline admin policy. New access key generated and attached to secondary EC2 instance.",
+      "remediation_playbook": {
+        "action": "Delete Access Keys & Detach Policies",
+        "cli_command": "aws iam delete-access-key --user-name svc_ci_deployer --access-key-id AKIA_SUSPECT_ID && aws iam delete-user-policy --user-name svc_ci_deployer --policy-name BackdoorAdmin"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-004",
+    "timestamp": "2026-08-18T11:12:40Z",
+    "category_name": "Data Storage Telemetry",
+    "class_name": "Mass Cloud Data Exfiltration",
+    "cloud_provider": "GCP",
+    "actor": {
+      "user_name": "devops.lead@cloudorg.internal",
+      "user_arn": "serviceAccount:devops-lead@cloudorg-proj.iam.gserviceaccount.com",
+      "assigned_roles": ["Storage Object Viewer", "BigQuery Admin"]
+    },
+    "src_endpoint": {
+      "ip": "203.0.113.199",
+      "country": "China",
+      "city": "Beijing",
+      "isp": "Unassigned-AS-Net"
+    },
+    "anomaly_details": {
+      "scenario": "Mass Cloud Storage Exfiltration",
+      "severity": "HIGH",
+      "risk_score": 89.4,
+      "blast_radius_score": 91.2,
+      "baseline_90d_avg_daily_events": 85,
+      "session_30m_event_count": 1420,
+      "baseline_delta_ratio": 16.71,
+      "mitre_attack": {
+        "technique_id": "T1567.002",
+        "technique_name": "Exfiltration to Cloud Storage",
+        "tactic": "Exfiltration"
+      },
+      "genai_explanation": "High-volume call burst executing storage.objects.get across 18 sensitive customer backup buckets. Total egress payload exceeded 48 GB in 12 minutes.",
+      "remediation_playbook": {
+        "action": "Revoke Service Account Keys & Block IP",
+        "cli_command": "gcloud iam service-accounts keys delete KEY_ID --iam-account=devops-lead@cloudorg-proj.iam.gserviceaccount.com"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-005",
+    "timestamp": "2026-08-18T11:45:10Z",
+    "category_name": "Audit Logging",
+    "class_name": "Defense Evasion & Audit Trail Erasure",
+    "cloud_provider": "AWS",
+    "actor": {
+      "user_name": "secops.automation",
+      "user_arn": "arn:aws:iam::123456789012:user/secops.automation",
+      "assigned_roles": ["CloudWatchAdmin"]
+    },
+    "src_endpoint": {
+      "ip": "198.51.100.220",
+      "country": "Brazil",
+      "city": "Sao Paulo",
+      "isp": "Anon-Proxy-BR"
+    },
+    "anomaly_details": {
+      "scenario": "Audit Trail Log Tampering & Deletion",
+      "severity": "CRITICAL",
+      "risk_score": 98.1,
+      "blast_radius_score": 95.0,
+      "baseline_90d_avg_daily_events": 30,
+      "session_30m_event_count": 195,
+      "baseline_delta_ratio": 6.50,
+      "mitre_attack": {
+        "technique_id": "T1562.001",
+        "technique_name": "Impair Defenses: Disable Cloud Logs",
+        "tactic": "Defense Evasion"
+      },
+      "genai_explanation": "CloudTrail logging disabled (`StopLogging`) followed by deletion of S3 audit log bucket policy. Operations originated from unverified IP address in Brazil.",
+      "remediation_playbook": {
+        "action": "Re-enable CloudTrail & Reapply S3 Bucket Locks",
+        "cli_command": "aws cloudtrail start-logging --name prod-security-trail && aws s3api put-bucket-policy --bucket cloudtrail-logs-org --policy file://secure-policy.json"
+      }
+    }
+  }
+]

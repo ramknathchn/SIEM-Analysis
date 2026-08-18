@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Cloud Access Anomaly Detection & User Behavior Analytics (UEBA) SIEM Platform - Real-time telemetry triage, baseline profiling, and multi-platform report downloader.">
+  <title>Cloud Access Anomaly Detection & UEBA SIEM Platform</title>
+  
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <!-- Top Header Bar -->
+  <header class="header-bar">
+    <div class="brand-title">
+      <div class="brand-icon">🛡️</div>
+      <div class="brand-text">
+        <h1>Cloud Access Anomaly Detection & UEBA SIEM Platform</h1>
+        <p>AWS CloudTrail • Azure / Entra ID • GCP Audit • OCSF Normalization</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="status-indicator">
+        <span class="pulse-dot"></span>
+        <span>LIVE SOC ENGINE ACTIVE</span>
+      </div>
+      <button class="btn" onclick="openAiConfigModal()">⚙️ AI Config</button>
+      <button class="btn" onclick="window.print()">🖨️ Print / PDF Report</button>
+    </div>
+  </header>
+
+  <!-- Metrics Banner Bar -->
+  <section class="metrics-banner">
+    <div class="metric-card">
+      <div class="metric-label">Critical Anomaly Alerts</div>
+      <div class="metric-value" id="metric-critical" style="color:var(--severity-critical)">0</div>
+      <div class="metric-sub">Immediate SOC Action Required</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">High Risk Anomalies</div>
+      <div class="metric-value" id="metric-high" style="color:var(--severity-high)">0</div>
+      <div class="metric-sub">Privilege & Session Drift</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Analyzed Session Events</div>
+      <div class="metric-value" id="metric-analyzed">0</div>
+      <div class="metric-sub">30-Min Window Windowing</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Avg UEBA ML Risk Score</div>
+      <div class="metric-value" id="metric-risk" style="color:var(--border-accent)">0.0 / 100</div>
+      <div class="metric-sub">Multi-Factor Baseline Delta</div>
+    </div>
+  </section>
+
+  <!-- Navigation Tabs -->
+  <nav class="nav-tabs">
+    <button class="tab-btn active" data-tab="triage">🚨 Anomaly Triage</button>
+    <button class="tab-btn" data-tab="baseline">📊 Behavioral Baseline Profiler</button>
+    <button class="tab-btn" data-tab="download">📥 SIEM Download Center</button>
+    <button class="tab-btn" data-tab="upload">📤 SIEM Upload & Ingestion</button>
+    <button class="tab-btn" data-tab="simulator">⚡ Attack Simulator</button>
+    <button class="tab-btn" data-tab="catalog">📚 Data Sources Catalog</button>
+  </nav>
+
+  <!-- Main Content View Areas -->
+  <main class="main-content">
+
+    <!-- TAB 1: Anomaly Triage -->
+    <div id="triage" class="tab-pane active">
+      <div class="grid-2">
+        <div class="soc-card">
+          <div class="card-header">
+            <h2 class="card-title">🔍 Active Cloud Access Anomaly Telemetry</h2>
+            <span class="badge badge-low">Live Stream</span>
+          </div>
+          
+          <!-- Filter Controls -->
+          <div class="filter-bar">
+            <input type="text" id="search-input" class="search-input" placeholder="Search identity, IP, country, or scenario..." onkeyup="filterEvents()">
+            <select id="severity-select" class="select-input" onchange="filterEvents()">
+              <option value="ALL">All Severities</option>
+              <option value="CRITICAL">CRITICAL</option>
+              <option value="HIGH">HIGH</option>
+              <option value="MEDIUM">MEDIUM</option>
+            </select>
+            <select id="provider-select" class="select-input" onchange="filterEvents()">
+              <option value="ALL">All Cloud Providers</option>
+              <option value="AWS">AWS</option>
+              <option value="Azure">Azure / Entra ID</option>
+              <option value="GCP">GCP</option>
+            </select>
+          </div>
+
+          <!-- Triage Table -->
+          <div class="table-container">
+            <table class="soc-table">
+              <thead>
+                <tr>
+                  <th>Severity</th>
+                  <th>Identity / User</th>
+                  <th>Cloud</th>
+                  <th>Scenario</th>
+                  <th>Origin IP (Country)</th>
+                  <th>Risk Score</th>
+                  <th>SOC Action</th>
+                </tr>
+              </thead>
+              <tbody id="triage-tbody">
+                <!-- Populated dynamically by app.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="soc-card">
+          <div class="card-header">
+            <h2 class="card-title">📈 Threat Severity Spectrum</h2>
+          </div>
+          <div class="chart-box">
+            <canvas id="chart-severity"></canvas>
+          </div>
+          <div class="ai-box">
+            <div class="ai-header">🤖 GenAI Threat Summary</div>
+            <div class="ai-text">
+              High concentration of CRITICAL access events observed in AWS CloudTrail and Azure Entra ID. Core drivers include Impossible Travel velocity, MFA push fatigue, and dormant administrative account reactivations.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: Behavioral Baseline Profiler -->
+    <div id="baseline" class="tab-pane">
+      <div class="grid-equal">
+        <div class="soc-card">
+          <div class="card-header">
+            <h2 class="card-title">📉 90-Day Baseline vs 30-Min Session Volume</h2>
+          </div>
+          <div class="chart-box">
+            <canvas id="chart-baseline"></canvas>
+          </div>
+        </div>
+
+        <div class="soc-card">
+          <div class="card-header">
+            <h2 class="card-title">🎯 Risk Score vs Blast Radius Matrix</h2>
+          </div>
+          <div class="chart-box">
+            <canvas id="chart-blast"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="soc-card">
+        <div class="card-header">
+          <h2 class="card-title">🧠 Explainable AI Root-Cause Narratives & ITDR Privilege Drift</h2>
+        </div>
+        <div class="grid-equal">
+          <div>
+            <h3 style="color:var(--text-cyber); margin-bottom:0.5rem">MITRE ATT&CK Cloud Matrix Chaining</h3>
+            <ul style="list-style:none; padding:0; font-size:0.85rem; color:var(--text-secondary)">
+              <li style="margin-bottom:0.5rem"><strong>Initial Access (T1078.004):</strong> Compromised Cloud Accounts authenticated via proxy nodes.</li>
+              <li style="margin-bottom:0.5rem"><strong>Credential Access (T1621):</strong> MFA Push Request Spamming targeting high-privilege users.</li>
+              <li style="margin-bottom:0.5rem"><strong>Persistence & PrivEsc (T1098.001):</strong> Account Manipulation generating backdoor access keys.</li>
+              <li style="margin-bottom:0.5rem"><strong>Defense Evasion (T1562.001):</strong> CloudTrail Audit Logging disabled (`StopLogging`).</li>
+            </ul>
+          </div>
+          <div>
+            <h3 style="color:var(--text-cyber); margin-bottom:0.5rem">ITDR Blast Radius Formula</h3>
+            <div class="code-block">
+              Blast Radius Score = Σ ( Asset_Criticality * Data_Sensitivity * (1 / Hop_Depth) )
+            </div>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.5rem">
+              Traverses recursive 5-hop relationship graph between identity credentials, Key Vault secrets, S3 buckets, and EC2 instances.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: SIEM Download Center -->
+    <div id="download" class="tab-pane">
+      <div class="soc-card">
+        <div class="card-header">
+          <h2 class="card-title">📦 Downloadable Multi-Platform SIEM Sample Datasets</h2>
+          <span class="badge badge-info">JSON & CSV Available</span>
+        </div>
+        <p style="color:var(--text-secondary); margin-bottom:1.5rem">
+          Pre-populated with 5 normalized cloud access anomaly scenarios across 4 major SIEM standards. Click below to generate and download client-side dataset files instantly.
+        </p>
+
+        <div class="download-grid">
+          <!-- Generic OCSF -->
+          <div class="download-card">
+            <div>
+              <div class="platform-logo" style="color:#00f0ff">🌐 Generic / Multi-Cloud OCSF</div>
+              <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:1rem">
+                Open Cybersecurity Schema Framework (OCSF 1.1) normalized identity telemetry with baseline stats and GenAI context.
+              </p>
+            </div>
+            <div style="display:flex; gap:0.5rem">
+              <button class="btn btn-primary" onclick="downloadSiemReport('generic_ueba_siem', 'json')">JSON Format</button>
+              <button class="btn" onclick="downloadSiemReport('generic_ueba_siem', 'csv')">CSV Format</button>
+            </div>
+          </div>
+
+          <!-- Microsoft Sentinel -->
+          <div class="download-card">
+            <div>
+              <div class="platform-logo" style="color:#3b82f6">🔷 Microsoft Sentinel (KQL)</div>
+              <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:1rem">
+                Formatted for Azure `SigninLogs`, `AzureActivity`, and `BehaviorAnalytics` tables with Sentinel Copilot investigation notes.
+              </p>
+            </div>
+            <div style="display:flex; gap:0.5rem">
+              <button class="btn btn-primary" onclick="downloadSiemReport('microsoft_sentinel', 'json')">JSON Format</button>
+              <button class="btn" onclick="downloadSiemReport('microsoft_sentinel', 'csv')">CSV Format</button>
+            </div>
+          </div>
+
+          <!-- Splunk CIM -->
+          <div class="download-card">
+            <div>
+              <div class="platform-logo" style="color:#f97316">⚡ Splunk Enterprise (CIM / RBA)</div>
+              <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:1rem">
+                Common Information Model (CIM) `Authentication` and `Change_Analysis` data models with Risk-Based Alerting scores.
+              </p>
+            </div>
+            <div style="display:flex; gap:0.5rem">
+              <button class="btn btn-primary" onclick="downloadSiemReport('splunk_cim', 'json')">JSON Format</button>
+              <button class="btn" onclick="downloadSiemReport('splunk_cim', 'csv')">CSV Format</button>
+            </div>
+          </div>
+
+          <!-- Elastic / Wazuh -->
+          <div class="download-card">
+            <div>
+              <div class="platform-logo" style="color:#10b981">🌀 Elastic Security & Wazuh SIEM</div>
+              <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:1rem">
+                ECS v8 event mappings, Wazuh v4.x alert rule levels (1–15), and Elastic ML anomaly confidence scores.
+              </p>
+            </div>
+            <div style="display:flex; gap:0.5rem">
+              <button class="btn btn-primary" onclick="downloadSiemReport('elastic_wazuh', 'json')">JSON Format</button>
+              <button class="btn" onclick="downloadSiemReport('elastic_wazuh', 'csv')">CSV Format</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: SIEM Upload & Ingestion -->
+    <div id="upload" class="tab-pane">
+      <div class="soc-card">
+        <div class="card-header">
+          <h2 class="card-title">📤 Upload & Ingest SIEM Platform Log Export</h2>
+          <span class="badge badge-info">JSON / CSV Auto-Parser</span>
+        </div>
+        <p style="color:var(--text-secondary); margin-bottom:1.5rem">
+          Upload exported telemetry files from AWS CloudTrail, Microsoft Sentinel, Splunk, Elastic/Wazuh, or Generic OCSF. The ingestion engine automatically normalizes log fields, calculates 90-day baseline deltas, scores blast radius, and streams events directly into the live Anomaly Triage dashboard.
+        </p>
+
+        <!-- Dropzone Container -->
+        <div class="dropzone" id="siem-dropzone" onclick="document.getElementById('file-input').click()">
+          <div class="dropzone-icon">📁</div>
+          <h3 style="color:var(--text-primary); font-size:1.1rem; margin-bottom:0.5rem">Drag & Drop SIEM Log Export File Here</h3>
+          <p style="color:var(--text-secondary); font-size:0.85rem">or click to browse your local computer (.json or .csv)</p>
+          <input type="file" id="file-input" style="display:none" accept=".json,.csv" onchange="handleFileUpload(event)">
+        </div>
+
+        <div id="upload-status" style="margin-top:1rem"></div>
+
+        <div style="margin-top:2rem">
+          <h3 style="color:var(--text-cyber); margin-bottom:0.75rem">Accepted Platform Formats</h3>
+          <div class="grid-equal">
+            <div style="background:var(--bg-surface); padding:1rem; border-radius:8px; border:1px solid var(--border-color)">
+              <strong style="color:var(--text-primary)">1. Generic OCSF (.json / .csv)</strong>
+              <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.25rem">Contains <code>actor.user_name</code> or <code>actor_user</code>, <code>src_endpoint.ip</code>, <code>anomaly_details</code>.</p>
+            </div>
+            <div style="background:var(--bg-surface); padding:1rem; border-radius:8px; border:1px solid var(--border-color)">
+              <strong style="color:var(--text-primary)">2. Microsoft Sentinel KQL (.json / .csv)</strong>
+              <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.25rem">Contains <code>UserPrincipalName</code>, <code>IPAddress</code>, <code>RiskDetail</code>, <code>InvestigationPriority</code>.</p>
+            </div>
+            <div style="background:var(--bg-surface); padding:1rem; border-radius:8px; border:1px solid var(--border-color)">
+              <strong style="color:var(--text-primary)">3. Splunk CIM / RBA (.json / .csv)</strong>
+              <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.25rem">Contains <code>user</code>, <code>src</code>, <code>risk_score</code>, <code>rba_threat_category</code>, <code>ml_anomaly_magnitude</code>.</p>
+            </div>
+            <div style="background:var(--bg-surface); padding:1rem; border-radius:8px; border:1px solid var(--border-color)">
+              <strong style="color:var(--text-primary)">4. Elastic Security & Wazuh (.json / .csv)</strong>
+              <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.25rem">Contains <code>user.email</code> or <code>user_email</code>, <code>source.ip</code>, <code>elastic_ml.anomaly_score</code>.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: Adversarial Attack Simulator -->
+    <div id="simulator" class="tab-pane">
+      <div class="soc-card">
+        <div class="card-header">
+          <h2 class="card-title">⚡ Live Adversarial Cloud Attack Simulator</h2>
+          <span class="badge badge-critical">Dynamic Injection Engine</span>
+        </div>
+        <p style="color:var(--text-secondary); margin-bottom:1.5rem">
+          Trigger real-time adversarial simulations to evaluate how the UEBA baseline engine detects spatial anomalies, push spamming, and mass data exfiltration.
+        </p>
+
+        <div class="sim-controls">
+          <div class="sim-card" onclick="runAdversarialSimulation('mfa_fatigue')">
+            <h3 style="color:var(--severity-high); margin-bottom:0.3rem">📲 MFA Push Fatigue Spam</h3>
+            <p style="font-size:0.75rem; color:var(--text-muted)">Injects 45 prompt rejections followed by access from Pyongyang proxy.</p>
+          </div>
+          <div class="sim-card" onclick="runAdversarialSimulation('s3_exfil')">
+            <h3 style="color:var(--severity-critical); margin-bottom:0.3rem">🪣 Mass S3 Exfiltration</h3>
+            <p style="font-size:0.75rem; color:var(--text-muted)">Surges S3 GetObject call volume to 2,400 ops/sec from Bucharest.</p>
+          </div>
+          <div class="sim-card" onclick="runAdversarialSimulation('log_erasure')">
+            <h3 style="color:var(--severity-critical); margin-bottom:0.3rem">🧹 Audit Log Deletion</h3>
+            <p style="font-size:0.75rem; color:var(--text-muted)">Executes StopLogging and bypasses S3 object locks via Tor exit node.</p>
+          </div>
+        </div>
+
+        <div id="sim-log-output">
+          <!-- Simulation output appended here dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 5: Data Sources Catalog -->
+    <div id="catalog" class="tab-pane">
+      <div class="soc-card">
+        <div class="card-header">
+          <h2 class="card-title">📚 Public Datasets & Schema Engineering Catalog</h2>
+        </div>
+        <p style="color:var(--text-secondary); margin-bottom:1rem">
+          View full benchmark specifications in <a href="data_sources_guide.md" style="color:var(--border-accent)" target="_blank">data_sources_guide.md</a>.
+        </p>
+        
+        <div class="grid-equal">
+          <div>
+            <h3 style="color:var(--text-cyber); margin-bottom:0.5rem">Public Benchmarks Incorporated</h3>
+            <ul style="color:var(--text-secondary); line-height:1.8; font-size:0.85rem">
+              <li><strong>flaws.cloud & flaws2.cloud:</strong> S3 unauthenticated access & SSRF metadata privilege escalation.</li>
+              <li><strong>Splunk BOTS v1–v3:</strong> MFA fatigue, password spraying, and cloud admin reactivation.</li>
+              <li><strong>CMU CERT Insider Threat:</strong> Mass exfiltration, off-hours spikes, role drift.</li>
+              <li><strong>Stratus Red Team (DataDog):</strong> Defense evasion (CloudTrail deletion) and secrets dumping.</li>
+            </ul>
+          </div>
+          <div>
+            <h3 style="color:var(--text-cyber); margin-bottom:0.5rem">Supported SIEM Schema Standards</h3>
+            <ul style="color:var(--text-secondary); line-height:1.8; font-size:0.85rem">
+              <li><strong>OCSF 1.1:</strong> Category 3 (Identity & Access Management), Class 3001/3002.</li>
+              <li><strong>Microsoft Sentinel KQL:</strong> `SigninLogs`, `AzureActivity`, `BehaviorAnalytics`.</li>
+              <li><strong>Splunk CIM 5.0:</strong> `Authentication`, `Change_Analysis`, `Risk` models.</li>
+              <li><strong>Elastic ECS v8:</strong> `event.category`, `wazuh.rule.level`, `ml_anomaly_score`.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Remediation Playbook Modal -->
+  <div id="modal-remediation" class="modal-overlay">
+    <div class="modal-card">
+      <div class="card-header">
+        <h2 class="card-title" style="color:var(--severity-critical)">⚡ 1-Click SOC Remediation Playbook</h2>
+        <button class="btn" onclick="closeModal('modal-remediation')">✕ Close</button>
+      </div>
+      <p style="color:var(--text-secondary); margin-bottom:1rem">
+        Target Identity: <strong id="modal-user" style="color:var(--text-primary)"></strong><br>
+        Scenario Trigger: <span id="modal-scenario" style="color:var(--border-accent)"></span><br>
+        Recommended Action: <strong id="modal-action" style="color:var(--severity-high)"></strong>
+      </p>
+
+      <div class="code-block" id="modal-command"></div>
+
+      <div style="display:flex; justify-content:flex-end; gap:1rem; margin-top:1.5rem">
+        <button class="btn btn-primary" onclick="copyCommand()">📋 Copy Command</button>
+        <button class="btn" onclick="closeModal('modal-remediation')">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail Inspection & AI Summarizer Modal -->
+  <div id="modal-detail" class="modal-overlay">
+    <div class="modal-card" style="max-width:850px">
+      <div class="card-header">
+        <h2 class="card-title">🤖 AI Log Summarizer & Identity Telemetry Inspection</h2>
+        <button class="btn" onclick="closeModal('modal-detail')">✕ Close</button>
+      </div>
+
+      <!-- Tab Switcher inside Modal -->
+      <div style="display:flex; gap:0.5rem; margin-bottom:1rem">
+        <button class="btn btn-primary" id="modal-tab-summary-btn" onclick="switchModalTab('summary')">🤖 AI English Summary</button>
+        <button class="btn" id="modal-tab-json-btn" onclick="switchModalTab('json')">📄 Raw User Logs (JSON)</button>
+        <button class="btn" onclick="triggerAiSummarization()" style="margin-left:auto; border-color:var(--border-accent); color:var(--border-accent)">🔄 Re-Summarize Logs with AI</button>
+      </div>
+
+      <!-- View 1: AI English Log Summary -->
+      <div id="modal-view-summary">
+        <div id="modal-ai-loading" class="ai-box" style="display:none; text-align:center; padding:2rem">
+          <div class="status-indicator" style="display:inline-flex; margin-bottom:1rem">
+            <span class="pulse-dot"></span>
+            <span>AI AGENT ANALYZING USER TELEMETRY LOGS...</span>
+          </div>
+          <p style="color:var(--text-secondary); font-size:0.85rem">Synthesizing 90-day baseline stats, spatial travel anomalies, and IAM privilege drift into plain English narrative...</p>
+        </div>
+
+        <div id="modal-ai-summary-content">
+          <!-- Populated by app.js -->
+        </div>
+      </div>
+
+      <!-- View 2: Raw User Logs (JSON) -->
+      <div id="modal-view-json" style="display:none">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem">
+          <span style="font-size:0.8rem; color:var(--text-muted)">Showing all telemetry events matching user identity:</span>
+          <span id="modal-user-event-count" class="badge badge-info">0 Events</span>
+        </div>
+        <pre class="code-block" id="modal-detail-json" style="max-height:420px"></pre>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:1.5rem">
+        <button class="btn btn-primary" onclick="copyAiSummary()">📋 Copy AI Summary</button>
+        <button class="btn" onclick="closeModal('modal-detail')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI & LLM Engine Configuration Modal -->
+  <div id="modal-ai-config" class="modal-overlay">
+    <div class="modal-card" style="max-width:700px">
+      <div class="card-header">
+        <h2 class="card-title">⚙️ AI & GenAI Engine Configuration</h2>
+        <button class="btn" onclick="closeModal('modal-ai-config')">✕ Close</button>
+      </div>
+
+      <p style="color:var(--text-secondary); font-size:0.85rem; margin-bottom:1.25rem">
+        Configure the AI Threat Synthesizer settings, LLM provider endpoints, prompt templates, and confidence thresholds. Backed by <a href="ai_config.json" target="_blank" style="color:var(--border-accent)">ai_config.json</a>.
+      </p>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem">
+        <div>
+          <label style="display:block; font-size:0.8rem; color:var(--text-muted); margin-bottom:0.3rem">AI Provider / Engine</label>
+          <select id="cfg-ai-provider" class="select-input" style="width:100%" onchange="saveAiConfigFromUi()">
+            <option value="Built-In Synthesizer">Built-In GenAI Synthesizer (Local JS Engine)</option>
+            <option value="Ollama (Local LLM)">Ollama Local Service (http://localhost:11434)</option>
+            <option value="Google Gemini API">Google Gemini API Gateway</option>
+            <option value="Custom OpenAI REST API">Custom OpenAI Compatible REST Endpoint</option>
+          </select>
+        </div>
+
+        <div>
+          <label style="display:block; font-size:0.8rem; color:var(--text-muted); margin-bottom:0.3rem">Model Name</label>
+          <input type="text" id="cfg-ai-model" class="search-input" value="gemini-1.5-pro" onchange="saveAiConfigFromUi()">
+        </div>
+      </div>
+
+      <div style="margin-bottom:1rem">
+        <label style="display:block; font-size:0.8rem; color:var(--text-muted); margin-bottom:0.3rem">API Endpoint URL</label>
+        <input type="text" id="cfg-ai-endpoint" class="search-input" style="width:100%" value="http://localhost:11434/api/generate" onchange="saveAiConfigFromUi()">
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem">
+        <div>
+          <label style="display:block; font-size:0.8rem; color:var(--text-muted); margin-bottom:0.3rem">Summary Output Language</label>
+          <select id="cfg-ai-lang" class="select-input" style="width:100%" onchange="saveAiConfigFromUi()">
+            <option value="English">English (Standard Plain English)</option>
+            <option value="Technical German">German / Technical</option>
+            <option value="Executive Briefing">Executive Concise</option>
+          </select>
+        </div>
+
+        <div>
+          <label style="display:block; font-size:0.8rem; color:var(--text-muted); margin-bottom:0.3rem">Min Risk Confidence Cutoff</label>
+          <input type="number" id="cfg-ai-confidence" class="search-input" style="width:100%" value="85" min="0" max="100" onchange="saveAiConfigFromUi()">
+        </div>
+      </div>
+
+      <div class="ai-box" style="margin-top:1rem">
+        <div class="ai-header">📄 Active Prompt Template & Context Assembly</div>
+        <div class="ai-text" style="font-size:0.8rem">
+          "Analyze incoming user identity telemetry, historical 90-day daily baseline event average, 30-min window session rate, origin IP geo-velocity, and MITRE ATT&CK TTP classifications. Output a 3-4 sentence plain English root-cause narrative and remediation action."
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:1.5rem">
+        <button class="btn btn-primary" onclick="saveAiConfigFromUi(); closeModal('modal-ai-config')">💾 Save & Apply Settings</button>
+        <button class="btn" onclick="closeModal('modal-ai-config')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Local Script -->
+  <script src="app.js"></script>
+
+</body>
+</html>

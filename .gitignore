@@ -1,0 +1,10 @@
+# Temporary and OS files
+.DS_Store
+Thumbs.db
+*.log
+__pycache__/
+*.pyc
+
+# Local IDE and scratch directories
+scratch/
+.system_generated/

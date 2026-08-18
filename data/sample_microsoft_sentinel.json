@@ -1,0 +1,127 @@
+[
+  {
+    "TenantId": "72f988bf-86f1-41af-91ab-2d7cd011db47",
+    "TimeGenerated": "2026-08-18T08:14:22Z",
+    "SourceSystem": "Azure Sentinel / Entra ID Protection",
+    "UserPrincipalName": "alex.morgan@cloudorg.internal",
+    "AppDisplayName": "Azure Portal & Cloud Console",
+    "IPAddress": "198.51.100.45",
+    "LocationDetails": {
+      "countryOrRegion": "DE",
+      "city": "Frankfurt",
+      "geoCoordinates": { "latitude": 50.1109, "longitude": 8.6821 }
+    },
+    "RiskState": "atRisk",
+    "RiskLevelDuringSignIn": "high",
+    "RiskDetail": "impossibleTravel",
+    "InvestigationPriority": 94,
+    "BehaviorAnalytics": {
+      "BaselineDailyMean": 45,
+      "Session30mEvents": 310,
+      "BaselineDeltaRatio": 6.88,
+      "DormantPrivilegeFlag": true
+    },
+    "SentinelCopilotSummary": "Entra ID Protection triggered Impossible Travel anomaly. User authenticated from Germany 14 min after US session. 310 events executed in 30 mins vs 45 daily baseline.",
+    "KQLRemediationQuery": "SigninLogs | where UserPrincipalName == 'alex.morgan@cloudorg.internal' | where TimeGenerated > ago(1h)"
+  },
+  {
+    "TenantId": "72f988bf-86f1-41af-91ab-2d7cd011db47",
+    "TimeGenerated": "2026-08-18T09:30:15Z",
+    "SourceSystem": "Azure Sentinel / Entra ID Protection",
+    "UserPrincipalName": "sarah.chen@cloudorg.internal",
+    "AppDisplayName": "Microsoft Entra Admin Center",
+    "IPAddress": "203.0.113.88",
+    "LocationDetails": {
+      "countryOrRegion": "RU",
+      "city": "Moscow",
+      "geoCoordinates": { "latitude": 55.7558, "longitude": 37.6173 }
+    },
+    "RiskState": "confirmedCompromised",
+    "RiskLevelDuringSignIn": "high",
+    "RiskDetail": "mfaSpamNotificationApproved",
+    "InvestigationPriority": 87,
+    "BehaviorAnalytics": {
+      "BaselineDailyMean": 120,
+      "Session30mEvents": 480,
+      "BaselineDeltaRatio": 4.00,
+      "DormantPrivilegeFlag": false
+    },
+    "SentinelCopilotSummary": "MFA fatigue push spam attack succeeded after 32 rejections. Attacker gained Global Admin privileges from Russian IP range.",
+    "KQLRemediationQuery": "BehaviorAnalytics | where UserPrincipalName == 'sarah.chen@cloudorg.internal' | extend ActivityType = ActivityInsights"
+  },
+  {
+    "TenantId": "72f988bf-86f1-41af-91ab-2d7cd011db47",
+    "TimeGenerated": "2026-08-18T10:05:00Z",
+    "SourceSystem": "Azure Sentinel / Behavior Analytics",
+    "UserPrincipalName": "svc_ci_deployer",
+    "AppDisplayName": "Azure Resource Manager",
+    "IPAddress": "198.51.100.102",
+    "LocationDetails": {
+      "countryOrRegion": "US",
+      "city": "Ashburn",
+      "geoCoordinates": { "latitude": 39.0438, "longitude": -77.4874 }
+    },
+    "RiskState": "atRisk",
+    "RiskLevelDuringSignIn": "critical",
+    "RiskDetail": "dormantAccountPrivilegeEscalation",
+    "InvestigationPriority": 97,
+    "BehaviorAnalytics": {
+      "BaselineDailyMean": 0,
+      "Session30mEvents": 890,
+      "BaselineDeltaRatio": 890.00,
+      "DormantPrivilegeFlag": true
+    },
+    "SentinelCopilotSummary": "Dormant Service Principal dormant for 142 days reactivated and granted Owner role to unverified principal.",
+    "KQLRemediationQuery": "AzureActivity | where OperationNameValue == 'MICROSOFT.AUTHORIZATION/ROLEASSIGNMENTS/WRITE' | where Caller == 'svc_ci_deployer'"
+  },
+  {
+    "TenantId": "72f988bf-86f1-41af-91ab-2d7cd011db47",
+    "TimeGenerated": "2026-08-18T11:12:40Z",
+    "SourceSystem": "Azure Sentinel / Storage Insights",
+    "UserPrincipalName": "devops.lead@cloudorg.internal",
+    "AppDisplayName": "Azure Blob Storage",
+    "IPAddress": "203.0.113.199",
+    "LocationDetails": {
+      "countryOrRegion": "CN",
+      "city": "Beijing",
+      "geoCoordinates": { "latitude": 39.9042, "longitude": 116.4074 }
+    },
+    "RiskState": "atRisk",
+    "RiskLevelDuringSignIn": "high",
+    "RiskDetail": "massDataDownloadExfiltration",
+    "InvestigationPriority": 89,
+    "BehaviorAnalytics": {
+      "BaselineDailyMean": 85,
+      "Session30mEvents": 1420,
+      "BaselineDeltaRatio": 16.71,
+      "DormantPrivilegeFlag": false
+    },
+    "SentinelCopilotSummary": "Mass download burst across production storage containers. 1,420 Blob read operations in 30 minutes.",
+    "KQLRemediationQuery": "StorageBlobLogs | where AccountName == 'prodbackups' | where OperationName == 'GetBlob'"
+  },
+  {
+    "TenantId": "72f988bf-86f1-41af-91ab-2d7cd011db47",
+    "TimeGenerated": "2026-08-18T11:45:10Z",
+    "SourceSystem": "Azure Sentinel / Activity Log",
+    "UserPrincipalName": "secops.automation",
+    "AppDisplayName": "Azure Monitor",
+    "IPAddress": "198.51.100.220",
+    "LocationDetails": {
+      "countryOrRegion": "BR",
+      "city": "Sao Paulo",
+      "geoCoordinates": { "latitude": -23.5505, "longitude": -46.6333 }
+    },
+    "RiskState": "confirmedCompromised",
+    "RiskLevelDuringSignIn": "critical",
+    "RiskDetail": "diagnosticSettingsDisable",
+    "InvestigationPriority": 98,
+    "BehaviorAnalytics": {
+      "BaselineDailyMean": 30,
+      "Session30mEvents": 195,
+      "BaselineDeltaRatio": 6.50,
+      "DormantPrivilegeFlag": true
+    },
+    "SentinelCopilotSummary": "Diagnostic settings and log streaming disabled across core subscription resources.",
+    "KQLRemediationQuery": "AzureActivity | where OperationNameValue contains 'DIAGNOSTICSETTINGS/DELETE'"
+  }
+]

@@ -1,0 +1,22 @@
+{
+  "ai_engine": {
+    "provider": "Gemini / Built-In Threat Synthesizer",
+    "model_name": "gemini-1.5-pro",
+    "api_endpoint": "http://localhost:11434/api/generate",
+    "temperature": 0.2,
+    "confidence_threshold": 85.0,
+    "language": "English",
+    "summary_style": "SOC Incident Report (Executive + Technical)"
+  },
+  "narrative_generation": {
+    "enable_mitre_attack_chaining": true,
+    "enable_baseline_variance_analysis": true,
+    "enable_blast_radius_graph_traversal": true,
+    "max_narrative_sentences": 4
+  },
+  "ollama_local_fallback": {
+    "enabled": true,
+    "ollama_url": "http://localhost:11434",
+    "default_model": "llama3"
+  }
+}

@@ -1,0 +1,152 @@
+[
+  {
+    "@timestamp": "2026-08-18T08:14:22.000Z",
+    "event": {
+      "category": ["authentication", "iam"],
+      "type": ["start", "access"],
+      "dataset": "aws.cloudtrail.ueba",
+      "severity": 4
+    },
+    "user": {
+      "name": "alex.morgan",
+      "email": "alex.morgan@cloudorg.internal",
+      "roles": ["DeveloperAccess", "SecurityAnalyst-Dormant"]
+    },
+    "source": {
+      "ip": "198.51.100.45",
+      "geo": { "country_name": "Germany", "city_name": "Frankfurt" }
+    },
+    "wazuh": {
+      "rule_id": 100201,
+      "rule_level": 14,
+      "description": "Wazuh Alert: Cloud UEBA impossible travel velocity threshold breached (>3000 mph)."
+    },
+    "elastic_ml": {
+      "anomaly_score": 94.5,
+      "baseline_events": 45,
+      "actual_events": 310,
+      "influencers": ["user.name", "source.geo.country_name"]
+    },
+    "ai_attack_narrative": "Elastic ML model identified extreme spatial anomaly. User authenticated from Frankfurt 14 minutes post US-East login."
+  },
+  {
+    "@timestamp": "2026-08-18T09:30:15.000Z",
+    "event": {
+      "category": ["authentication"],
+      "type": ["start"],
+      "dataset": "azure.signinlogs.ueba",
+      "severity": 3
+    },
+    "user": {
+      "name": "sarah.chen",
+      "email": "sarah.chen@cloudorg.internal",
+      "roles": ["Global Administrator"]
+    },
+    "source": {
+      "ip": "203.0.113.88",
+      "geo": { "country_name": "Russia", "city_name": "Moscow" }
+    },
+    "wazuh": {
+      "rule_id": 100202,
+      "rule_level": 12,
+      "description": "Wazuh Alert: MFA fatigue push flooding event followed by privilege escalation."
+    },
+    "elastic_ml": {
+      "anomaly_score": 87.2,
+      "baseline_events": 120,
+      "actual_events": 480,
+      "influencers": ["wazuh.rule_id", "source.ip"]
+    },
+    "ai_attack_narrative": "Repeated MFA challenges fatigue user into approving login from suspicious IP."
+  },
+  {
+    "@timestamp": "2026-08-18T10:05:00.000Z",
+    "event": {
+      "category": ["iam", "configuration"],
+      "type": ["change"],
+      "dataset": "aws.iam.ueba",
+      "severity": 4
+    },
+    "user": {
+      "name": "svc_ci_deployer",
+      "email": "svc_ci_deployer@cloudorg.internal",
+      "roles": ["FullAdministratorAccess-Dormant"]
+    },
+    "source": {
+      "ip": "198.51.100.102",
+      "geo": { "country_name": "United States", "city_name": "Ashburn" }
+    },
+    "wazuh": {
+      "rule_id": 100203,
+      "rule_level": 15,
+      "description": "Wazuh Alert: High severity dormant account activity and inline IAM admin creation."
+    },
+    "elastic_ml": {
+      "anomaly_score": 96.8,
+      "baseline_events": 0,
+      "actual_events": 890,
+      "influencers": ["user.name", "event.type"]
+    },
+    "ai_attack_narrative": "Dormant account reactivation with instant backdoor policy attachment."
+  },
+  {
+    "@timestamp": "2026-08-18T11:12:40.000Z",
+    "event": {
+      "category": ["file", "object_storage"],
+      "type": ["access"],
+      "dataset": "gcp.storage.ueba",
+      "severity": 3
+    },
+    "user": {
+      "name": "devops.lead",
+      "email": "devops.lead@cloudorg.internal",
+      "roles": ["Storage Object Viewer"]
+    },
+    "source": {
+      "ip": "203.0.113.199",
+      "geo": { "country_name": "China", "city_name": "Beijing" }
+    },
+    "wazuh": {
+      "rule_id": 100204,
+      "rule_level": 13,
+      "description": "Wazuh Alert: Mass data exfiltration pattern across storage buckets."
+    },
+    "elastic_ml": {
+      "anomaly_score": 89.4,
+      "baseline_events": 85,
+      "actual_events": 1420,
+      "influencers": ["source.ip", "event.dataset"]
+    },
+    "ai_attack_narrative": "Automated exfiltration script downloading 1,420 sensitive objects."
+  },
+  {
+    "@timestamp": "2026-08-18T11:45:10.000Z",
+    "event": {
+      "category": ["configuration"],
+      "type": ["deletion"],
+      "dataset": "aws.cloudtrail.tampering",
+      "severity": 4
+    },
+    "user": {
+      "name": "secops.automation",
+      "email": "secops.automation@cloudorg.internal",
+      "roles": ["CloudWatchAdmin"]
+    },
+    "source": {
+      "ip": "198.51.100.220",
+      "geo": { "country_name": "Brazil", "city_name": "Sao Paulo" }
+    },
+    "wazuh": {
+      "rule_id": 100205,
+      "rule_level": 15,
+      "description": "Wazuh Alert: CloudTrail stop logging command executed."
+    },
+    "elastic_ml": {
+      "anomaly_score": 98.1,
+      "baseline_events": 30,
+      "actual_events": 195,
+      "influencers": ["user.name", "event.category"]
+    },
+    "ai_attack_narrative": "Defense evasion tactic disabling security logging infrastructure."
+  }
+]
