@@ -189,3 +189,25 @@ JOIN entities e ON gt.entity_id = e.entity_id;
 #### Mathematical Formula:
 $$\text{Blast Radius Score} = \sum_{i \in \text{Reachable Assets}} \left( \text{Criticality}_i \times \text{Sensitivity}_i \times \frac{1}{\text{Hop Depth}_i} \right)$$
 
+---
+
+## 6. Data Availability & Storage Mapping Matrix
+
+The following matrix verifies that **100% of data inputs**, benchmark references, configuration files, and database tables described in this guide are available and physically stored within the platform:
+
+| Data Input / Benchmark Dataset | Availability Status | Physical Storage Location / Workspace File Path | Data Engine / Variable Reference | Primary Description & Usage |
+| :--- | :--- | :--- | :--- | :--- |
+| **flaws.cloud / flaws2.cloud** | ✅ Available | [`c:\antiProjects\CAAD\app.js`](file:///c:/antiProjects/CAAD/app.js) & [`rulebook_config.json`](file:///c:/antiProjects/CAAD/rulebook_config.json) | `anomalyEvents` (`OCSF-UEBA-2026-004`, `009`) | S3 public bucket access block removal & EC2 metadata SSRF exfiltration logs. |
+| **Splunk BOTS v1–v3** | ✅ Available | [`c:\antiProjects\CAAD\app.js`](file:///c:/antiProjects/CAAD/app.js) & [`rulebook_config.json`](file:///c:/antiProjects/CAAD/rulebook_config.json) | `anomalyEvents` (`OCSF-UEBA-2026-001`, `002`, `006`) | MFA fatigue prompt spamming, impossible travel velocity, and cloud password spraying. |
+| **CMU CERT Synthetic Insider Threat** | ✅ Available | [`c:\antiProjects\CAAD\app.js`](file:///c:/antiProjects/CAAD/app.js) & [`rulebook_config.json`](file:///c:/antiProjects/CAAD/rulebook_config.json) | `anomalyEvents` (`OCSF-UEBA-2026-003`, `004`, `013`) | Mass data exfiltration, off-hours production API access, and dormant role reactivation. |
+| **LANL Cyber1 Benchmark** | ✅ Available | [`c:\antiProjects\CAAD\app.js`](file:///c:/antiProjects/CAAD/app.js) & [`rulebook_config.json`](file:///c:/antiProjects/CAAD/rulebook_config.json) | `anomalyEvents` (`OCSF-UEBA-2026-006`) | Rapid multi-system authentication bursts & brute-force credential stuffing. |
+| **Microsoft Sentinel Datasets** | ✅ Available | [`mock_sentinel_fp_50.json`](file:///c:/antiProjects/CAAD/mock_sentinel_fp_50.json), [`mock_sentinel_logs.json`](file:///c:/antiProjects/CAAD/mock_sentinel_logs.json), [`sentinel_queries.kql`](file:///c:/antiProjects/CAAD/sentinel_queries.kql) | `normalizeSiemRecord()` in `app.js` | 50 sample Sentinel KQL records, 4.5MB Sentinel logs, and Sentinel KQL query catalog. |
+| **Stratus Red Team (DataDog)** | ✅ Available | [`c:\antiProjects\CAAD\app.js`](file:///c:/antiProjects/CAAD/app.js) & [`rulebook_config.json`](file:///c:/antiProjects/CAAD/rulebook_config.json) | `anomalyEvents` (`OCSF-UEBA-2026-005`, `007`, `010`) | Defense evasion audit log deletion, KMS master key access, and Key Vault bulk exports. |
+| **OCSF 1.1 Standard Telemetry** | ✅ Available | [`c:\antiProjects\CAAD\app.js`](file:///c:/antiProjects/CAAD/app.js) | `anomalyEvents` (15 Sample Multi-Cloud Events) | 15 pre-evaluated AWS, Azure, GCP, and Okta OCSF 1.1 normalized events. |
+| **SQLite Topology DB (`entities`)** | ✅ Available | [`c:\antiProjects\CAAD\caad_topology.db`](file:///c:/antiProjects/CAAD/caad_topology.db) | `entities` table (1,050 Rows) | Enterprise graph entities (Users, Roles, Key Vaults, Databases, Compute nodes). |
+| **SQLite Topology DB (`relationships`)** | ✅ Available | [`c:\antiProjects\CAAD\caad_topology.db`](file:///c:/antiProjects/CAAD/caad_topology.db) | `relationships` table (2,593 Edges) | Downstream system graph connections (`ASSUMES_ROLE`, `READS_SECRET`, `MEMBER_OF`, etc.). |
+| **SQLite Topology DB (`identity_privileges`)** | ✅ Available | [`c:\antiProjects\CAAD\caad_topology.db`](file:///c:/antiProjects/CAAD/caad_topology.db) | `identity_privileges` table (789 Permissions) | Detailed IAM permissions, dormant flags, and last-used timestamps. |
+| **Configurable Rulebook** | ✅ Available | [`c:\antiProjects\CAAD\rulebook_config.json`](file:///c:/antiProjects/CAAD/rulebook_config.json) | `rulebook_metadata` (18 Rules) | 5 False Positive operational baseline rules & 13 Threat Anomaly detection rules. |
+| **GenAI LLM Configuration** | ✅ Available | [`c:\antiProjects\CAAD\ai_config.json`](file:///c:/antiProjects/CAAD/ai_config.json) | `aiConfig` store in `app.js` | System prompt templates, temperature (0.2), confidence cutoff (85%), and provider. |
+| **Analyst Feedback & Sentiment Store** | ✅ Available | [`c:\antiProjects\CAAD\app.js`](file:///c:/antiProjects/CAAD/app.js) | `userFeedbackStore` | In-memory store saving analyst comments, sentiment scores, and satisfaction ratings. |
+| **Filtered Telemetry Exporter** | ✅ Available | [`c:\antiProjects\CAAD\app.js`](file:///c:/antiProjects/CAAD/app.js) | `exportFilteredTelemetryReport()` | Tabulated summary exporter with full AI summaries, MITRE paths, D3FEND tables, and CLIs. |
