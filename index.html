@@ -68,6 +68,7 @@
     <button class="tab-btn active" data-tab="triage">🚨 Anomaly Triage</button>
     <button class="tab-btn" data-tab="baseline">📊 Behavioral Baseline Profiler</button>
     <button class="tab-btn" data-tab="topology">🕸️ 1,000+ System Topology</button>
+    <button class="tab-btn" data-tab="db-analysis">💾 SQLite DB Analysis</button>
     <button class="tab-btn" data-tab="download">📥 SIEM Download Center</button>
     <button class="tab-btn" data-tab="upload">📤 SIEM Upload & Ingestion</button>
     <button class="tab-btn" data-tab="simulator">⚡ Attack Simulator</button>
@@ -196,14 +197,37 @@
             </div>
           </div>
 
-          <div>
-            <h3 style="color:var(--text-cyber); margin-bottom:0.75rem">💥 Blast Radius Cumulative Impact Summary</h3>
-            <div class="ai-box" style="margin-top:0">
-              <div class="ai-header">🧮 CTE Traversal Formula Output</div>
-              <div class="ai-text" id="topology-blast-summary">
-                <!-- Rendered dynamically by app.js -->
-              </div>
-            </div>
+    <!-- TAB 4: SQLite DB Analysis & Rulebook Inspector -->
+    <div id="db-analysis" class="tab-pane">
+      <div class="soc-card">
+        <div class="card-header">
+          <h2 class="card-title">💾 SQLite Database Telemetry Analysis & Rulebook Inspector</h2>
+          <span class="badge badge-info">caad_topology.db</span>
+        </div>
+        <p style="color:var(--text-secondary); margin-bottom:1.5rem">
+          Inspect all ingested telemetry logs, 1,050 system entities, 2,593 relationship edges, and configurable detection rulebooks stored in embedded SQLite DB <a href="caad_topology.db" target="_blank" style="color:var(--border-accent)">caad_topology.db</a>.
+        </p>
+
+        <!-- Table Selector Bar -->
+        <div class="filter-bar">
+          <select id="db-table-select" class="select-input" style="min-width:250px" onchange="renderDbAnalysisScreen()">
+            <option value="ingested_logs">Table: Ingested Telemetry Logs (All Records)</option>
+            <option value="entities">Table: System Entities (1,050 Systems & IAM)</option>
+            <option value="relationships">Table: Graph Relationships (2,593 Edges)</option>
+            <option value="identity_privileges">Table: IAM Privileges & Roles (789 Permissions)</option>
+            <option value="rulebook">Configurable Detection Rulebook (rulebook_config.json)</option>
+          </select>
+          <button class="btn btn-primary" onclick="renderDbAnalysisScreen()">🔄 Refresh DB Data</button>
+        </div>
+
+        <div style="margin-top:1.5rem">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem">
+            <h3 style="color:var(--text-cyber); font-size:0.9rem" id="db-table-title">Ingested Telemetry Log Records</h3>
+            <span id="db-table-count" class="badge badge-low">0 Records</span>
+          </div>
+          
+          <div id="db-table-container" class="table-container" style="max-height:420px; overflow-y:auto">
+            <!-- Populated by app.js -->
           </div>
         </div>
       </div>

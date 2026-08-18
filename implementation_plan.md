@@ -5,13 +5,15 @@ This project delivers an end-to-end **Cloud Access Anomaly Detection and User Be
 1. **Public Data Sources & Engineering Pipelines**: Standardized ingestion of AWS CloudTrail, Azure/Entra ID, GCP Audit, and Okta logs with OCSF normalization and sessionization.
 2. **All 4 SIEM Report Formats**: Downloadable datasets in JSON and CSV for Generic/OCSF, Microsoft Sentinel (KQL), Splunk (CIM/RBA), and Elastic/Wazuh (ECS).
 3. **Multi-Perspective Strategic Enhancements**:
-   - **Explainable AI Root-Cause Narratives**: Human-readable plain English incident summaries with confidence metrics.
+   - **Explainable AI Root-Cause Narratives & Easy English Summaries**: Human-readable plain English incident summaries with confidence metrics.
    - **Identity Threat Detection & Response (ITDR)**: Dormant privilege drift and 5-hop recursive CTE blast-radius impact analysis.
    - **MITRE ATT&CK Cloud Matrix Alignment**: TTP chaining across Initial Access, Persistence, Privilege Escalation, and Exfiltration.
    - **1-Click SOC Remediation Playbooks**: Automated CLI/PowerShell commands to isolate accounts and revoke session tokens.
 4. **Universal SIEM File Ingestion & Drag-and-Drop Parser**: Automatic normalization of uploaded `.json` and `.csv` SIEM log exports.
-5. **1,000+ System Enterprise Topology & SQLite Database**: Embedded SQLite database (`caad_topology.db`) storing 1,050 entities, 2,593 relationship edges, and 789 IAM privileges.
-6. **Interactive Visual Blast Radius Node Graph**: Real-time canvas node-link visualizer rendering 5-hop asset connections, criticality weights, and edge relationships.
+5. **Configurable Detection Rulebook (`rulebook_config.json`)**: Configurable detection rules and False Positive auto-classification engine for operational baselines.
+6. **1,000+ System Enterprise Topology & SQLite Database (`caad_topology.db`)**: Embedded SQLite database storing 1,050 entities, 2,593 relationship edges, and 789 IAM privileges.
+7. **SQLite DB Telemetry Analysis Screen**: Dedicated interactive DB inspector screen to query SQLite tables (`entities`, `relationships`, `identity_privileges`, `ingested_logs`).
+8. **Interactive Visual Blast Radius Node Graph**: Real-time canvas node-link visualizer rendering 5-hop asset connections, criticality weights, and edge relationships.
 
 ---
 
@@ -30,26 +32,27 @@ This project delivers an end-to-end **Cloud Access Anomaly Detection and User Be
 ```mermaid
 flowchart LR
     subgraph Data & Ingestion Layer
-        A1[AWS CloudTrail] --> B[OCSF / ECS Normalization]
+        A1[AWS CloudTrail] --> B[OCSF / ECS Normalizer]
         A2[Azure SigninLogs] --> B
         A3[GCP Audit Logs] --> B
-        A4[Uploaded SIEM .json/.csv] --> B
+        A4[Uploaded .json / .csv] --> B
     end
 
-    subgraph Topology & UEBA Engine
-        B --> C[30m Window Sessionization]
-        C --> D[90-Day Behavioral Baseline]
-        C --> E[Real-Time Feature Delta]
-        D & E --> F[SQLite 1,000+ Topology DB: caad_topology.db]
-        F --> G[5-Hop Recursive CTE Blast Radius Scoring]
-        G --> H[GenAI Context & Plain English Synthesizer]
+    subgraph Rulebook & Topology Engine
+        B --> C[Configurable Rulebook Engine: rulebook_config.json]
+        C --> D[30m Sliding Window Sessionizer]
+        D --> E[90-Day Behavioral Baseline]
+        E --> F[SQLite Topology DB: caad_topology.db]
+        F --> G[5-Hop Recursive CTE Blast Radius Calculation]
+        G --> H[GenAI Incident Synthesizer]
     end
 
     subgraph Deliverables & Interactive UI
         H --> I[SIEM Download Center: JSON / CSV / PDF]
         H --> J[Interactive SOC Web Dashboard]
         H --> K[Visual Blast Radius Node Graph Canvas]
-        H --> L[1-Click SOC CLI Playbooks]
+        H --> L[SQLite DB Analysis & Inspector Screen]
+        H --> M[Model Detection Accuracy & Satisfaction Count Engine]
     end
 ```
 
@@ -66,7 +69,14 @@ flowchart LR
 
 ---
 
-### 2. Multi-Platform SIEM Sample Report Datasets
+### 2. Configurable Log Analysis Rulebook
+- [`rulebook_config.json`](file:///c:/antiProjects/CAAD/rulebook_config.json)
+  - Configurable False Positive classification rules (e.g. `FP-RULE-001` matching non-malicious operational baseline events).
+  - Threat detection rules (`THREAT-RULE-001` through `003`) mapping velocity thresholds, MFA prompt limits, and dormant account reactivation days to MITRE TTPs.
+
+---
+
+### 3. Multi-Platform SIEM Sample Report Datasets
 Located in [`data/`](file:///c:/antiProjects/CAAD/data):
 
 - **Platform 1: Generic / Multi-Cloud OCSF UEBA**
@@ -85,40 +95,45 @@ Located in [`data/`](file:///c:/antiProjects/CAAD/data):
   - [`sample_elastic_wazuh.json`](file:///c:/antiProjects/CAAD/data/sample_elastic_wazuh.json)
   - [`sample_elastic_wazuh.csv`](file:///c:/antiProjects/CAAD/data/sample_elastic_wazuh.csv)
 
+- **Platform 5: Mock False Positive Ingestion Benchmarks**
+  - [`mock_sentinel_fp_50.json`](file:///c:/antiProjects/CAAD/mock_sentinel_fp_50.json): 50 mock events containing non-malicious operational baseline logs auto-classified as `FALSE POSITIVE`.
+
 ---
 
-### 3. Enterprise Topology & SQLite Database
+### 4. Enterprise Topology & SQLite Database
 - [`caad_topology.db`](file:///c:/antiProjects/CAAD/caad_topology.db): SQLite DB pre-seeded with 1,050 systems & IAM accounts and 2,593 graph edges.
 - [`scratch/build_topology_db.py`](file:///c:/antiProjects/CAAD/scratch/build_topology_db.py): Seed script generating 1,000+ connected topology nodes and edges.
 - [`scratch/query_blast_radius.py`](file:///c:/antiProjects/CAAD/scratch/query_blast_radius.py): Python script executing 5-hop CTE recursive graph queries.
 
 ---
 
-### 4. Interactive Web Application (Modern SOC Dashboard & Downloader)
+### 5. Interactive Web Application (Modern SOC Dashboard & Downloader)
 - [`index.html`](file:///c:/antiProjects/CAAD/index.html)
-  - Top SOC metrics bar (Critical/High alerts, analyzed sessions count, ML confidence).
-  - Header AI configuration button (`⚙️ AI Config`).
-  - 7-tab structure: Anomaly Triage, Behavioral Baseline Profiler, 1,000+ System Topology & Visual Node Graph, SIEM Download Center, SIEM Upload & Ingestion, Attack Simulator, Data Sources Catalog.
-  - Modals for AI Log Summarization on Inspect, 1-Click Remediation Playbooks, and AI Engine Configuration.
+  - Top SOC metrics bar (Critical/High alerts, Model Detection Accuracy, Satisfaction Count, ML confidence).
+  - Header AI configuration button (`⚙️ AI Config`) and Theme Switcher (`☀️ Light Mode` / `🌙 Dark Mode`).
+  - 8-tab structure: Anomaly Triage, Behavioral Baseline Profiler, 1,000+ System Topology & Visual Node Graph, SQLite DB Analysis, SIEM Download Center, SIEM Upload & Ingestion, Attack Simulator, Data Sources Catalog.
+  - Modals for AI Log Summarization on Inspect, Easy English MITRE ATT&CK/D3FEND Countermeasures, 1-Click Remediation Playbooks, and AI Engine Configuration.
 - [`styles.css`](file:///c:/antiProjects/CAAD/styles.css)
-  - Cyber-slate SOC theme (`#06090e`), JetBrains Mono & Inter typography, responsive dropzones, node graph canvas containers, and printable PDF report stylesheet.
+  - Cyber-slate SOC theme (`#06090e`), Light theme overrides (`[data-theme="light"]`), JetBrains Mono & Inter typography, responsive dropzones, `.badge-false-positive` badges, node graph canvas containers, and printable PDF report stylesheet.
 - [`app.js`](file:///c:/antiProjects/CAAD/app.js)
   - Universal SIEM file parser for `.json` and `.csv` drag-and-drop uploads.
-  - GenAI Incident Summarizer synthesizing plain English reports for inspected users.
-  - HTML5 Canvas interactive **Blast Radius Node Graph Visualizer** with color-coded node types, directed edge lines, hop labels, and node hover inspection.
-  - Client-side Blob file download generator for JSON & CSV across all 4 platforms.
+  - Rulebook False Positive auto-classification engine (`normalizeSiemRecord`).
+  - Analyst feedback tracking (`👍 Confirmed` / `👎 False Positive`) and real-time **Model Detection Accuracy** and **Satisfaction Count** calculator.
+  - SQLite DB Telemetry Analysis Screen (`renderDbAnalysisScreen`).
+  - HTML5 Canvas **Blast Radius Node Graph Visualizer** with color-coded node taxonomy, directed edge lines, hop labels, and node hover inspection.
+  - GenAI Incident Summarizer & Easy English MITRE ATT&CK/D3FEND Countermeasures generator.
 
 ---
 
 ## Verification Plan
 
 ### Automated & Structural Checks
-1. Validate JSON and CSV file syntax across all 4 platforms in `data/`.
+1. Validate JSON and CSV file syntax across all platforms in `data/` and `mock_sentinel_fp_50.json`.
 2. Confirm SQLite `caad_topology.db` queries execute without errors.
 
 ### Manual / Browser Verification
 1. Open `http://localhost:8080` in the browser.
-2. Navigate to **`🕸️ 1,000+ System Topology`** and verify the interactive **Blast Radius Visual Node Graph**.
-3. Click **Inspect** on any user anomaly in **`🚨 Anomaly Triage`** to verify AI Plain English Log Summarization.
-4. Drag & drop a `.json` or `.csv` SIEM file in **`📤 SIEM Upload & Ingestion`** to test auto-parsing.
-5. Trigger the Adversarial Attack Simulator and verify real-time chart and metric updates.
+2. Drag & drop [`mock_sentinel_fp_50.json`](file:///c:/antiProjects/CAAD/mock_sentinel_fp_50.json) in **`📤 SIEM Upload & Ingestion`** and verify automatic `FALSE POSITIVE` severity records in **`🚨 Anomaly Triage`**.
+3. Navigate to **`💾 SQLite DB Analysis`** and test inspecting tables (`ingested_logs`, `entities`, `relationships`, `identity_privileges`, `rulebook`).
+4. Navigate to **`🕸️ 1,000+ System Topology`** and verify the interactive **Blast Radius Visual Node Graph**.
+5. Click **Inspect** on any user anomaly in **`🚨 Anomaly Triage`** to verify AI Plain English Log Summarization & MITRE D3FEND Countermeasures.

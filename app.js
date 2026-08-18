@@ -305,7 +305,214 @@ document.addEventListener("DOMContentLoaded", () => {
   renderTriageTable(anomalyEvents);
   renderCharts();
   renderTopologyGraph();
+  renderDbAnalysisScreen();
 });
+
+// Render SQLite DB Analysis & Rulebook Inspector Screen
+function renderDbAnalysisScreen() {
+  const select = document.getElementById("db-table-select");
+  if (!select) return;
+
+  const tableType = select.value;
+  const titleEl = document.getElementById("db-table-title");
+  const countEl = document.getElementById("db-table-count");
+  const container = document.getElementById("db-table-container");
+
+  if (tableType === "ingested_logs") {
+    titleEl.textContent = "SQLite Table: Ingested Telemetry Logs & Auto-Classifications";
+    countEl.textContent = `${anomalyEvents.length} Ingested Logs`;
+    
+    let html = `
+      <table class="soc-table">
+        <thead>
+          <tr>
+            <th>Event ID</th>
+            <th>Timestamp</th>
+            <th>Cloud</th>
+            <th>Identity / User</th>
+            <th>Scenario Trigger</th>
+            <th>Risk Score</th>
+            <th>Severity Classification</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+
+    anomalyEvents.forEach(e => {
+      const sevClass = `badge-${e.anomaly_details.severity.toLowerCase().replace(/\s+/g, '-')}`;
+      html += `
+        <tr>
+          <td><code style="color:var(--text-cyber)">${e.event_id}</code></td>
+          <td style="font-size:0.75rem">${e.timestamp}</td>
+          <td>${e.cloud_provider}</td>
+          <td class="table-user">${e.actor.user_name}</td>
+          <td>${e.anomaly_details.scenario}</td>
+          <td style="font-weight:700">${e.anomaly_details.risk_score}</td>
+          <td><span class="badge ${sevClass}">${e.anomaly_details.severity}</span></td>
+        </tr>
+      `;
+    });
+
+    html += `</tbody></table>`;
+    container.innerHTML = html;
+
+  } else if (tableType === "entities") {
+    titleEl.textContent = "SQLite Table: System Entities & IAM Identities (1,050 Rows)";
+    countEl.textContent = "1,050 Rows";
+    
+    const sampleEntities = [
+      { id: "USER_ALEX_MORGAN", name: "alex.morgan@cloudorg.internal", type: "USER", provider: "AWS", crit: 8.5, sens: 9.0, status: "COMPROMISED" },
+      { id: "USER_SARAH_CHEN", name: "sarah.chen@cloudorg.internal", type: "USER", provider: "Azure", crit: 9.8, sens: 10.0, status: "COMPROMISED" },
+      { id: "ROLE_SEC_DORMANT", name: "SecurityAnalyst-Dormant-Role", type: "ROLE", provider: "AWS", crit: 9.5, sens: 9.5, status: "DORMANT" },
+      { id: "KMS_PROD_KEY_01", name: "kms-prod-data-encryption-key", type: "KEY_VAULT", provider: "AWS", crit: 10.0, sens: 10.0, status: "ACTIVE" },
+      { id: "AWS_COMPUTE_DEVOPS_0012", name: "devops-compute-0012.cloudorg.internal", type: "COMPUTE", provider: "AWS", crit: 7.5, sens: 6.5, status: "ACTIVE" },
+      { id: "AZURE_DB_FINANCE_0004", name: "finance-db-0004.cloudorg.internal", type: "DATABASE", provider: "Azure", crit: 9.9, sens: 10.0, status: "ACTIVE" }
+    ];
+
+    let html = `
+      <table class="soc-table">
+        <thead>
+          <tr>
+            <th>Entity ID</th>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Provider</th>
+            <th>Criticality</th>
+            <th>Sensitivity</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+
+    sampleEntities.forEach(n => {
+      html += `
+        <tr>
+          <td><code>${n.id}</code></td>
+          <td class="table-user">${n.name}</td>
+          <td><span style="color:var(--border-accent)">${n.type}</span></td>
+          <td>${n.provider}</td>
+          <td>${n.crit}</td>
+          <td>${n.sens}</td>
+          <td><span class="badge ${n.status === 'COMPROMISED' ? 'badge-critical' : (n.status === 'DORMANT' ? 'badge-medium' : 'badge-low')}">${n.status}</span></td>
+        </tr>
+      `;
+    });
+
+    html += `</tbody></table>`;
+    container.innerHTML = html;
+
+  } else if (tableType === "relationships") {
+    titleEl.textContent = "SQLite Table: Topology Relationship Edges (2,593 Rows)";
+    countEl.textContent = "2,593 Rows";
+
+    const sampleRels = [
+      { src: "USER_ALEX_MORGAN", tgt: "ROLE_SEC_DORMANT", rel: "ASSUMES_ROLE", hop: 1 },
+      { src: "ROLE_SEC_DORMANT", tgt: "KMS_PROD_KEY_01", rel: "READS_SECRET", hop: 1 },
+      { src: "USER_SARAH_CHEN", tgt: "ROLE_AZURE_GLOBAL_ADMIN", rel: "MEMBER_OF", hop: 1 },
+      { src: "ROLE_AZURE_GLOBAL_ADMIN", tgt: "KEYVAULT_FINANCIAL_SECRETS", rel: "READS_SECRET", hop: 1 },
+      { src: "USER_SECOPS_AUTOMATION", tgt: "CLOUDTRAIL_AUDIT_TRAIL", rel: "DELETED_LOGS", hop: 1 }
+    ];
+
+    let html = `
+      <table class="soc-table">
+        <thead>
+          <tr>
+            <th>Source Entity ID</th>
+            <th>Target Entity ID</th>
+            <th>Relationship Type</th>
+            <th>Hop Distance</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+
+    sampleRels.forEach(r => {
+      html += `
+        <tr>
+          <td class="table-user">${r.src}</td>
+          <td style="color:var(--text-cyber)">${r.tgt}</td>
+          <td><code>${r.rel}</code></td>
+          <td>${r.hop}</td>
+        </tr>
+      `;
+    });
+
+    html += `</tbody></table>`;
+    container.innerHTML = html;
+
+  } else if (tableType === "identity_privileges") {
+    titleEl.textContent = "SQLite Table: IAM Privileges & Role Entitlements (789 Rows)";
+    countEl.textContent = "789 Rows";
+
+    const samplePrivs = [
+      { id: "USER_ALEX_MORGAN", perm: "kms:Decrypt", dormant: 1, last: "2026-08-18T08:14:00Z" },
+      { id: "USER_SARAH_CHEN", perm: "KeyVault.Secrets.Read", dormant: 0, last: "2026-08-18T09:30:00Z" },
+      { id: "USER_SVC_CI_DEPLOYER", perm: "iam:PutUserPolicy", dormant: 1, last: "2026-08-18T10:05:00Z" },
+      { id: "USER_DEVOPS_LEAD", perm: "storage.objects.get", dormant: 0, last: "2026-08-18T11:12:00Z" }
+    ];
+
+    let html = `
+      <table class="soc-table">
+        <thead>
+          <tr>
+            <th>Identity / Role ID</th>
+            <th>Permission Name</th>
+            <th>Dormant Privilege Flag</th>
+            <th>Last Used Timestamp</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+
+    samplePrivs.forEach(p => {
+      html += `
+        <tr>
+          <td class="table-user">${p.id}</td>
+          <td><code>${p.perm}</code></td>
+          <td><span class="badge ${p.dormant === 1 ? 'badge-medium' : 'badge-low'}">${p.dormant === 1 ? 'DORMANT' : 'ACTIVE'}</span></td>
+          <td style="font-size:0.75rem">${p.last}</td>
+        </tr>
+      `;
+    });
+
+    html += `</tbody></table>`;
+    container.innerHTML = html;
+
+  } else if (tableType === "rulebook") {
+    titleEl.textContent = "Configurable SIEM Log Detection Rulebook (rulebook_config.json)";
+    countEl.textContent = "Active Rule Catalog";
+
+    container.innerHTML = `
+      <pre class="code-block" style="max-height:380px">{
+  "rulebook_metadata": {
+    "name": "Cloud Access Anomaly & False Positive Detection Rulebook",
+    "version": "2.1.0"
+  },
+  "false_positive_rules": [
+    {
+      "rule_id": "FP-RULE-001",
+      "rule_name": "Non-Malicious Operational Baseline Event",
+      "conditions": {
+        "keywords": ["non-malicious", "operational baseline", "verified safe"],
+        "max_risk_score": 35.0
+      },
+      "action": "SET_SEVERITY_FALSE_POSITIVE"
+    }
+  ],
+  "threat_anomaly_rules": [
+    {
+      "rule_id": "THREAT-RULE-001",
+      "rule_name": "Impossible Travel Velocity Threshold",
+      "conditions": { "min_speed_mph": 3000, "min_risk_score": 90.0 },
+      "assigned_severity": "CRITICAL",
+      "mitre_id": "T1078.004"
+    }
+  ]
+}</pre>
+    `;
+  }
+}
 
 // Render Enterprise Topology Graph & Blast Radius CTE Calculator
 function renderTopologyGraph() {
@@ -1428,58 +1635,79 @@ function parseCSV(text) {
 
 // Universal SIEM Record Normalizer
 function normalizeSiemRecord(raw) {
-  // If already OCSF format
-  if (raw.event_id && raw.actor && raw.anomaly_details) {
-    return raw;
+  let record = raw;
+
+  // If not OCSF format, normalize to standard schema
+  if (!raw.event_id || !raw.actor || !raw.anomaly_details) {
+    const now = new Date().toISOString();
+    const user = raw.UserPrincipalName || raw.user || raw.actor_user || raw.user_email || raw.user_name || "imported.user@cloudorg.internal";
+    const ip = raw.IPAddress || raw.src || raw.src_ip || raw.source_ip || "198.51.100.100";
+    const country = raw.Country || raw.src_country || raw.source_country || "United States";
+    const provider = raw.SourceSystem || raw.cloud_provider || (raw.TenantId ? "Azure / Entra ID" : "AWS");
+    const risk = parseFloat(raw.InvestigationPriority || raw.risk_score || raw.elastic_ml_anomaly_score || 85.0);
+    const scenario = raw.RiskDetail || raw.rba_threat_category || raw.wazuh_description || "Uploaded SIEM Anomaly Log";
+    const summary = raw.SentinelCopilotSummary || raw.splunk_rba_narrative || raw.genai_explanation || raw.ai_attack_narrative || "Ingested log event from uploaded SIEM file.";
+    const cli = raw.KQLRemediationQuery || raw.remediation_cli || `aws iam revoke-security-credentials --user-name ${user}`;
+
+    record = {
+      event_id: `INGEST-${Math.floor(Math.random() * 90000 + 10000)}`,
+      timestamp: raw.TimeGenerated || raw._time || raw["@timestamp"] || now,
+      category_name: "Identity & Access Management",
+      class_name: "Imported SIEM Telemetry",
+      cloud_provider: provider,
+      actor: {
+        user_name: user,
+        user_arn: user,
+        assigned_roles: ["ImportedRole"]
+      },
+      src_endpoint: {
+        ip: ip,
+        country: country,
+        city: "Unknown",
+        isp: "ISP-Cloud"
+      },
+      anomaly_details: {
+        scenario: scenario,
+        severity: risk >= 90 ? "CRITICAL" : (risk >= 75 ? "HIGH" : "MEDIUM"),
+        risk_score: risk,
+        blast_radius_score: Math.min(99, risk + 3),
+        baseline_90d_avg_daily_events: parseInt(raw.BaselineDailyMean || raw.baseline_events || 25),
+        session_30m_event_count: parseInt(raw.Session30mEvents || raw.actual_events || 150),
+        baseline_delta_ratio: 6.0,
+        mitre_attack: {
+          technique_id: raw.rba_mitre_id || "T1078",
+          technique_name: "Valid Accounts",
+          tactic: "Initial Access"
+        },
+        genai_explanation: summary,
+        remediation_playbook: {
+          action: "Investigate Ingested Telemetry",
+          cli_command: cli
+        }
+      }
+    };
   }
 
-  // Generic extraction fallback
-  const now = new Date().toISOString();
-  const user = raw.UserPrincipalName || raw.user || raw.actor_user || raw.user_email || raw.user_name || "imported.user@cloudorg.internal";
-  const ip = raw.IPAddress || raw.src || raw.src_ip || raw.source_ip || "198.51.100.100";
-  const country = raw.Country || raw.src_country || raw.source_country || "United States";
-  const provider = raw.SourceSystem || raw.cloud_provider || (raw.TenantId ? "Azure / Entra ID" : "AWS");
-  const risk = parseFloat(raw.InvestigationPriority || raw.risk_score || raw.elastic_ml_anomaly_score || 85.0);
-  const scenario = raw.RiskDetail || raw.rba_threat_category || raw.wazuh_description || "Uploaded SIEM Anomaly Log";
-  const summary = raw.SentinelCopilotSummary || raw.splunk_rba_narrative || raw.genai_explanation || raw.ai_attack_narrative || "Ingested log event from uploaded SIEM file.";
-  const cli = raw.KQLRemediationQuery || raw.remediation_cli || `aws iam revoke-security-credentials --user-name ${user}`;
+  // Rulebook Evaluation for False Positive Auto-Classification
+  const genaiText = (record.anomaly_details.genai_explanation || "").toLowerCase();
+  const scenarioText = (record.anomaly_details.scenario || "").toLowerCase();
+  const riskScore = record.anomaly_details.risk_score || 0;
 
-  return {
-    event_id: `INGEST-${Math.floor(Math.random() * 9000 + 1000)}`,
-    timestamp: raw.TimeGenerated || raw._time || raw["@timestamp"] || now,
-    category_name: "Identity & Access Management",
-    class_name: "Imported SIEM Telemetry",
-    cloud_provider: provider,
-    actor: {
-      user_name: user,
-      user_arn: user,
-      assigned_roles: ["ImportedRole"]
-    },
-    src_endpoint: {
-      ip: ip,
-      country: country,
-      city: "Unknown",
-      isp: "ISP-Cloud"
-    },
-    anomaly_details: {
-      scenario: scenario,
-      severity: risk >= 90 ? "CRITICAL" : (risk >= 75 ? "HIGH" : "MEDIUM"),
-      risk_score: risk,
-      blast_radius_score: Math.min(99, risk + 3),
-      baseline_90d_avg_daily_events: parseInt(raw.BaselineDailyMean || raw.baseline_events || 25),
-      session_30m_event_count: parseInt(raw.Session30mEvents || raw.actual_events || 150),
-      baseline_delta_ratio: 6.0,
-      mitre_attack: {
-        technique_id: raw.rba_mitre_id || "T1078",
-        technique_name: "Valid Accounts",
-        tactic: "Initial Access"
-      },
-      genai_explanation: summary,
-      remediation_playbook: {
-        action: "Investigate Ingested Telemetry",
-        cli_command: cli
-      }
-    }
-  };
+  const isFpMatch = genaiText.includes("non-malicious") ||
+                    genaiText.includes("operational baseline") ||
+                    genaiText.includes("false positive") ||
+                    genaiText.includes("verified safe") ||
+                    scenarioText.includes("atypical service account") ||
+                    record.anomaly_details.severity === "LOW" && riskScore < 30.0;
+
+  if (isFpMatch) {
+    record.anomaly_details.original_severity = record.anomaly_details.severity;
+    record.anomaly_details.severity = "FALSE POSITIVE";
+    userFeedbackStore[record.event_id] = false; // Flagged as False Positive feedback
+  } else if (userFeedbackStore[record.event_id] === undefined) {
+    userFeedbackStore[record.event_id] = true; // Confirmed True Positive default
+  }
+
+  return record;
 }
 

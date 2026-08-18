@@ -1,0 +1,62 @@
+{
+  "rulebook_metadata": {
+    "version": "2.1.0",
+    "name": "Cloud Access Anomaly & False Positive Detection Rulebook",
+    "description": "Configurable rule catalog for multi-cloud telemetry ingestion, baseline delta scoring, and false positive auto-classification."
+  },
+  "false_positive_rules": [
+    {
+      "rule_id": "FP-RULE-001",
+      "rule_name": "Non-Malicious Operational Baseline Event",
+      "description": "Auto-classifies events explicitly marked as non-malicious operational baselines as FALSE POSITIVE.",
+      "conditions": {
+        "text_keywords": ["non-malicious", "operational baseline", "verified safe", "false positive"],
+        "max_risk_score": 35.0
+      },
+      "action": "SET_SEVERITY_FALSE_POSITIVE"
+    },
+    {
+      "rule_id": "FP-RULE-002",
+      "rule_name": "Low Risk Scheduled CI/CD Service Account",
+      "description": "Identifies scheduled CI/CD pipeline service accounts executing routine deployment tasks.",
+      "conditions": {
+        "account_type": "SERVICE_ACCOUNT",
+        "max_risk_score": 30.0,
+        "max_session_events": 50
+      },
+      "action": "SET_SEVERITY_FALSE_POSITIVE"
+    }
+  ],
+  "threat_anomaly_rules": [
+    {
+      "rule_id": "THREAT-RULE-001",
+      "rule_name": "Impossible Travel Velocity Threshold",
+      "conditions": {
+        "min_speed_mph": 3000,
+        "min_risk_score": 90.0
+      },
+      "assigned_severity": "CRITICAL",
+      "mitre_id": "T1078.004"
+    },
+    {
+      "rule_id": "THREAT-RULE-002",
+      "rule_name": "MFA Fatigue Push Notification Spamming",
+      "conditions": {
+        "min_rejected_prompts": 30,
+        "min_risk_score": 85.0
+      },
+      "assigned_severity": "HIGH",
+      "mitre_id": "T1621"
+    },
+    {
+      "rule_id": "THREAT-RULE-003",
+      "rule_name": "Dormant Administrative Account Reactivation",
+      "conditions": {
+        "min_dormant_days": 90,
+        "min_risk_score": 95.0
+      },
+      "assigned_severity": "CRITICAL",
+      "mitre_id": "T1098.001"
+    }
+  ]
+}
