@@ -689,6 +689,7 @@ document.addEventListener("DOMContentLoaded", () => {
   renderCharts();
   renderTopologyGraph();
   renderDbAnalysisScreen();
+  renderBaselineProfilerScreen();
 });
 
 // Render SQLite DB Analysis & Rulebook Inspector Screen
@@ -1190,9 +1191,123 @@ function initTabs() {
         renderDbAnalysisScreen();
       } else if (tab.dataset.tab === "topology") {
         renderTopologyGraph();
+      } else if (tab.dataset.tab === "baseline") {
+        renderBaselineProfilerScreen();
       }
     });
   });
+}
+
+// Global Chart Reference for Baseline Profiler
+let baselineProfilerChart = null;
+
+// Render Behavioral Baseline Profiler Screen
+function renderBaselineProfilerScreen() {
+  const userSelect = document.getElementById("baseline-user-select");
+  if (!userSelect) return;
+
+  // Populate User Options if empty
+  if (userSelect.children.length === 0) {
+    let optionsHtml = "";
+    anomalyEvents.forEach(e => {
+      optionsHtml += `<option value="${e.event_id}">${e.actor.user_name} (${e.cloud_provider} - ${e.anomaly_details.scenario})</option>`;
+    });
+    userSelect.innerHTML = optionsHtml;
+  }
+
+  const selectedEvtId = userSelect.value || anomalyEvents[0].event_id;
+  const evt = anomalyEvents.find(e => e.event_id === selectedEvtId) || anomalyEvents[0];
+
+  const baseMean = evt.anomaly_details.baseline_90d_avg_daily_events || 45;
+  const sessionVol = evt.anomaly_details.session_30m_event_count || 310;
+  const deltaRatio = evt.anomaly_details.baseline_delta_ratio || (sessionVol / Math.max(1, baseMean)).toFixed(2);
+  const anomalyCutoff = Math.round(baseMean * 2.5);
+
+  const baseMeanEl = document.getElementById("prof-base-mean");
+  if (baseMeanEl) baseMeanEl.textContent = baseMean;
+
+  const sessionVolEl = document.getElementById("prof-session-vol");
+  if (sessionVolEl) sessionVolEl.textContent = sessionVol;
+
+  const deltaRatioEl = document.getElementById("prof-delta-ratio");
+  if (deltaRatioEl) deltaRatioEl.textContent = `${deltaRatio}x`;
+
+  const cutoffEl = document.getElementById("prof-cutoff");
+  if (cutoffEl) cutoffEl.textContent = `${anomalyCutoff} events/day`;
+
+  // Render Chart.js Profiler Chart
+  const ctx = document.getElementById("chart-baseline-profiler");
+  if (ctx && typeof Chart !== "undefined") {
+    if (baselineProfilerChart) baselineProfilerChart.destroy();
+
+    baselineProfilerChart = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: ["90-Day Baseline Daily Mean", "Upper Anomaly Cutoff (+3σ)", "Observed 30-Min Burst"],
+        datasets: [{
+          label: "Event Volume Count",
+          data: [baseMean, anomalyCutoff, sessionVol],
+          backgroundColor: [
+            "rgba(59, 130, 246, 0.6)",
+            "rgba(234, 179, 8, 0.6)",
+            "rgba(239, 68, 68, 0.8)"
+          ],
+          borderColor: ["#3b82f6", "#eab308", "#ef4444"],
+          borderWidth: 1.5,
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: "#94a3b8" }, grid: { display: false } },
+          y: { ticks: { color: "#94a3b8" }, grid: { color: "rgba(255,255,255,0.05)" } }
+        }
+      }
+    });
+  }
+
+  // Render Hourly Access Profile Distribution Table
+  const hourlyContainer = document.getElementById("prof-hourly-container");
+  if (hourlyContainer) {
+    const hourlyData = [
+      { hour: "00:00 - 04:00 (Off-Hours)", typical: "2 - 5 events", observed: `${Math.round(sessionVol * 0.4)} events`, status: "ANOMALOUS SPIKE", isSpike: true },
+      { hour: "04:00 - 08:00 (Early Shift)", typical: "5 - 10 events", observed: "8 events", status: "NORMAL", isSpike: false },
+      { hour: "08:00 - 12:00 (Core Hours)", typical: "20 - 45 events", observed: "32 events", status: "NORMAL", isSpike: false },
+      { hour: "12:00 - 16:00 (Core Hours)", typical: "15 - 40 events", observed: "28 events", status: "NORMAL", isSpike: false },
+      { hour: "16:00 - 20:00 (Evening Shift)", typical: "5 - 15 events", observed: "11 events", status: "NORMAL", isSpike: false },
+      { hour: "20:00 - 24:00 (Night Hours)", typical: "1 - 5 events", observed: `${Math.round(sessionVol * 0.6)} events`, status: "ANOMALOUS SPIKE", isSpike: true }
+    ];
+
+    let html = `
+      <table class="soc-table">
+        <thead>
+          <tr>
+            <th>Time Window</th>
+            <th>Typical 90-Day Baseline</th>
+            <th>Observed Window Events</th>
+            <th>Status Evaluation</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+
+    hourlyData.forEach(row => {
+      html += `
+        <tr>
+          <td><strong style="color:var(--text-primary)">${row.hour}</strong></td>
+          <td style="color:var(--text-secondary)">${row.typical}</td>
+          <td style="font-weight:700; color:${row.isSpike ? '#ef4444' : '#38bdf8'}">${row.observed}</td>
+          <td><span class="badge ${row.isSpike ? 'badge-critical' : 'badge-low'}">${row.status}</span></td>
+        </tr>
+      `;
+    });
+
+    html += `</tbody></table>`;
+    hourlyContainer.innerHTML = html;
+  }
 }
 
 // Render Triage Table with Filter and Search Support

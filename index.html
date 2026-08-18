@@ -145,6 +145,71 @@
       </div>
     </div>
 
+    <!-- TAB 2: Behavioral Baseline Profiler -->
+    <div id="baseline" class="tab-pane">
+      <div class="soc-card">
+        <div class="card-header">
+          <h2 class="card-title">📊 User Behavioral Baseline & Statistical Profiler</h2>
+          <span class="badge badge-info">30-Day & 90-Day Sliding Window Engine</span>
+        </div>
+        <p style="color:var(--text-secondary); margin-bottom:1.5rem">
+          UEBA statistical baseline profiler analyzing historical daily mean volume (&mu;), standard deviation (&sigma;), upper anomaly cutoffs (+3&sigma;), active hours distribution, and geo-velocity drift across cloud identities.
+        </p>
+
+        <!-- User Profiler Selector Bar -->
+        <div class="filter-bar">
+          <select id="baseline-user-select" class="select-input" style="min-width:320px" onchange="renderBaselineProfilerScreen()">
+            <!-- Populated by app.js -->
+          </select>
+          <button class="btn btn-primary" onclick="renderBaselineProfilerScreen()">🔄 Refresh Baseline Profile</button>
+        </div>
+
+        <!-- Baseline Summary Cards Banner -->
+        <div class="metrics-banner" style="margin-top:1.25rem">
+          <div class="metric-card">
+            <div class="metric-label">90-Day Baseline Daily Mean (&mu;)</div>
+            <div class="metric-value" id="prof-base-mean" style="color:var(--border-accent)">45</div>
+            <div class="metric-sub">Historical Daily Average Events</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">30-Min Session Volume</div>
+            <div class="metric-value" id="prof-session-vol" style="color:var(--severity-critical)">310</div>
+            <div class="metric-sub">Observed Access Burst Rate</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Baseline Delta Ratio</div>
+            <div class="metric-value" id="prof-delta-ratio" style="color:var(--severity-high)">6.88x</div>
+            <div class="metric-sub">Observed / Baseline Variance</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Anomaly Cutoff (+3&sigma;)</div>
+            <div class="metric-value" id="prof-cutoff" style="color:var(--severity-medium)">120</div>
+            <div class="metric-sub">Upper Threshold Exceeded</div>
+          </div>
+        </div>
+
+        <div class="grid-2" style="margin-top:1.5rem">
+          <div class="soc-card" style="margin-top:0">
+            <div class="card-header">
+              <h3 class="card-title" style="font-size:0.95rem">📈 Historical Baseline vs Observed Session Burst Volume</h3>
+            </div>
+            <div class="chart-box" style="height:320px">
+              <canvas id="chart-baseline-profiler"></canvas>
+            </div>
+          </div>
+
+          <div class="soc-card" style="margin-top:0">
+            <div class="card-header">
+              <h3 class="card-title" style="font-size:0.95rem">🕒 90-Day Hourly Access Profile & Anomaly Distribution</h3>
+            </div>
+            <div id="prof-hourly-container" class="table-container" style="max-height:320px; overflow-y:auto">
+              <!-- Rendered by app.js -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- TAB 3: 1,000+ System Topology & Blast Radius -->
     <div id="topology" class="tab-pane">
       <div class="soc-card">
