@@ -1182,6 +1182,13 @@ function initTabs() {
       tab.classList.add("active");
       const targetPane = document.getElementById(tab.dataset.tab);
       if (targetPane) targetPane.classList.add("active");
+
+      // Auto-render tab content
+      if (tab.dataset.tab === "db-analysis") {
+        renderDbAnalysisScreen();
+      } else if (tab.dataset.tab === "topology") {
+        renderTopologyGraph();
+      }
     });
   });
 }
