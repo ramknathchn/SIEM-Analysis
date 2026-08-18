@@ -782,6 +782,38 @@ function buildMitreDefenseView(evt) {
   const scenario = evt.anomaly_details.scenario;
   const user = evt.actor.user_name;
   const ip = evt.src_endpoint.ip;
+  const country = evt.src_endpoint.country;
+
+  // Easy English Explanations based on Scenario
+  let easyAttackExplanation = "";
+  let easyImpactExplanation = "";
+  let easyDefenseExplanation = "";
+
+  if (scenario.toLowerCase().includes("travel")) {
+    easyAttackExplanation = `An attacker obtained valid login credentials for <code>${user}</code> and logged in from ${country} (${ip}) while the real user was active somewhere else.`;
+    easyImpactExplanation = "This allowed the attacker to pretend to be an authorized employee and access sensitive company cloud keys.";
+    easyDefenseExplanation = "Require physical hardware security keys (FIDO2) and block login attempts originating from unauthorized foreign countries.";
+  } else if (scenario.toLowerCase().includes("mfa") || scenario.toLowerCase().includes("fatigue")) {
+    easyAttackExplanation = `The attacker repeatedly spammed <code>${user}</code>'s phone with login push notifications until the user accidentally or out of fatigue pressed 'Approve'.`;
+    easyImpactExplanation = "The attacker bypassed multi-factor authentication and gained full administrator control over company accounts.";
+    easyDefenseExplanation = "Disable mobile push notifications, switch to hardware keys or number-matching MFA, and automatically terminate active user sessions when spamming is detected.";
+  } else if (scenario.toLowerCase().includes("dormant") || scenario.toLowerCase().includes("admin") || scenario.toLowerCase().includes("backdoor")) {
+    easyAttackExplanation = `An inactive service account (<code>${user}</code>) that wasn't used for months was suddenly reactivated to secretly grant itself permanent admin access.`;
+    easyImpactExplanation = "Creates a secret backdoor for the attacker to maintain permanent control over the cloud infrastructure even if passwords are changed.";
+    easyDefenseExplanation = "Automatically delete or disable dormant accounts after 30 days of inactivity and strip unneeded administrative privileges.";
+  } else if (scenario.toLowerCase().includes("exfiltration") || scenario.toLowerCase().includes("s3") || scenario.toLowerCase().includes("storage")) {
+    easyAttackExplanation = `An automated script hijacked account <code>${user}</code> and rapidly downloaded thousands of confidential customer files and database backups.`;
+    easyImpactExplanation = "Leads to severe data breach, exposure of private customer data, and compliance violations.";
+    easyDefenseExplanation = "Set strict rate limits on cloud data downloads, block unauthorized file transfers, and alert security teams when egress spikes.";
+  } else if (scenario.toLowerCase().includes("erasure") || scenario.toLowerCase().includes("trail") || scenario.toLowerCase().includes("log")) {
+    easyAttackExplanation = `The attacker used account <code>${user}</code> to turn off security logging systems (CloudTrail) so security tools couldn't record their actions.`;
+    easyImpactExplanation = "Blinds the security team, making it difficult to detect what files were stolen or altered.";
+    easyDefenseExplanation = "Lock audit log storage buckets with unmodifiable Object Lock policies so logs cannot be deleted even by administrators.";
+  } else {
+    easyAttackExplanation = `Suspicious login activity was detected for user <code>${user}</code> from unexpected IP address ${ip}.`;
+    easyImpactExplanation = "Potential unauthorized access to company resources and internal systems.";
+    easyDefenseExplanation = "Revoke active login tokens, reset account passwords, and require identity re-verification.";
+  }
 
   // Comprehensive ATT&CK Chained Attack Path
   const attackPathSteps = [
@@ -864,18 +896,30 @@ function buildMitreDefenseView(evt) {
   `).join("");
 
   return `
-    <div class="ai-box" style="margin-top:0; border-color:var(--border-accent)">
-      <div class="ai-header" style="justify-content:space-between">
-        <span>🛡️ MITRE ATT&CK CHAINED ATTACK PATH Breakdown</span>
-        <span class="badge badge-critical">${tactic} (${techId})</span>
+    <!-- AI Easy English Summary Box -->
+    <div class="ai-box" style="margin-top:0; border-color:var(--border-accent); background:linear-gradient(135deg, rgba(0, 240, 255, 0.08) 0%, rgba(59, 130, 246, 0.08) 100%)">
+      <div class="ai-header" style="justify-content:space-between; font-size:0.95rem">
+        <span>🤖 EASY ENGLISH AI SUMMARY: ATTACK & DEFENSE OVERVIEW</span>
+        <span class="badge badge-info">${provider} Telemetry</span>
       </div>
-      <div class="ai-text" style="font-size:0.85rem; margin-top:0.5rem">
-        Identified attack vector on <strong>${provider}</strong> targeting identity <code>${user}</code> via <code>${techName}</code>.
+      <div class="ai-text" style="font-size:0.88rem; line-height:1.6; margin-top:0.75rem">
+        <div style="margin-bottom:0.6rem">
+          <strong style="color:var(--severity-critical)">⚔️ What the Attacker Did (Simple Terms):</strong><br>
+          ${easyAttackExplanation}
+        </div>
+        <div style="margin-bottom:0.6rem">
+          <strong style="color:var(--severity-high)">💥 Why It Matters (Business Impact):</strong><br>
+          ${easyImpactExplanation}
+        </div>
+        <div>
+          <strong style="color:var(--severity-info)">🛡️ How to Fix & Defend (Easy Actions):</strong><br>
+          ${easyDefenseExplanation}
+        </div>
       </div>
     </div>
 
-    <div style="margin-top:1rem">
-      <h3 style="color:var(--text-cyber); font-size:0.9rem; margin-bottom:0.75rem">⛓️ End-to-End TTP Attack Execution Sequence</h3>
+    <div style="margin-top:1.25rem">
+      <h3 style="color:var(--text-cyber); font-size:0.9rem; margin-bottom:0.75rem">⛓️ Technical MITRE ATT&CK Execution Path</h3>
       ${pathHtml}
     </div>
 
