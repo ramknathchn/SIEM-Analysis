@@ -1,0 +1,48 @@
+// Microsoft Sentinel KQL Queries to process and analyze the OCSF SIEM JSON logs
+
+// 1. Basic ingestion test / view all records
+YourCustomLogTable_CL
+| take 10
+
+// 2. Querying OCSF JSON schema properties (Extracting nested fields)
+YourCustomLogTable_CL
+| project 
+    EventId = event_id,
+    Timestamp = todatetime(timestamp),
+    UserPrincipalName = tostring(actor.user_name),
+    IPAddress = tostring(src_endpoint.ip),
+    Scenario = tostring(anomaly_details.scenario),
+    Severity = tostring(anomaly_details.severity),
+    RiskScore = todouble(anomaly_details.risk_score),
+    Explanation = tostring(anomaly_details.genai_explanation)
+| order by RiskScore desc
+
+// 3. Filter for true positive incidents (eliminating typical False Positive patterns)
+// This query applies rules to exclude typical false positives:
+// - Excludes service accounts running atypical travel or unfamiliar locations
+// - Excludes private/internal IPs which are benign
+// - Excludes trusted corporate VPN IPs (192.0.2.55 and 192.0.2.56)
+YourCustomLogTable_CL
+| extend 
+    UserPrincipalName = tostring(actor.user_name),
+    IPAddress = tostring(src_endpoint.ip),
+    Scenario = tostring(anomaly_details.scenario),
+    RiskScore = todouble(anomaly_details.risk_score)
+| where RiskScore > 35
+| where not(UserPrincipalName == "service_account@cloudorg.internal" and Scenario in ("Impossible Travel Velocity", "Atypical Service Account Activity"))
+| where not(ipv4_is_private(IPAddress))
+| where not(IPAddress in ("192.0.2.55", "192.0.2.56"))
+| project Timestamp = todatetime(timestamp), UserPrincipalName, IPAddress, Scenario, RiskScore
+
+// 4. Summarize False Positive triggers by RiskDetail to tune security alerts
+// Identifies potential false positives by looking at service accounts or internal IPs
+YourCustomLogTable_CL
+| extend 
+    UserPrincipalName = tostring(actor.user_name),
+    IPAddress = tostring(src_endpoint.ip),
+    Scenario = tostring(anomaly_details.scenario)
+| where (UserPrincipalName == "service_account@cloudorg.internal" and Scenario in ("Impossible Travel Velocity", "Atypical Service Account Activity"))
+     or ipv4_is_private(IPAddress) 
+     or IPAddress in ("192.0.2.55", "192.0.2.56")
+| summarize FalsePositiveCount = count() by Scenario, UserPrincipalName
+| order by FalsePositiveCount desc

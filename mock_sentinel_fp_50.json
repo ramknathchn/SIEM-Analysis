@@ -1,0 +1,1960 @@
+[
+  {
+    "event_id": "OCSF-UEBA-2026-FP-009",
+    "timestamp": "2026-08-11T08:00:01Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "GCP",
+    "actor": {
+      "user_name": "service_account@cloudorg.internal",
+      "user_arn": "//iam.googleapis.com/projects/cloudorg-internal/users/service_account",
+      "assigned_roles": [
+        "Administrator"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "192.168.1.50",
+      "country": "Singapore",
+      "city": "Singapore",
+      "isp": "Singtel-SG"
+    },
+    "anomaly_details": {
+      "scenario": "Atypical Service Account Activity",
+      "severity": "LOW",
+      "risk_score": 23.6,
+      "blast_radius_score": 64.3,
+      "baseline_90d_avg_daily_events": 86,
+      "session_30m_event_count": 33,
+      "baseline_delta_ratio": 3.84,
+      "mitre_attack": {
+        "technique_id": "T1078.002",
+        "technique_name": "Valid Accounts: Domain Accounts",
+        "tactic": "Persistence & Privilege Escalation"
+      },
+      "genai_explanation": "User service_account authenticated from Singapore, Singapore via Singtel-SG. Session volume spiked 3.84x above baseline. Risk identified as Atypical Service Account Activity with a priority score of 23.6. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Disable Service Account Credentials",
+        "cli_command": "gcloud iam service-accounts keys disable service_account-key"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-032",
+    "timestamp": "2026-08-11T08:25:23Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "GCP",
+    "actor": {
+      "user_name": "service_account@cloudorg.internal",
+      "user_arn": "//iam.googleapis.com/projects/cloudorg-internal/users/service_account",
+      "assigned_roles": [
+        "SecurityAnalyst-Dormant"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "10.0.0.12",
+      "country": "United Kingdom",
+      "city": "London",
+      "isp": "BritishTelecom-UK"
+    },
+    "anomaly_details": {
+      "scenario": "Anonymous IP Address Access",
+      "severity": "LOW",
+      "risk_score": 26.0,
+      "blast_radius_score": 56.9,
+      "baseline_90d_avg_daily_events": 16,
+      "session_30m_event_count": 210,
+      "baseline_delta_ratio": 131.25,
+      "mitre_attack": {
+        "technique_id": "T1078.004",
+        "technique_name": "Valid Accounts: Cloud Accounts",
+        "tactic": "Initial Access"
+      },
+      "genai_explanation": "User service_account authenticated from London, United Kingdom via BritishTelecom-UK. Session volume spiked 131.25x above baseline. Risk identified as Anonymous IP Address Access with a priority score of 26.0. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Block Source IP & Force Password Reset",
+        "cli_command": "gcloud iam service-accounts keys disable service_account-key"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-014",
+    "timestamp": "2026-08-11T17:34:50Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "Azure",
+    "actor": {
+      "user_name": "david.wilson@cloudorg.internal",
+      "user_arn": "/subscriptions/6a3d-4cde-8899/providers/Microsoft.Directory/users/david.wilson",
+      "assigned_roles": [
+        "DeveloperAccess"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "192.168.1.50",
+      "country": "Japan",
+      "city": "Tokyo",
+      "isp": "Softbank-JP"
+    },
+    "anomaly_details": {
+      "scenario": "Anonymous IP Address Access",
+      "severity": "LOW",
+      "risk_score": 21.2,
+      "blast_radius_score": 93.4,
+      "baseline_90d_avg_daily_events": 98,
+      "session_30m_event_count": 438,
+      "baseline_delta_ratio": 44.69,
+      "mitre_attack": {
+        "technique_id": "T1078.004",
+        "technique_name": "Valid Accounts: Cloud Accounts",
+        "tactic": "Initial Access"
+      },
+      "genai_explanation": "User david.wilson authenticated from Tokyo, Japan via Softbank-JP. Session volume spiked 44.69x above baseline. Risk identified as Anonymous IP Address Access with a priority score of 21.2. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Block Source IP & Force Password Reset",
+        "cli_command": "az ad user update --id david.wilson@cloudorg.internal --account-enabled false"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-001",
+    "timestamp": "2026-08-11T22:14:25Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "GCP",
+    "actor": {
+      "user_name": "ivy.thomas@cloudorg.internal",
+      "user_arn": "//iam.googleapis.com/projects/cloudorg-internal/users/ivy.thomas",
+      "assigned_roles": [
+        "PlatformEngineer"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "192.0.2.55",
+      "country": "United Kingdom",
+      "city": "London",
+      "isp": "BritishTelecom-UK"
+    },
+    "anomaly_details": {
+      "scenario": "Atypical Service Account Activity",
+      "severity": "LOW",
+      "risk_score": 6.7,
+      "blast_radius_score": 26.1,
+      "baseline_90d_avg_daily_events": 35,
+      "session_30m_event_count": 214,
+      "baseline_delta_ratio": 61.14,
+      "mitre_attack": {
+        "technique_id": "T1078.002",
+        "technique_name": "Valid Accounts: Domain Accounts",
+        "tactic": "Persistence & Privilege Escalation"
+      },
+      "genai_explanation": "User ivy.thomas authenticated from London, United Kingdom via BritishTelecom-UK. Session volume spiked 61.14x above baseline. Risk identified as Atypical Service Account Activity with a priority score of 6.7. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Disable Service Account Credentials",
+        "cli_command": "gcloud iam service-accounts keys disable ivy.thomas-key"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-020",
+    "timestamp": "2026-08-12T00:53:16Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "AWS",
+    "actor": {
+      "user_name": "service_account@cloudorg.internal",
+      "user_arn": "arn:aws:iam::123456789012:user/service_account",
+      "assigned_roles": [
+        "DataScientist"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "10.0.0.12",
+      "country": "United Kingdom",
+      "city": "London",
+      "isp": "BritishTelecom-UK"
+    },
+    "anomaly_details": {
+      "scenario": "Anonymous IP Address Access",
+      "severity": "LOW",
+      "risk_score": 15.7,
+      "blast_radius_score": 32.2,
+      "baseline_90d_avg_daily_events": 27,
+      "session_30m_event_count": 435,
+      "baseline_delta_ratio": 161.11,
+      "mitre_attack": {
+        "technique_id": "T1078.004",
+        "technique_name": "Valid Accounts: Cloud Accounts",
+        "tactic": "Initial Access"
+      },
+      "genai_explanation": "User service_account authenticated from London, United Kingdom via BritishTelecom-UK. Session volume spiked 161.11x above baseline. Risk identified as Anonymous IP Address Access with a priority score of 15.7. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Block Source IP & Force Password Reset",
+        "cli_command": "aws iam revoke-security-credentials --user-name service_account"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-025",
+    "timestamp": "2026-08-12T02:00:01Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "Azure",
+    "actor": {
+      "user_name": "eva.davis@cloudorg.internal",
+      "user_arn": "/subscriptions/6a3d-4cde-8899/providers/Microsoft.Directory/users/eva.davis",
+      "assigned_roles": [
+        "Administrator"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "192.0.2.56",
+      "country": "Japan",
+      "city": "Tokyo",
+      "isp": "Softbank-JP"
+    },
+    "anomaly_details": {
+      "scenario": "Anonymous IP Address Access",
+      "severity": "LOW",
+      "risk_score": 17.8,
+      "blast_radius_score": 28.3,
+      "baseline_90d_avg_daily_events": 45,
+      "session_30m_event_count": 238,
+      "baseline_delta_ratio": 52.89,
+      "mitre_attack": {
+        "technique_id": "T1078.004",
+        "technique_name": "Valid Accounts: Cloud Accounts",
+        "tactic": "Initial Access"
+      },
+      "genai_explanation": "User eva.davis authenticated from Tokyo, Japan via Softbank-JP. Session volume spiked 52.89x above baseline. Risk identified as Anonymous IP Address Access with a priority score of 17.8. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Block Source IP & Force Password Reset",
+        "cli_command": "az ad user update --id eva.davis@cloudorg.internal --account-enabled false"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-045",
+    "timestamp": "2026-08-12T05:24:17Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "AWS",
+    "actor": {
+      "user_name": "service_account@cloudorg.internal",
+      "user_arn": "arn:aws:iam::123456789012:user/service_account",
+      "assigned_roles": [
+        "DeveloperAccess"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "192.0.2.56",
+      "country": "United States",
+      "city": "New York",
+      "isp": "Comcast-US"
+    },
+    "anomaly_details": {
+      "scenario": "Anonymous IP Address Access",
+      "severity": "LOW",
+      "risk_score": 17.6,
+      "blast_radius_score": 38.7,
+      "baseline_90d_avg_daily_events": 60,
+      "session_30m_event_count": 450,
+      "baseline_delta_ratio": 75.0,
+      "mitre_attack": {
+        "technique_id": "T1078.004",
+        "technique_name": "Valid Accounts: Cloud Accounts",
+        "tactic": "Initial Access"
+      },
+      "genai_explanation": "User service_account authenticated from New York, United States via Comcast-US. Session volume spiked 75.0x above baseline. Risk identified as Anonymous IP Address Access with a priority score of 17.6. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Block Source IP & Force Password Reset",
+        "cli_command": "aws iam revoke-security-credentials --user-name service_account"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-011",
+    "timestamp": "2026-08-12T20:14:14Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "Azure",
+    "actor": {
+      "user_name": "admin@cloudorg.internal",
+      "user_arn": "/subscriptions/6a3d-4cde-8899/providers/Microsoft.Directory/users/admin",
+      "assigned_roles": [
+        "BillingAdmin",
+        "DeveloperAccess"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "10.0.0.12",
+      "country": "Singapore",
+      "city": "Singapore",
+      "isp": "Singtel-SG"
+    },
+    "anomaly_details": {
+      "scenario": "Credential Leakage Detection",
+      "severity": "LOW",
+      "risk_score": 5.0,
+      "blast_radius_score": 36.2,
+      "baseline_90d_avg_daily_events": 51,
+      "session_30m_event_count": 67,
+      "baseline_delta_ratio": 13.14,
+      "mitre_attack": {
+        "technique_id": "T1552.001",
+        "technique_name": "Unsecured Credentials: Credentials In Files",
+        "tactic": "Credential Access"
+      },
+      "genai_explanation": "User admin authenticated from Singapore, Singapore via Singtel-SG. Session volume spiked 13.14x above baseline. Risk identified as Credential Leakage Detection with a priority score of 5.0. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Revoke Leaked Secrets & Rotate Keys",
+        "cli_command": "az ad user update --id admin@cloudorg.internal --account-enabled false"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-049",
+    "timestamp": "2026-08-13T00:52:37Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "GCP",
+    "actor": {
+      "user_name": "ivy.thomas@cloudorg.internal",
+      "user_arn": "//iam.googleapis.com/projects/cloudorg-internal/users/ivy.thomas",
+      "assigned_roles": [
+        "BillingAdmin",
+        "DeveloperAccess"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "192.168.1.50",
+      "country": "Japan",
+      "city": "Tokyo",
+      "isp": "Softbank-JP"
+    },
+    "anomaly_details": {
+      "scenario": "Impossible Travel Velocity",
+      "severity": "LOW",
+      "risk_score": 9.9,
+      "blast_radius_score": 82.3,
+      "baseline_90d_avg_daily_events": 57,
+      "session_30m_event_count": 89,
+      "baseline_delta_ratio": 15.61,
+      "mitre_attack": {
+        "technique_id": "T1078.004",
+        "technique_name": "Valid Accounts: Cloud Accounts",
+        "tactic": "Initial Access & Privilege Escalation"
+      },
+      "genai_explanation": "User ivy.thomas authenticated from Tokyo, Japan via Softbank-JP. Session volume spiked 15.61x above baseline. Risk identified as Impossible Travel Velocity with a priority score of 9.9. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Isolate Identity & Revoke Tokens",
+        "cli_command": "gcloud iam service-accounts keys disable ivy.thomas-key"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-029",
+    "timestamp": "2026-08-13T07:50:03Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "AWS",
+    "actor": {
+      "user_name": "service_account@cloudorg.internal",
+      "user_arn": "arn:aws:iam::123456789012:user/service_account",
+      "assigned_roles": [
+        "SecurityAnalyst-Dormant"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "172.16.5.99",
+      "country": "Netherlands",
+      "city": "Amsterdam",
+      "isp": "Leaseweb-NL"
+    },
+    "anomaly_details": {
+      "scenario": "Credential Leakage Detection",
+      "severity": "LOW",
+      "risk_score": 18.9,
+      "blast_radius_score": 6.3,
+      "baseline_90d_avg_daily_events": 25,
+      "session_30m_event_count": 500,
+      "baseline_delta_ratio": 200.0,
+      "mitre_attack": {
+        "technique_id": "T1552.001",
+        "technique_name": "Unsecured Credentials: Credentials In Files",
+        "tactic": "Credential Access"
+      },
+      "genai_explanation": "User service_account authenticated from Amsterdam, Netherlands via Leaseweb-NL. Session volume spiked 200.0x above baseline. Risk identified as Credential Leakage Detection with a priority score of 18.9. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Revoke Leaked Secrets & Rotate Keys",
+        "cli_command": "aws iam revoke-security-credentials --user-name service_account"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-016",
+    "timestamp": "2026-08-13T07:56:39Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "AWS",
+    "actor": {
+      "user_name": "service_account@cloudorg.internal",
+      "user_arn": "arn:aws:iam::123456789012:user/service_account",
+      "assigned_roles": [
+        "ReadonlyAccess"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "10.0.0.12",
+      "country": "Germany",
+      "city": "Frankfurt",
+      "isp": "CloudHosting-DE"
+    },
+    "anomaly_details": {
+      "scenario": "Impossible Travel Velocity",
+      "severity": "LOW",
+      "risk_score": 9.9,
+      "blast_radius_score": 86.9,
+      "baseline_90d_avg_daily_events": 85,
+      "session_30m_event_count": 246,
+      "baseline_delta_ratio": 28.94,
+      "mitre_attack": {
+        "technique_id": "T1078.004",
+        "technique_name": "Valid Accounts: Cloud Accounts",
+        "tactic": "Initial Access & Privilege Escalation"
+      },
+      "genai_explanation": "User service_account authenticated from Frankfurt, Germany via CloudHosting-DE. Session volume spiked 28.94x above baseline. Risk identified as Impossible Travel Velocity with a priority score of 9.9. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Isolate Identity & Revoke Tokens",
+        "cli_command": "aws iam revoke-security-credentials --user-name service_account"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-024",
+    "timestamp": "2026-08-13T08:38:09Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "GCP",
+    "actor": {
+      "user_name": "david.wilson@cloudorg.internal",
+      "user_arn": "//iam.googleapis.com/projects/cloudorg-internal/users/david.wilson",
+      "assigned_roles": [
+        "PlatformEngineer"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "192.0.2.56",
+      "country": "Singapore",
+      "city": "Singapore",
+      "isp": "Singtel-SG"
+    },
+    "anomaly_details": {
+      "scenario": "Suspicious Inbox Manipulation Rule",
+      "severity": "LOW",
+      "risk_score": 22.4,
+      "blast_radius_score": 12.4,
+      "baseline_90d_avg_daily_events": 13,
+      "session_30m_event_count": 38,
+      "baseline_delta_ratio": 29.23,
+      "mitre_attack": {
+        "technique_id": "T1137.005",
+        "technique_name": "Office Application Startup: Outlook Rules",
+        "tactic": "Persistence"
+      },
+      "genai_explanation": "User david.wilson authenticated from Singapore, Singapore via Singtel-SG. Session volume spiked 29.23x above baseline. Risk identified as Suspicious Inbox Manipulation Rule with a priority score of 22.4. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Remove Rule & Alert Security Team",
+        "cli_command": "gcloud iam service-accounts keys disable david.wilson-key"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-005",
+    "timestamp": "2026-08-13T12:06:31Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "GCP",
+    "actor": {
+      "user_name": "jack.white@cloudorg.internal",
+      "user_arn": "//iam.googleapis.com/projects/cloudorg-internal/users/jack.white",
+      "assigned_roles": [
+        "DeveloperAccess"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "10.0.0.12",
+      "country": "Singapore",
+      "city": "Singapore",
+      "isp": "Singtel-SG"
+    },
+    "anomaly_details": {
+      "scenario": "Anonymous IP Address Access",
+      "severity": "LOW",
+      "risk_score": 21.0,
+      "blast_radius_score": 21.8,
+      "baseline_90d_avg_daily_events": 28,
+      "session_30m_event_count": 454,
+      "baseline_delta_ratio": 162.14,
+      "mitre_attack": {
+        "technique_id": "T1078.004",
+        "technique_name": "Valid Accounts: Cloud Accounts",
+        "tactic": "Initial Access"
+      },
+      "genai_explanation": "User jack.white authenticated from Singapore, Singapore via Singtel-SG. Session volume spiked 162.14x above baseline. Risk identified as Anonymous IP Address Access with a priority score of 21.0. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Block Source IP & Force Password Reset",
+        "cli_command": "gcloud iam service-accounts keys disable jack.white-key"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-013",
+    "timestamp": "2026-08-13T14:32:24Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "AWS",
+    "actor": {
+      "user_name": "service_account@cloudorg.internal",
+      "user_arn": "arn:aws:iam::123456789012:user/service_account",
+      "assigned_roles": [
+        "DataScientist"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "192.0.2.56",
+      "country": "Netherlands",
+      "city": "Amsterdam",
+      "isp": "Leaseweb-NL"
+    },
+    "anomaly_details": {
+      "scenario": "Credential Leakage Detection",
+      "severity": "LOW",
+      "risk_score": 10.9,
+      "blast_radius_score": 27.4,
+      "baseline_90d_avg_daily_events": 93,
+      "session_30m_event_count": 433,
+      "baseline_delta_ratio": 46.56,
+      "mitre_attack": {
+        "technique_id": "T1552.001",
+        "technique_name": "Unsecured Credentials: Credentials In Files",
+        "tactic": "Credential Access"
+      },
+      "genai_explanation": "User service_account authenticated from Amsterdam, Netherlands via Leaseweb-NL. Session volume spiked 46.56x above baseline. Risk identified as Credential Leakage Detection with a priority score of 10.9. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Revoke Leaked Secrets & Rotate Keys",
+        "cli_command": "aws iam revoke-security-credentials --user-name service_account"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-040",
+    "timestamp": "2026-08-13T18:45:53Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "Azure",
+    "actor": {
+      "user_name": "frank.miller@cloudorg.internal",
+      "user_arn": "/subscriptions/6a3d-4cde-8899/providers/Microsoft.Directory/users/frank.miller",
+      "assigned_roles": [
+        "DataScientist"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "192.0.2.55",
+      "country": "Japan",
+      "city": "Tokyo",
+      "isp": "Softbank-JP"
+    },
+    "anomaly_details": {
+      "scenario": "Suspicious Inbox Manipulation Rule",
+      "severity": "LOW",
+      "risk_score": 5.9,
+      "blast_radius_score": 88.2,
+      "baseline_90d_avg_daily_events": 65,
+      "session_30m_event_count": 295,
+      "baseline_delta_ratio": 45.38,
+      "mitre_attack": {
+        "technique_id": "T1137.005",
+        "technique_name": "Office Application Startup: Outlook Rules",
+        "tactic": "Persistence"
+      },
+      "genai_explanation": "User frank.miller authenticated from Tokyo, Japan via Softbank-JP. Session volume spiked 45.38x above baseline. Risk identified as Suspicious Inbox Manipulation Rule with a priority score of 5.9. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Remove Rule & Alert Security Team",
+        "cli_command": "az ad user update --id frank.miller@cloudorg.internal --account-enabled false"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-046",
+    "timestamp": "2026-08-14T01:12:35Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "AWS",
+    "actor": {
+      "user_name": "service_account@cloudorg.internal",
+      "user_arn": "arn:aws:iam::123456789012:user/service_account",
+      "assigned_roles": [
+        "Administrator"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "185.220.101.5",
+      "country": "United States",
+      "city": "New York",
+      "isp": "Comcast-US"
+    },
+    "anomaly_details": {
+      "scenario": "Impossible Travel Velocity",
+      "severity": "LOW",
+      "risk_score": 28.9,
+      "blast_radius_score": 26.6,
+      "baseline_90d_avg_daily_events": 74,
+      "session_30m_event_count": 252,
+      "baseline_delta_ratio": 34.05,
+      "mitre_attack": {
+        "technique_id": "T1078.004",
+        "technique_name": "Valid Accounts: Cloud Accounts",
+        "tactic": "Initial Access & Privilege Escalation"
+      },
+      "genai_explanation": "User service_account authenticated from New York, United States via Comcast-US. Session volume spiked 34.05x above baseline. Risk identified as Impossible Travel Velocity with a priority score of 28.9. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Isolate Identity & Revoke Tokens",
+        "cli_command": "aws iam revoke-security-credentials --user-name service_account"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-012",
+    "timestamp": "2026-08-14T03:44:44Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "GCP",
+    "actor": {
+      "user_name": "service_account@cloudorg.internal",
+      "user_arn": "//iam.googleapis.com/projects/cloudorg-internal/users/service_account",
+      "assigned_roles": [
+        "ReadonlyAccess"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "203.0.113.5",
+      "country": "United Kingdom",
+      "city": "London",
+      "isp": "BritishTelecom-UK"
+    },
+    "anomaly_details": {
+      "scenario": "Atypical Service Account Activity",
+      "severity": "LOW",
+      "risk_score": 8.6,
+      "blast_radius_score": 34.7,
+      "baseline_90d_avg_daily_events": 46,
+      "session_30m_event_count": 207,
+      "baseline_delta_ratio": 45.0,
+      "mitre_attack": {
+        "technique_id": "T1078.002",
+        "technique_name": "Valid Accounts: Domain Accounts",
+        "tactic": "Persistence & Privilege Escalation"
+      },
+      "genai_explanation": "User service_account authenticated from London, United Kingdom via BritishTelecom-UK. Session volume spiked 45.0x above baseline. Risk identified as Atypical Service Account Activity with a priority score of 8.6. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Disable Service Account Credentials",
+        "cli_command": "gcloud iam service-accounts keys disable service_account-key"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-022",
+    "timestamp": "2026-08-14T07:29:25Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "AWS",
+    "actor": {
+      "user_name": "service_account@cloudorg.internal",
+      "user_arn": "arn:aws:iam::123456789012:user/service_account",
+      "assigned_roles": [
+        "SecurityAnalyst-Dormant"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "198.51.100.45",
+      "country": "Japan",
+      "city": "Tokyo",
+      "isp": "Softbank-JP"
+    },
+    "anomaly_details": {
+      "scenario": "Credential Leakage Detection",
+      "severity": "LOW",
+      "risk_score": 21.9,
+      "blast_radius_score": 44.2,
+      "baseline_90d_avg_daily_events": 95,
+      "session_30m_event_count": 46,
+      "baseline_delta_ratio": 4.84,
+      "mitre_attack": {
+        "technique_id": "T1552.001",
+        "technique_name": "Unsecured Credentials: Credentials In Files",
+        "tactic": "Credential Access"
+      },
+      "genai_explanation": "User service_account authenticated from Tokyo, Japan via Softbank-JP. Session volume spiked 4.84x above baseline. Risk identified as Credential Leakage Detection with a priority score of 21.9. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Revoke Leaked Secrets & Rotate Keys",
+        "cli_command": "aws iam revoke-security-credentials --user-name service_account"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-031",
+    "timestamp": "2026-08-14T09:10:57Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "AWS",
+    "actor": {
+      "user_name": "service_account@cloudorg.internal",
+      "user_arn": "arn:aws:iam::123456789012:user/service_account",
+      "assigned_roles": [
+        "PlatformEngineer"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "82.102.23.4",
+      "country": "Netherlands",
+      "city": "Amsterdam",
+      "isp": "Leaseweb-NL"
+    },
+    "anomaly_details": {
+      "scenario": "Anonymous IP Address Access",
+      "severity": "LOW",
+      "risk_score": 5.2,
+      "blast_radius_score": 82.4,
+      "baseline_90d_avg_daily_events": 14,
+      "session_30m_event_count": 91,
+      "baseline_delta_ratio": 65.0,
+      "mitre_attack": {
+        "technique_id": "T1078.004",
+        "technique_name": "Valid Accounts: Cloud Accounts",
+        "tactic": "Initial Access"
+      },
+      "genai_explanation": "User service_account authenticated from Amsterdam, Netherlands via Leaseweb-NL. Session volume spiked 65.0x above baseline. Risk identified as Anonymous IP Address Access with a priority score of 5.2. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Block Source IP & Force Password Reset",
+        "cli_command": "aws iam revoke-security-credentials --user-name service_account"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-039",
+    "timestamp": "2026-08-14T10:49:51Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "Azure",
+    "actor": {
+      "user_name": "service_account@cloudorg.internal",
+      "user_arn": "/subscriptions/6a3d-4cde-8899/providers/Microsoft.Directory/users/service_account",
+      "assigned_roles": [
+        "DeveloperAccess"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "192.0.2.55",
+      "country": "Singapore",
+      "city": "Singapore",
+      "isp": "Singtel-SG"
+    },
+    "anomaly_details": {
+      "scenario": "Anonymous IP Address Access",
+      "severity": "LOW",
+      "risk_score": 20.6,
+      "blast_radius_score": 32.4,
+      "baseline_90d_avg_daily_events": 54,
+      "session_30m_event_count": 232,
+      "baseline_delta_ratio": 42.96,
+      "mitre_attack": {
+        "technique_id": "T1078.004",
+        "technique_name": "Valid Accounts: Cloud Accounts",
+        "tactic": "Initial Access"
+      },
+      "genai_explanation": "User service_account authenticated from Singapore, Singapore via Singtel-SG. Session volume spiked 42.96x above baseline. Risk identified as Anonymous IP Address Access with a priority score of 20.6. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Block Source IP & Force Password Reset",
+        "cli_command": "az ad user update --id service_account@cloudorg.internal --account-enabled false"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-004",
+    "timestamp": "2026-08-14T10:55:16Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "AWS",
+    "actor": {
+      "user_name": "eva.davis@cloudorg.internal",
+      "user_arn": "arn:aws:iam::123456789012:user/eva.davis",
+      "assigned_roles": [
+        "DataScientist"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "192.0.2.56",
+      "country": "United Kingdom",
+      "city": "London",
+      "isp": "BritishTelecom-UK"
+    },
+    "anomaly_details": {
+      "scenario": "Atypical Service Account Activity",
+      "severity": "LOW",
+      "risk_score": 9.2,
+      "blast_radius_score": 75.6,
+      "baseline_90d_avg_daily_events": 91,
+      "session_30m_event_count": 237,
+      "baseline_delta_ratio": 26.04,
+      "mitre_attack": {
+        "technique_id": "T1078.002",
+        "technique_name": "Valid Accounts: Domain Accounts",
+        "tactic": "Persistence & Privilege Escalation"
+      },
+      "genai_explanation": "User eva.davis authenticated from London, United Kingdom via BritishTelecom-UK. Session volume spiked 26.04x above baseline. Risk identified as Atypical Service Account Activity with a priority score of 9.2. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Disable Service Account Credentials",
+        "cli_command": "aws iam revoke-security-credentials --user-name eva.davis"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-017",
+    "timestamp": "2026-08-14T13:19:15Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "Azure",
+    "actor": {
+      "user_name": "frank.miller@cloudorg.internal",
+      "user_arn": "/subscriptions/6a3d-4cde-8899/providers/Microsoft.Directory/users/frank.miller",
+      "assigned_roles": [
+        "DeveloperAccess"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "192.0.2.56",
+      "country": "Singapore",
+      "city": "Singapore",
+      "isp": "Singtel-SG"
+    },
+    "anomaly_details": {
+      "scenario": "Suspicious Inbox Manipulation Rule",
+      "severity": "LOW",
+      "risk_score": 19.6,
+      "blast_radius_score": 19.7,
+      "baseline_90d_avg_daily_events": 75,
+      "session_30m_event_count": 84,
+      "baseline_delta_ratio": 11.2,
+      "mitre_attack": {
+        "technique_id": "T1137.005",
+        "technique_name": "Office Application Startup: Outlook Rules",
+        "tactic": "Persistence"
+      },
+      "genai_explanation": "User frank.miller authenticated from Singapore, Singapore via Singtel-SG. Session volume spiked 11.2x above baseline. Risk identified as Suspicious Inbox Manipulation Rule with a priority score of 19.6. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Remove Rule & Alert Security Team",
+        "cli_command": "az ad user update --id frank.miller@cloudorg.internal --account-enabled false"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-018",
+    "timestamp": "2026-08-14T15:30:45Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "Azure",
+    "actor": {
+      "user_name": "grace.lee@cloudorg.internal",
+      "user_arn": "/subscriptions/6a3d-4cde-8899/providers/Microsoft.Directory/users/grace.lee",
+      "assigned_roles": [
+        "DataScientist"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "10.0.0.12",
+      "country": "Singapore",
+      "city": "Singapore",
+      "isp": "Singtel-SG"
+    },
+    "anomaly_details": {
+      "scenario": "Atypical Service Account Activity",
+      "severity": "LOW",
+      "risk_score": 29.4,
+      "blast_radius_score": 23.6,
+      "baseline_90d_avg_daily_events": 47,
+      "session_30m_event_count": 457,
+      "baseline_delta_ratio": 97.23,
+      "mitre_attack": {
+        "technique_id": "T1078.002",
+        "technique_name": "Valid Accounts: Domain Accounts",
+        "tactic": "Persistence & Privilege Escalation"
+      },
+      "genai_explanation": "User grace.lee authenticated from Singapore, Singapore via Singtel-SG. Session volume spiked 97.23x above baseline. Risk identified as Atypical Service Account Activity with a priority score of 29.4. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Disable Service Account Credentials",
+        "cli_command": "az ad user update --id grace.lee@cloudorg.internal --account-enabled false"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-041",
+    "timestamp": "2026-08-14T20:25:13Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "AWS",
+    "actor": {
+      "user_name": "service_account@cloudorg.internal",
+      "user_arn": "arn:aws:iam::123456789012:user/service_account",
+      "assigned_roles": [
+        "BillingAdmin",
+        "DeveloperAccess"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "82.102.23.4",
+      "country": "Germany",
+      "city": "Frankfurt",
+      "isp": "CloudHosting-DE"
+    },
+    "anomaly_details": {
+      "scenario": "Credential Leakage Detection",
+      "severity": "LOW",
+      "risk_score": 15.7,
+      "blast_radius_score": 18.4,
+      "baseline_90d_avg_daily_events": 78,
+      "session_30m_event_count": 429,
+      "baseline_delta_ratio": 55.0,
+      "mitre_attack": {
+        "technique_id": "T1552.001",
+        "technique_name": "Unsecured Credentials: Credentials In Files",
+        "tactic": "Credential Access"
+      },
+      "genai_explanation": "User service_account authenticated from Frankfurt, Germany via CloudHosting-DE. Session volume spiked 55.0x above baseline. Risk identified as Credential Leakage Detection with a priority score of 15.7. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Revoke Leaked Secrets & Rotate Keys",
+        "cli_command": "aws iam revoke-security-credentials --user-name service_account"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-006",
+    "timestamp": "2026-08-15T04:25:38Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "GCP",
+    "actor": {
+      "user_name": "service_account@cloudorg.internal",
+      "user_arn": "//iam.googleapis.com/projects/cloudorg-internal/users/service_account",
+      "assigned_roles": [
+        "ReadonlyAccess"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "82.102.23.4",
+      "country": "Germany",
+      "city": "Frankfurt",
+      "isp": "CloudHosting-DE"
+    },
+    "anomaly_details": {
+      "scenario": "Impossible Travel Velocity",
+      "severity": "LOW",
+      "risk_score": 15.1,
+      "blast_radius_score": 10.9,
+      "baseline_90d_avg_daily_events": 65,
+      "session_30m_event_count": 254,
+      "baseline_delta_ratio": 39.08,
+      "mitre_attack": {
+        "technique_id": "T1078.004",
+        "technique_name": "Valid Accounts: Cloud Accounts",
+        "tactic": "Initial Access & Privilege Escalation"
+      },
+      "genai_explanation": "User service_account authenticated from Frankfurt, Germany via CloudHosting-DE. Session volume spiked 39.08x above baseline. Risk identified as Impossible Travel Velocity with a priority score of 15.1. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Isolate Identity & Revoke Tokens",
+        "cli_command": "gcloud iam service-accounts keys disable service_account-key"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-042",
+    "timestamp": "2026-08-15T07:06:38Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "AWS",
+    "actor": {
+      "user_name": "bob.jones@cloudorg.internal",
+      "user_arn": "arn:aws:iam::123456789012:user/bob.jones",
+      "assigned_roles": [
+        "DeveloperAccess"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "192.168.1.50",
+      "country": "United States",
+      "city": "San Jose",
+      "isp": "Equinix-US"
+    },
+    "anomaly_details": {
+      "scenario": "Impossible Travel Velocity",
+      "severity": "LOW",
+      "risk_score": 6.6,
+      "blast_radius_score": 29.9,
+      "baseline_90d_avg_daily_events": 87,
+      "session_30m_event_count": 137,
+      "baseline_delta_ratio": 15.75,
+      "mitre_attack": {
+        "technique_id": "T1078.004",
+        "technique_name": "Valid Accounts: Cloud Accounts",
+        "tactic": "Initial Access & Privilege Escalation"
+      },
+      "genai_explanation": "User bob.jones authenticated from San Jose, United States via Equinix-US. Session volume spiked 15.75x above baseline. Risk identified as Impossible Travel Velocity with a priority score of 6.6. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Isolate Identity & Revoke Tokens",
+        "cli_command": "aws iam revoke-security-credentials --user-name bob.jones"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-047",
+    "timestamp": "2026-08-15T09:06:29Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "Azure",
+    "actor": {
+      "user_name": "service_account@cloudorg.internal",
+      "user_arn": "/subscriptions/6a3d-4cde-8899/providers/Microsoft.Directory/users/service_account",
+      "assigned_roles": [
+        "DataScientist"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "82.102.23.4",
+      "country": "United Kingdom",
+      "city": "London",
+      "isp": "BritishTelecom-UK"
+    },
+    "anomaly_details": {
+      "scenario": "Credential Leakage Detection",
+      "severity": "LOW",
+      "risk_score": 9.4,
+      "blast_radius_score": 16.1,
+      "baseline_90d_avg_daily_events": 90,
+      "session_30m_event_count": 28,
+      "baseline_delta_ratio": 3.11,
+      "mitre_attack": {
+        "technique_id": "T1552.001",
+        "technique_name": "Unsecured Credentials: Credentials In Files",
+        "tactic": "Credential Access"
+      },
+      "genai_explanation": "User service_account authenticated from London, United Kingdom via BritishTelecom-UK. Session volume spiked 3.11x above baseline. Risk identified as Credential Leakage Detection with a priority score of 9.4. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Revoke Leaked Secrets & Rotate Keys",
+        "cli_command": "az ad user update --id service_account@cloudorg.internal --account-enabled false"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-003",
+    "timestamp": "2026-08-15T11:23:45Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "AWS",
+    "actor": {
+      "user_name": "alex.morgan@cloudorg.internal",
+      "user_arn": "arn:aws:iam::123456789012:user/alex.morgan",
+      "assigned_roles": [
+        "DeveloperAccess"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "10.0.0.12",
+      "country": "Japan",
+      "city": "Tokyo",
+      "isp": "Softbank-JP"
+    },
+    "anomaly_details": {
+      "scenario": "Anonymous IP Address Access",
+      "severity": "LOW",
+      "risk_score": 28.9,
+      "blast_radius_score": 49.8,
+      "baseline_90d_avg_daily_events": 74,
+      "session_30m_event_count": 396,
+      "baseline_delta_ratio": 53.51,
+      "mitre_attack": {
+        "technique_id": "T1078.004",
+        "technique_name": "Valid Accounts: Cloud Accounts",
+        "tactic": "Initial Access"
+      },
+      "genai_explanation": "User alex.morgan authenticated from Tokyo, Japan via Softbank-JP. Session volume spiked 53.51x above baseline. Risk identified as Anonymous IP Address Access with a priority score of 28.9. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Block Source IP & Force Password Reset",
+        "cli_command": "aws iam revoke-security-credentials --user-name alex.morgan"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-048",
+    "timestamp": "2026-08-15T17:19:24Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "GCP",
+    "actor": {
+      "user_name": "eva.davis@cloudorg.internal",
+      "user_arn": "//iam.googleapis.com/projects/cloudorg-internal/users/eva.davis",
+      "assigned_roles": [
+        "PlatformEngineer"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "192.0.2.55",
+      "country": "Netherlands",
+      "city": "Amsterdam",
+      "isp": "Leaseweb-NL"
+    },
+    "anomaly_details": {
+      "scenario": "Anonymous IP Address Access",
+      "severity": "LOW",
+      "risk_score": 16.3,
+      "blast_radius_score": 93.5,
+      "baseline_90d_avg_daily_events": 46,
+      "session_30m_event_count": 283,
+      "baseline_delta_ratio": 61.52,
+      "mitre_attack": {
+        "technique_id": "T1078.004",
+        "technique_name": "Valid Accounts: Cloud Accounts",
+        "tactic": "Initial Access"
+      },
+      "genai_explanation": "User eva.davis authenticated from Amsterdam, Netherlands via Leaseweb-NL. Session volume spiked 61.52x above baseline. Risk identified as Anonymous IP Address Access with a priority score of 16.3. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Block Source IP & Force Password Reset",
+        "cli_command": "gcloud iam service-accounts keys disable eva.davis-key"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-028",
+    "timestamp": "2026-08-15T19:48:40Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "AWS",
+    "actor": {
+      "user_name": "service_account@cloudorg.internal",
+      "user_arn": "arn:aws:iam::123456789012:user/service_account",
+      "assigned_roles": [
+        "Administrator"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "82.102.23.4",
+      "country": "Japan",
+      "city": "Tokyo",
+      "isp": "Softbank-JP"
+    },
+    "anomaly_details": {
+      "scenario": "Atypical Service Account Activity",
+      "severity": "LOW",
+      "risk_score": 25.3,
+      "blast_radius_score": 40.9,
+      "baseline_90d_avg_daily_events": 77,
+      "session_30m_event_count": 104,
+      "baseline_delta_ratio": 13.51,
+      "mitre_attack": {
+        "technique_id": "T1078.002",
+        "technique_name": "Valid Accounts: Domain Accounts",
+        "tactic": "Persistence & Privilege Escalation"
+      },
+      "genai_explanation": "User service_account authenticated from Tokyo, Japan via Softbank-JP. Session volume spiked 13.51x above baseline. Risk identified as Atypical Service Account Activity with a priority score of 25.3. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Disable Service Account Credentials",
+        "cli_command": "aws iam revoke-security-credentials --user-name service_account"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-027",
+    "timestamp": "2026-08-15T23:14:52Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "GCP",
+    "actor": {
+      "user_name": "admin@cloudorg.internal",
+      "user_arn": "//iam.googleapis.com/projects/cloudorg-internal/users/admin",
+      "assigned_roles": [
+        "ReadonlyAccess"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "192.168.1.50",
+      "country": "United States",
+      "city": "New York",
+      "isp": "Comcast-US"
+    },
+    "anomaly_details": {
+      "scenario": "Anonymous IP Address Access",
+      "severity": "LOW",
+      "risk_score": 21.1,
+      "blast_radius_score": 92.0,
+      "baseline_90d_avg_daily_events": 70,
+      "session_30m_event_count": 31,
+      "baseline_delta_ratio": 4.43,
+      "mitre_attack": {
+        "technique_id": "T1078.004",
+        "technique_name": "Valid Accounts: Cloud Accounts",
+        "tactic": "Initial Access"
+      },
+      "genai_explanation": "User admin authenticated from New York, United States via Comcast-US. Session volume spiked 4.43x above baseline. Risk identified as Anonymous IP Address Access with a priority score of 21.1. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Block Source IP & Force Password Reset",
+        "cli_command": "gcloud iam service-accounts keys disable admin-key"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-021",
+    "timestamp": "2026-08-16T00:25:30Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "AWS",
+    "actor": {
+      "user_name": "david.wilson@cloudorg.internal",
+      "user_arn": "arn:aws:iam::123456789012:user/david.wilson",
+      "assigned_roles": [
+        "ReadonlyAccess"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "10.0.0.12",
+      "country": "United States",
+      "city": "New York",
+      "isp": "Comcast-US"
+    },
+    "anomaly_details": {
+      "scenario": "Credential Leakage Detection",
+      "severity": "LOW",
+      "risk_score": 19.2,
+      "blast_radius_score": 77.6,
+      "baseline_90d_avg_daily_events": 40,
+      "session_30m_event_count": 421,
+      "baseline_delta_ratio": 105.25,
+      "mitre_attack": {
+        "technique_id": "T1552.001",
+        "technique_name": "Unsecured Credentials: Credentials In Files",
+        "tactic": "Credential Access"
+      },
+      "genai_explanation": "User david.wilson authenticated from New York, United States via Comcast-US. Session volume spiked 105.25x above baseline. Risk identified as Credential Leakage Detection with a priority score of 19.2. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Revoke Leaked Secrets & Rotate Keys",
+        "cli_command": "aws iam revoke-security-credentials --user-name david.wilson"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-010",
+    "timestamp": "2026-08-16T01:04:47Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "AWS",
+    "actor": {
+      "user_name": "ivy.thomas@cloudorg.internal",
+      "user_arn": "arn:aws:iam::123456789012:user/ivy.thomas",
+      "assigned_roles": [
+        "ReadonlyAccess"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "10.0.0.12",
+      "country": "Netherlands",
+      "city": "Amsterdam",
+      "isp": "Leaseweb-NL"
+    },
+    "anomaly_details": {
+      "scenario": "Credential Leakage Detection",
+      "severity": "LOW",
+      "risk_score": 7.7,
+      "blast_radius_score": 22.7,
+      "baseline_90d_avg_daily_events": 89,
+      "session_30m_event_count": 463,
+      "baseline_delta_ratio": 52.02,
+      "mitre_attack": {
+        "technique_id": "T1552.001",
+        "technique_name": "Unsecured Credentials: Credentials In Files",
+        "tactic": "Credential Access"
+      },
+      "genai_explanation": "User ivy.thomas authenticated from Amsterdam, Netherlands via Leaseweb-NL. Session volume spiked 52.02x above baseline. Risk identified as Credential Leakage Detection with a priority score of 7.7. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Revoke Leaked Secrets & Rotate Keys",
+        "cli_command": "aws iam revoke-security-credentials --user-name ivy.thomas"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-030",
+    "timestamp": "2026-08-16T01:15:51Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "AWS",
+    "actor": {
+      "user_name": "grace.lee@cloudorg.internal",
+      "user_arn": "arn:aws:iam::123456789012:user/grace.lee",
+      "assigned_roles": [
+        "PlatformEngineer"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "192.0.2.56",
+      "country": "United States",
+      "city": "San Jose",
+      "isp": "Equinix-US"
+    },
+    "anomaly_details": {
+      "scenario": "Credential Leakage Detection",
+      "severity": "LOW",
+      "risk_score": 5.7,
+      "blast_radius_score": 39.0,
+      "baseline_90d_avg_daily_events": 81,
+      "session_30m_event_count": 159,
+      "baseline_delta_ratio": 19.63,
+      "mitre_attack": {
+        "technique_id": "T1552.001",
+        "technique_name": "Unsecured Credentials: Credentials In Files",
+        "tactic": "Credential Access"
+      },
+      "genai_explanation": "User grace.lee authenticated from San Jose, United States via Equinix-US. Session volume spiked 19.63x above baseline. Risk identified as Credential Leakage Detection with a priority score of 5.7. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Revoke Leaked Secrets & Rotate Keys",
+        "cli_command": "aws iam revoke-security-credentials --user-name grace.lee"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-035",
+    "timestamp": "2026-08-16T02:20:41Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "Azure",
+    "actor": {
+      "user_name": "david.wilson@cloudorg.internal",
+      "user_arn": "/subscriptions/6a3d-4cde-8899/providers/Microsoft.Directory/users/david.wilson",
+      "assigned_roles": [
+        "BillingAdmin",
+        "DeveloperAccess"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "10.0.0.12",
+      "country": "Netherlands",
+      "city": "Amsterdam",
+      "isp": "Leaseweb-NL"
+    },
+    "anomaly_details": {
+      "scenario": "Suspicious Inbox Manipulation Rule",
+      "severity": "LOW",
+      "risk_score": 9.4,
+      "blast_radius_score": 32.7,
+      "baseline_90d_avg_daily_events": 23,
+      "session_30m_event_count": 296,
+      "baseline_delta_ratio": 128.7,
+      "mitre_attack": {
+        "technique_id": "T1137.005",
+        "technique_name": "Office Application Startup: Outlook Rules",
+        "tactic": "Persistence"
+      },
+      "genai_explanation": "User david.wilson authenticated from Amsterdam, Netherlands via Leaseweb-NL. Session volume spiked 128.7x above baseline. Risk identified as Suspicious Inbox Manipulation Rule with a priority score of 9.4. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Remove Rule & Alert Security Team",
+        "cli_command": "az ad user update --id david.wilson@cloudorg.internal --account-enabled false"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-008",
+    "timestamp": "2026-08-16T03:46:56Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "GCP",
+    "actor": {
+      "user_name": "service_account@cloudorg.internal",
+      "user_arn": "//iam.googleapis.com/projects/cloudorg-internal/users/service_account",
+      "assigned_roles": [
+        "PlatformEngineer"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "203.0.113.5",
+      "country": "Netherlands",
+      "city": "Amsterdam",
+      "isp": "Leaseweb-NL"
+    },
+    "anomaly_details": {
+      "scenario": "Impossible Travel Velocity",
+      "severity": "LOW",
+      "risk_score": 22.8,
+      "blast_radius_score": 41.9,
+      "baseline_90d_avg_daily_events": 10,
+      "session_30m_event_count": 262,
+      "baseline_delta_ratio": 262.0,
+      "mitre_attack": {
+        "technique_id": "T1078.004",
+        "technique_name": "Valid Accounts: Cloud Accounts",
+        "tactic": "Initial Access & Privilege Escalation"
+      },
+      "genai_explanation": "User service_account authenticated from Amsterdam, Netherlands via Leaseweb-NL. Session volume spiked 262.0x above baseline. Risk identified as Impossible Travel Velocity with a priority score of 22.8. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Isolate Identity & Revoke Tokens",
+        "cli_command": "gcloud iam service-accounts keys disable service_account-key"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-007",
+    "timestamp": "2026-08-16T04:00:22Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "AWS",
+    "actor": {
+      "user_name": "service_account@cloudorg.internal",
+      "user_arn": "arn:aws:iam::123456789012:user/service_account",
+      "assigned_roles": [
+        "Administrator"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "172.16.5.99",
+      "country": "Germany",
+      "city": "Frankfurt",
+      "isp": "CloudHosting-DE"
+    },
+    "anomaly_details": {
+      "scenario": "Impossible Travel Velocity",
+      "severity": "LOW",
+      "risk_score": 9.8,
+      "blast_radius_score": 26.3,
+      "baseline_90d_avg_daily_events": 68,
+      "session_30m_event_count": 354,
+      "baseline_delta_ratio": 52.06,
+      "mitre_attack": {
+        "technique_id": "T1078.004",
+        "technique_name": "Valid Accounts: Cloud Accounts",
+        "tactic": "Initial Access & Privilege Escalation"
+      },
+      "genai_explanation": "User service_account authenticated from Frankfurt, Germany via CloudHosting-DE. Session volume spiked 52.06x above baseline. Risk identified as Impossible Travel Velocity with a priority score of 9.8. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Isolate Identity & Revoke Tokens",
+        "cli_command": "aws iam revoke-security-credentials --user-name service_account"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-036",
+    "timestamp": "2026-08-16T09:58:54Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "Azure",
+    "actor": {
+      "user_name": "service_account@cloudorg.internal",
+      "user_arn": "/subscriptions/6a3d-4cde-8899/providers/Microsoft.Directory/users/service_account",
+      "assigned_roles": [
+        "SecurityAnalyst-Dormant"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "203.0.113.5",
+      "country": "United Kingdom",
+      "city": "London",
+      "isp": "BritishTelecom-UK"
+    },
+    "anomaly_details": {
+      "scenario": "Atypical Service Account Activity",
+      "severity": "LOW",
+      "risk_score": 26.3,
+      "blast_radius_score": 62.3,
+      "baseline_90d_avg_daily_events": 90,
+      "session_30m_event_count": 487,
+      "baseline_delta_ratio": 54.11,
+      "mitre_attack": {
+        "technique_id": "T1078.002",
+        "technique_name": "Valid Accounts: Domain Accounts",
+        "tactic": "Persistence & Privilege Escalation"
+      },
+      "genai_explanation": "User service_account authenticated from London, United Kingdom via BritishTelecom-UK. Session volume spiked 54.11x above baseline. Risk identified as Atypical Service Account Activity with a priority score of 26.3. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Disable Service Account Credentials",
+        "cli_command": "az ad user update --id service_account@cloudorg.internal --account-enabled false"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-038",
+    "timestamp": "2026-08-16T11:04:36Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "Azure",
+    "actor": {
+      "user_name": "service_account@cloudorg.internal",
+      "user_arn": "/subscriptions/6a3d-4cde-8899/providers/Microsoft.Directory/users/service_account",
+      "assigned_roles": [
+        "PlatformEngineer"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "10.0.0.12",
+      "country": "Germany",
+      "city": "Frankfurt",
+      "isp": "CloudHosting-DE"
+    },
+    "anomaly_details": {
+      "scenario": "Credential Leakage Detection",
+      "severity": "LOW",
+      "risk_score": 21.0,
+      "blast_radius_score": 14.0,
+      "baseline_90d_avg_daily_events": 55,
+      "session_30m_event_count": 389,
+      "baseline_delta_ratio": 70.73,
+      "mitre_attack": {
+        "technique_id": "T1552.001",
+        "technique_name": "Unsecured Credentials: Credentials In Files",
+        "tactic": "Credential Access"
+      },
+      "genai_explanation": "User service_account authenticated from Frankfurt, Germany via CloudHosting-DE. Session volume spiked 70.73x above baseline. Risk identified as Credential Leakage Detection with a priority score of 21.0. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Revoke Leaked Secrets & Rotate Keys",
+        "cli_command": "az ad user update --id service_account@cloudorg.internal --account-enabled false"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-044",
+    "timestamp": "2026-08-16T13:43:20Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "AWS",
+    "actor": {
+      "user_name": "admin@cloudorg.internal",
+      "user_arn": "arn:aws:iam::123456789012:user/admin",
+      "assigned_roles": [
+        "BillingAdmin",
+        "DeveloperAccess"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "192.168.1.50",
+      "country": "United States",
+      "city": "New York",
+      "isp": "Comcast-US"
+    },
+    "anomaly_details": {
+      "scenario": "Anonymous IP Address Access",
+      "severity": "LOW",
+      "risk_score": 27.7,
+      "blast_radius_score": 67.9,
+      "baseline_90d_avg_daily_events": 87,
+      "session_30m_event_count": 97,
+      "baseline_delta_ratio": 11.15,
+      "mitre_attack": {
+        "technique_id": "T1078.004",
+        "technique_name": "Valid Accounts: Cloud Accounts",
+        "tactic": "Initial Access"
+      },
+      "genai_explanation": "User admin authenticated from New York, United States via Comcast-US. Session volume spiked 11.15x above baseline. Risk identified as Anonymous IP Address Access with a priority score of 27.7. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Block Source IP & Force Password Reset",
+        "cli_command": "aws iam revoke-security-credentials --user-name admin"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-034",
+    "timestamp": "2026-08-16T18:21:41Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "GCP",
+    "actor": {
+      "user_name": "service_account@cloudorg.internal",
+      "user_arn": "//iam.googleapis.com/projects/cloudorg-internal/users/service_account",
+      "assigned_roles": [
+        "BillingAdmin",
+        "DeveloperAccess"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "192.168.1.50",
+      "country": "United States",
+      "city": "San Jose",
+      "isp": "Equinix-US"
+    },
+    "anomaly_details": {
+      "scenario": "Atypical Service Account Activity",
+      "severity": "LOW",
+      "risk_score": 12.2,
+      "blast_radius_score": 79.8,
+      "baseline_90d_avg_daily_events": 78,
+      "session_30m_event_count": 290,
+      "baseline_delta_ratio": 37.18,
+      "mitre_attack": {
+        "technique_id": "T1078.002",
+        "technique_name": "Valid Accounts: Domain Accounts",
+        "tactic": "Persistence & Privilege Escalation"
+      },
+      "genai_explanation": "User service_account authenticated from San Jose, United States via Equinix-US. Session volume spiked 37.18x above baseline. Risk identified as Atypical Service Account Activity with a priority score of 12.2. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Disable Service Account Credentials",
+        "cli_command": "gcloud iam service-accounts keys disable service_account-key"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-037",
+    "timestamp": "2026-08-16T21:39:08Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "AWS",
+    "actor": {
+      "user_name": "alex.morgan@cloudorg.internal",
+      "user_arn": "arn:aws:iam::123456789012:user/alex.morgan",
+      "assigned_roles": [
+        "PlatformEngineer"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "10.0.0.12",
+      "country": "United Kingdom",
+      "city": "London",
+      "isp": "BritishTelecom-UK"
+    },
+    "anomaly_details": {
+      "scenario": "Atypical Service Account Activity",
+      "severity": "LOW",
+      "risk_score": 18.4,
+      "blast_radius_score": 92.9,
+      "baseline_90d_avg_daily_events": 86,
+      "session_30m_event_count": 54,
+      "baseline_delta_ratio": 6.28,
+      "mitre_attack": {
+        "technique_id": "T1078.002",
+        "technique_name": "Valid Accounts: Domain Accounts",
+        "tactic": "Persistence & Privilege Escalation"
+      },
+      "genai_explanation": "User alex.morgan authenticated from London, United Kingdom via BritishTelecom-UK. Session volume spiked 6.28x above baseline. Risk identified as Atypical Service Account Activity with a priority score of 18.4. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Disable Service Account Credentials",
+        "cli_command": "aws iam revoke-security-credentials --user-name alex.morgan"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-050",
+    "timestamp": "2026-08-17T12:42:33Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "AWS",
+    "actor": {
+      "user_name": "henry.taylor@cloudorg.internal",
+      "user_arn": "arn:aws:iam::123456789012:user/henry.taylor",
+      "assigned_roles": [
+        "BillingAdmin",
+        "DeveloperAccess"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "192.0.2.55",
+      "country": "United States",
+      "city": "San Jose",
+      "isp": "Equinix-US"
+    },
+    "anomaly_details": {
+      "scenario": "Credential Leakage Detection",
+      "severity": "LOW",
+      "risk_score": 30.0,
+      "blast_radius_score": 77.6,
+      "baseline_90d_avg_daily_events": 95,
+      "session_30m_event_count": 133,
+      "baseline_delta_ratio": 14.0,
+      "mitre_attack": {
+        "technique_id": "T1552.001",
+        "technique_name": "Unsecured Credentials: Credentials In Files",
+        "tactic": "Credential Access"
+      },
+      "genai_explanation": "User henry.taylor authenticated from San Jose, United States via Equinix-US. Session volume spiked 14.0x above baseline. Risk identified as Credential Leakage Detection with a priority score of 30.0. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Revoke Leaked Secrets & Rotate Keys",
+        "cli_command": "aws iam revoke-security-credentials --user-name henry.taylor"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-019",
+    "timestamp": "2026-08-17T17:33:14Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "Azure",
+    "actor": {
+      "user_name": "service_account@cloudorg.internal",
+      "user_arn": "/subscriptions/6a3d-4cde-8899/providers/Microsoft.Directory/users/service_account",
+      "assigned_roles": [
+        "DeveloperAccess"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "203.0.113.5",
+      "country": "United States",
+      "city": "New York",
+      "isp": "Comcast-US"
+    },
+    "anomaly_details": {
+      "scenario": "Atypical Service Account Activity",
+      "severity": "LOW",
+      "risk_score": 8.6,
+      "blast_radius_score": 72.1,
+      "baseline_90d_avg_daily_events": 84,
+      "session_30m_event_count": 56,
+      "baseline_delta_ratio": 6.67,
+      "mitre_attack": {
+        "technique_id": "T1078.002",
+        "technique_name": "Valid Accounts: Domain Accounts",
+        "tactic": "Persistence & Privilege Escalation"
+      },
+      "genai_explanation": "User service_account authenticated from New York, United States via Comcast-US. Session volume spiked 6.67x above baseline. Risk identified as Atypical Service Account Activity with a priority score of 8.6. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Disable Service Account Credentials",
+        "cli_command": "az ad user update --id service_account@cloudorg.internal --account-enabled false"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-043",
+    "timestamp": "2026-08-17T18:28:05Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "AWS",
+    "actor": {
+      "user_name": "david.wilson@cloudorg.internal",
+      "user_arn": "arn:aws:iam::123456789012:user/david.wilson",
+      "assigned_roles": [
+        "BillingAdmin",
+        "DeveloperAccess"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "192.0.2.55",
+      "country": "Singapore",
+      "city": "Singapore",
+      "isp": "Singtel-SG"
+    },
+    "anomaly_details": {
+      "scenario": "Atypical Service Account Activity",
+      "severity": "LOW",
+      "risk_score": 8.0,
+      "blast_radius_score": 88.4,
+      "baseline_90d_avg_daily_events": 67,
+      "session_30m_event_count": 155,
+      "baseline_delta_ratio": 23.13,
+      "mitre_attack": {
+        "technique_id": "T1078.002",
+        "technique_name": "Valid Accounts: Domain Accounts",
+        "tactic": "Persistence & Privilege Escalation"
+      },
+      "genai_explanation": "User david.wilson authenticated from Singapore, Singapore via Singtel-SG. Session volume spiked 23.13x above baseline. Risk identified as Atypical Service Account Activity with a priority score of 8.0. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Disable Service Account Credentials",
+        "cli_command": "aws iam revoke-security-credentials --user-name david.wilson"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-023",
+    "timestamp": "2026-08-17T22:26:48Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "Azure",
+    "actor": {
+      "user_name": "service_account@cloudorg.internal",
+      "user_arn": "/subscriptions/6a3d-4cde-8899/providers/Microsoft.Directory/users/service_account",
+      "assigned_roles": [
+        "DeveloperAccess"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "192.0.2.146",
+      "country": "Germany",
+      "city": "Frankfurt",
+      "isp": "CloudHosting-DE"
+    },
+    "anomaly_details": {
+      "scenario": "Impossible Travel Velocity",
+      "severity": "LOW",
+      "risk_score": 24.8,
+      "blast_radius_score": 24.6,
+      "baseline_90d_avg_daily_events": 80,
+      "session_30m_event_count": 423,
+      "baseline_delta_ratio": 52.88,
+      "mitre_attack": {
+        "technique_id": "T1078.004",
+        "technique_name": "Valid Accounts: Cloud Accounts",
+        "tactic": "Initial Access & Privilege Escalation"
+      },
+      "genai_explanation": "User service_account authenticated from Frankfurt, Germany via CloudHosting-DE. Session volume spiked 52.88x above baseline. Risk identified as Impossible Travel Velocity with a priority score of 24.8. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Isolate Identity & Revoke Tokens",
+        "cli_command": "az ad user update --id service_account@cloudorg.internal --account-enabled false"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-002",
+    "timestamp": "2026-08-18T00:27:46Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "Azure",
+    "actor": {
+      "user_name": "service_account@cloudorg.internal",
+      "user_arn": "/subscriptions/6a3d-4cde-8899/providers/Microsoft.Directory/users/service_account",
+      "assigned_roles": [
+        "Administrator"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "172.16.5.99",
+      "country": "Japan",
+      "city": "Tokyo",
+      "isp": "Softbank-JP"
+    },
+    "anomaly_details": {
+      "scenario": "Suspicious Inbox Manipulation Rule",
+      "severity": "LOW",
+      "risk_score": 26.2,
+      "blast_radius_score": 81.2,
+      "baseline_90d_avg_daily_events": 95,
+      "session_30m_event_count": 411,
+      "baseline_delta_ratio": 43.26,
+      "mitre_attack": {
+        "technique_id": "T1137.005",
+        "technique_name": "Office Application Startup: Outlook Rules",
+        "tactic": "Persistence"
+      },
+      "genai_explanation": "User service_account authenticated from Tokyo, Japan via Softbank-JP. Session volume spiked 43.26x above baseline. Risk identified as Suspicious Inbox Manipulation Rule with a priority score of 26.2. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Remove Rule & Alert Security Team",
+        "cli_command": "az ad user update --id service_account@cloudorg.internal --account-enabled false"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-026",
+    "timestamp": "2026-08-18T01:38:20Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "Azure",
+    "actor": {
+      "user_name": "service_account@cloudorg.internal",
+      "user_arn": "/subscriptions/6a3d-4cde-8899/providers/Microsoft.Directory/users/service_account",
+      "assigned_roles": [
+        "ReadonlyAccess"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "172.16.5.99",
+      "country": "Germany",
+      "city": "Frankfurt",
+      "isp": "CloudHosting-DE"
+    },
+    "anomaly_details": {
+      "scenario": "Suspicious Inbox Manipulation Rule",
+      "severity": "LOW",
+      "risk_score": 7.0,
+      "blast_radius_score": 43.7,
+      "baseline_90d_avg_daily_events": 29,
+      "session_30m_event_count": 150,
+      "baseline_delta_ratio": 51.72,
+      "mitre_attack": {
+        "technique_id": "T1137.005",
+        "technique_name": "Office Application Startup: Outlook Rules",
+        "tactic": "Persistence"
+      },
+      "genai_explanation": "User service_account authenticated from Frankfurt, Germany via CloudHosting-DE. Session volume spiked 51.72x above baseline. Risk identified as Suspicious Inbox Manipulation Rule with a priority score of 7.0. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Remove Rule & Alert Security Team",
+        "cli_command": "az ad user update --id service_account@cloudorg.internal --account-enabled false"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-033",
+    "timestamp": "2026-08-18T02:25:04Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "AWS",
+    "actor": {
+      "user_name": "service_account@cloudorg.internal",
+      "user_arn": "arn:aws:iam::123456789012:user/service_account",
+      "assigned_roles": [
+        "PlatformEngineer"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "192.0.2.55",
+      "country": "Netherlands",
+      "city": "Amsterdam",
+      "isp": "Leaseweb-NL"
+    },
+    "anomaly_details": {
+      "scenario": "Anonymous IP Address Access",
+      "severity": "LOW",
+      "risk_score": 12.6,
+      "blast_radius_score": 9.5,
+      "baseline_90d_avg_daily_events": 79,
+      "session_30m_event_count": 158,
+      "baseline_delta_ratio": 20.0,
+      "mitre_attack": {
+        "technique_id": "T1078.004",
+        "technique_name": "Valid Accounts: Cloud Accounts",
+        "tactic": "Initial Access"
+      },
+      "genai_explanation": "User service_account authenticated from Amsterdam, Netherlands via Leaseweb-NL. Session volume spiked 20.0x above baseline. Risk identified as Anonymous IP Address Access with a priority score of 12.6. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Block Source IP & Force Password Reset",
+        "cli_command": "aws iam revoke-security-credentials --user-name service_account"
+      }
+    }
+  },
+  {
+    "event_id": "OCSF-UEBA-2026-FP-015",
+    "timestamp": "2026-08-18T05:11:30Z",
+    "category_name": "Identity & Access Management",
+    "class_name": "Authentication & Session Drift",
+    "cloud_provider": "AWS",
+    "actor": {
+      "user_name": "service_account@cloudorg.internal",
+      "user_arn": "arn:aws:iam::123456789012:user/service_account",
+      "assigned_roles": [
+        "DataScientist"
+      ]
+    },
+    "src_endpoint": {
+      "ip": "192.0.2.146",
+      "country": "United States",
+      "city": "New York",
+      "isp": "Comcast-US"
+    },
+    "anomaly_details": {
+      "scenario": "Impossible Travel Velocity",
+      "severity": "LOW",
+      "risk_score": 15.8,
+      "blast_radius_score": 94.2,
+      "baseline_90d_avg_daily_events": 14,
+      "session_30m_event_count": 431,
+      "baseline_delta_ratio": 307.86,
+      "mitre_attack": {
+        "technique_id": "T1078.004",
+        "technique_name": "Valid Accounts: Cloud Accounts",
+        "tactic": "Initial Access & Privilege Escalation"
+      },
+      "genai_explanation": "User service_account authenticated from New York, United States via Comcast-US. Session volume spiked 307.86x above baseline. Risk identified as Impossible Travel Velocity with a priority score of 15.8. Note: Verified as a non-malicious event matching standard operational baselines.",
+      "remediation_playbook": {
+        "action": "Isolate Identity & Revoke Tokens",
+        "cli_command": "aws iam revoke-security-credentials --user-name service_account"
+      }
+    }
+  }
+]

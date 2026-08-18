@@ -593,19 +593,6 @@ function initTabs() {
   });
 }
 
-// Calculate and Render Top Banner Metrics
-function renderMetrics() {
-  const criticalCount = anomalyEvents.filter(e => e.anomaly_details.severity === "CRITICAL").length;
-  const highCount = anomalyEvents.filter(e => e.anomaly_details.severity === "HIGH").length;
-  const totalAnalyzed = anomalyEvents.reduce((acc, curr) => acc + curr.anomaly_details.session_30m_event_count, 0);
-  const avgRisk = (anomalyEvents.reduce((acc, curr) => acc + curr.anomaly_details.risk_score, 0) / anomalyEvents.length).toFixed(1);
-
-  document.getElementById("metric-critical").textContent = criticalCount;
-  document.getElementById("metric-high").textContent = highCount;
-  document.getElementById("metric-analyzed").textContent = totalAnalyzed.toLocaleString();
-  document.getElementById("metric-risk").textContent = `${avgRisk} / 100`;
-}
-
 // Render Triage Table with Filter and Search Support
 function renderTriageTable(events) {
   const tbody = document.getElementById("triage-tbody");
