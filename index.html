@@ -587,6 +587,36 @@
         <pre class="code-block" id="modal-detail-json" style="max-height:420px"></pre>
       </div>
 
+      <!-- Analyst Text Analysis Feedback & AI Sentiment Engine -->
+      <div style="background:var(--bg-deep); border:1px solid var(--border-color); border-radius:8px; padding:1rem; margin-top:1.25rem">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem">
+          <strong style="color:var(--text-cyber); font-size:0.88rem">✍️ Analyst Text Feedback & AI Sentiment Engine</strong>
+          <span id="modal-sentiment-badge" class="badge badge-info">Awaiting Feedback</span>
+        </div>
+
+        <div style="margin-bottom:0.5rem">
+          <textarea id="modal-analyst-comment" class="search-input" style="width:100%; height:65px; resize:vertical; font-size:0.82rem; font-family:inherit" placeholder="Type your text analysis feedback/comment on this detection issue... (e.g. 'Very accurate detection, AI summary provided clear root cause and fast remediation')"></textarea>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center">
+          <button class="btn btn-primary" style="padding:0.4rem 0.85rem; font-size:0.8rem" onclick="submitAnalystFeedbackWithAiSentiment()">
+            🧠 Submit & Analyze AI Sentiment Score
+          </button>
+          <div style="font-size:0.8rem; color:var(--text-muted)">
+            AI Sentiment Score: <strong id="modal-sentiment-val" style="color:var(--border-accent)">N/A</strong>
+          </div>
+        </div>
+
+        <!-- AI Sentiment Output Box -->
+        <div id="modal-sentiment-result-box" style="display:none; background:var(--bg-card); border-left:4px solid var(--border-accent); padding:0.65rem 0.85rem; margin-top:0.75rem; border-radius:0 6px 6px 0; font-size:0.82rem">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.25rem">
+            <strong id="modal-sentiment-title" style="color:var(--border-accent)">AI Sentiment Analysis Output</strong>
+            <span id="modal-sentiment-time" style="font-size:0.75rem; color:var(--text-muted)">Just now</span>
+          </div>
+          <p id="modal-sentiment-text" style="margin:0; color:var(--text-secondary); line-height:1.4"></p>
+        </div>
+      </div>
+
       <div style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:1.5rem">
         <button class="btn btn-primary" onclick="copyAiSummary()">📋 Copy AI Summary</button>
         <button class="btn" onclick="closeModal('modal-detail')">Close</button>

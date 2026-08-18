@@ -655,16 +655,33 @@ function renderMetrics() {
   const highCount = anomalyEvents.filter(e => e.anomaly_details.severity === "HIGH").length;
   const avgRisk = (anomalyEvents.reduce((acc, curr) => acc + curr.anomaly_details.risk_score, 0) / anomalyEvents.length).toFixed(1);
 
-  // Calculate Model Detection Accuracy & Satisfaction Count
-  const totalVerified = Object.keys(userFeedbackStore).length;
-  const totalAgreed = Object.values(userFeedbackStore).filter(val => val === true).length;
+  // Calculate Model Detection Accuracy & AI User Satisfaction Index
+  const feedbackEntries = Object.values(userFeedbackStore);
+  const totalVerified = feedbackEntries.length;
+
+  let totalAgreed = 0;
+  let satisfactionSumPct = 0;
+
+  feedbackEntries.forEach(item => {
+    if (item === true) {
+      totalAgreed += 1;
+      satisfactionSumPct += 100;
+    } else if (item === false) {
+      satisfactionSumPct += 0;
+    } else if (typeof item === "object") {
+      if (item.agree || item.category === "POSITIVE") totalAgreed += 1;
+      satisfactionSumPct += (item.satisfaction_pct !== undefined ? item.satisfaction_pct : (item.agree ? 100 : 0));
+    }
+  });
+
   const accuracyRate = totalVerified > 0 ? ((totalAgreed / totalVerified) * 100).toFixed(1) : "100.0";
+  const overallSatisfactionPct = totalVerified > 0 ? (satisfactionSumPct / totalVerified).toFixed(1) : "100.0";
 
   const accuracyEl = document.getElementById("metric-accuracy");
   if (accuracyEl) accuracyEl.textContent = `${accuracyRate}%`;
   
   const countEl = document.getElementById("metric-satisfaction-count");
-  if (countEl) countEl.textContent = `Satisfaction Count: ${totalAgreed} Likes / ${totalVerified} Reviews`;
+  if (countEl) countEl.textContent = `Satisfaction Index: ${overallSatisfactionPct}% (${totalAgreed} Positive / ${totalVerified} Reviews)`;
 
   const criticalEl = document.getElementById("metric-critical");
   if (criticalEl) criticalEl.textContent = criticalCount;
@@ -1963,11 +1980,164 @@ function openDetailModal(eventId) {
   document.getElementById("modal-user-event-count").textContent = `${userEvents.length} Event(s)`;
   document.getElementById("modal-detail-json").textContent = JSON.stringify(userEvents.length === 1 ? evt : userEvents, null, 2);
 
+  // Load existing analyst comment and sentiment output if present
+  const fb = userFeedbackStore[eventId];
+  const commentEl = document.getElementById("modal-analyst-comment");
+  const resultBox = document.getElementById("modal-sentiment-result-box");
+  const badgeEl = document.getElementById("modal-sentiment-badge");
+  const valEl = document.getElementById("modal-sentiment-val");
+
+  if (fb) {
+    if (typeof fb === "object") {
+      if (commentEl) commentEl.value = fb.text || "";
+      if (badgeEl) {
+        badgeEl.className = `badge ${fb.category === 'POSITIVE' ? 'badge-info' : (fb.category === 'NEGATIVE' ? 'badge-false-positive' : 'badge-medium')}`;
+        badgeEl.textContent = `Sentiment: ${fb.category} (${fb.satisfaction_pct}%)`;
+      }
+      if (valEl) {
+        valEl.textContent = `${fb.score > 0 ? '+' : ''}${fb.score} (${fb.satisfaction_pct}% Satisfaction)`;
+      }
+      if (resultBox) {
+        resultBox.style.display = "block";
+        document.getElementById("modal-sentiment-title").textContent = `AI Sentiment Engine (${fb.category})`;
+        document.getElementById("modal-sentiment-text").textContent = `Analyst Comment: "${fb.text}"`;
+      }
+    } else {
+      if (commentEl) commentEl.value = fb === true ? "Confirmed Detections (Thumbs Up)" : "Flagged False Positive (Thumbs Down)";
+      if (badgeEl) {
+        badgeEl.className = `badge ${fb === true ? 'badge-info' : 'badge-false-positive'}`;
+        badgeEl.textContent = fb === true ? "Sentiment: POSITIVE (100%)" : "Sentiment: NEGATIVE (0%)";
+      }
+      if (valEl) valEl.textContent = fb === true ? "+1.0 (100% Satisfaction)" : "-1.0 (0% Satisfaction)";
+      if (resultBox) resultBox.style.display = "none";
+    }
+  } else {
+    if (commentEl) commentEl.value = "";
+    if (badgeEl) {
+      badgeEl.className = "badge badge-info";
+      badgeEl.textContent = "Awaiting Feedback";
+    }
+    if (valEl) valEl.textContent = "N/A";
+    if (resultBox) resultBox.style.display = "none";
+  }
+
   // Switch to Summary Tab & Run AI Summarizer
   switchModalTab('summary');
   triggerAiSummarization();
 
   document.getElementById("modal-detail").classList.add("active");
+}
+
+// AI Sentiment Analysis Engine for Analyst Feedback
+function analyzeAnalystSentiment(text) {
+  if (!text || text.trim().length === 0) {
+    return {
+      score: 0.0,
+      satisfaction_pct: 50,
+      category: "NEUTRAL",
+      summary: "No comment provided."
+    };
+  }
+
+  const lower = text.toLowerCase();
+  
+  // Lexicon scoring weights
+  const posTerms = ["accurate", "great", "helpful", "fast", "good", "useful", "correct", "excellent", "saved time", "solid", "isolated", "satisfied", "thumbs up", "agree", "nice", "clear", "perfect", "valuable", "remediated", "love", "spot on", "effective"];
+  const negTerms = ["false positive", "wrong", "noisy", "useless", "bad", "slow", "incorrect", "poor", "junk", "broken", "mistake", "dissatisfied", "waste", "unhelpful", "terrible", "disagree", "annoying", "flawed", "fail"];
+
+  let score = 0.0;
+
+  posTerms.forEach(t => {
+    if (lower.includes(t)) score += 0.35;
+  });
+
+  negTerms.forEach(t => {
+    if (lower.includes(t)) score -= 0.45;
+  });
+
+  // Clamp score between -1.0 and +1.0
+  score = Math.max(-1.0, Math.min(1.0, score));
+
+  // Convert Sentiment Score to User Satisfaction Percentage (0% - 100%)
+  const satisfaction_pct = Math.round(((score + 1.0) / 2.0) * 100);
+
+  let category = "NEUTRAL";
+  let summary = "";
+
+  if (score >= 0.25) {
+    category = "POSITIVE";
+    summary = `Positive Sentiment (Score: +${score.toFixed(2)} | Satisfaction: ${satisfaction_pct}%). Analyst confirmed detection accuracy and praised response playbooks.`;
+  } else if (score <= -0.25) {
+    category = "NEGATIVE";
+    summary = `Negative Sentiment (Score: ${score.toFixed(2)} | Satisfaction: ${satisfaction_pct}%). Analyst flagged false positive drift or alert noise requiring baseline tuning.`;
+  } else {
+    category = "NEUTRAL";
+    summary = `Neutral Sentiment (Score: ${score.toFixed(2)} | Satisfaction: ${satisfaction_pct}%). Analyst provided standard operational feedback.`;
+  }
+
+  return {
+    score: parseFloat(score.toFixed(2)),
+    satisfaction_pct,
+    category,
+    summary
+  };
+}
+
+// Submit Analyst Text Feedback & Run AI Sentiment Analysis
+function submitAnalystFeedbackWithAiSentiment() {
+  if (!currentInspectedEventId) return;
+
+  const commentEl = document.getElementById("modal-analyst-comment");
+  const commentText = commentEl ? commentEl.value : "";
+
+  if (!commentText || commentText.trim().length === 0) {
+    alert("Please enter a text analysis comment before submitting for AI sentiment analysis.");
+    return;
+  }
+
+  // Run AI Sentiment Analysis
+  const sentiment = analyzeAnalystSentiment(commentText);
+
+  // Store in userFeedbackStore
+  const agreeBool = sentiment.category !== "NEGATIVE";
+  userFeedbackStore[currentInspectedEventId] = {
+    agree: agreeBool,
+    text: commentText,
+    score: sentiment.score,
+    satisfaction_pct: sentiment.satisfaction_pct,
+    category: sentiment.category,
+    timestamp: new Date().toISOString()
+  };
+
+  // Render Sentiment Output inside Inspect Modal
+  const badgeEl = document.getElementById("modal-sentiment-badge");
+  if (badgeEl) {
+    badgeEl.className = `badge ${sentiment.category === 'POSITIVE' ? 'badge-info' : (sentiment.category === 'NEGATIVE' ? 'badge-false-positive' : 'badge-medium')}`;
+    badgeEl.textContent = `Sentiment: ${sentiment.category} (${sentiment.satisfaction_pct}%)`;
+  }
+
+  const valEl = document.getElementById("modal-sentiment-val");
+  if (valEl) {
+    valEl.textContent = `${sentiment.score > 0 ? '+' : ''}${sentiment.score} (${sentiment.satisfaction_pct}% Satisfaction)`;
+    valEl.style.color = sentiment.category === 'POSITIVE' ? '#38bdf8' : (sentiment.category === 'NEGATIVE' ? '#c084fc' : '#eab308');
+  }
+
+  const resultBox = document.getElementById("modal-sentiment-result-box");
+  const resultTitle = document.getElementById("modal-sentiment-title");
+  const resultText = document.getElementById("modal-sentiment-text");
+  const resultTime = document.getElementById("modal-sentiment-time");
+
+  if (resultBox && resultTitle && resultText) {
+    resultBox.style.display = "block";
+    resultTitle.textContent = `AI Sentiment Engine (${sentiment.category})`;
+    resultTitle.style.color = sentiment.category === 'POSITIVE' ? '#38bdf8' : (sentiment.category === 'NEGATIVE' ? '#c084fc' : '#eab308');
+    resultText.textContent = sentiment.summary;
+    if (resultTime) resultTime.textContent = new Date().toLocaleTimeString();
+  }
+
+  // Recalculate Metrics Banner and Update Triage Table
+  renderMetrics();
+  renderTriageTable(getFilteredEvents());
 }
 
 // Switch between AI Summary, MITRE Defense, and Raw JSON tabs inside Modal
