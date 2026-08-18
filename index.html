@@ -206,6 +206,31 @@
               <!-- Rendered by app.js -->
             </div>
           </div>
+        <!-- Risk Score vs Blast Radius Quadrant Matrix Section -->
+        <div class="soc-card" style="margin-top:1.5rem">
+          <div class="card-header">
+            <h3 class="card-title">🎯 Risk Score vs. Blast Radius Quadrant Matrix</h3>
+            <span class="badge badge-info">2D Behavioral & Impact Vector Analysis</span>
+          </div>
+          <p style="color:var(--text-secondary); margin-bottom:1rem; font-size:0.88rem">
+            Plots identity anomalies across <strong>ML Risk Score (X-Axis)</strong> vs <strong>Blast Radius Score (Y-Axis)</strong> to categorize identities into 4 threat quadrants: Critical Threat Zone, High Entitlement Risk, Isolated Anomaly, or Operational Baseline.
+          </p>
+
+          <div class="grid-2">
+            <div>
+              <h4 style="color:var(--text-cyber); font-size:0.85rem; margin-bottom:0.5rem">📉 Interactive 2D Scatter Matrix Plot</h4>
+              <div class="chart-box" style="height:320px">
+                <canvas id="chart-prof-risk-blast"></canvas>
+              </div>
+            </div>
+
+            <div>
+              <h4 style="color:var(--text-cyber); font-size:0.85rem; margin-bottom:0.5rem">📋 Quadrant Classification & Recommended SOC Actions</h4>
+              <div id="prof-matrix-table-container" class="table-container" style="max-height:320px; overflow-y:auto">
+                <!-- Rendered dynamically by app.js -->
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

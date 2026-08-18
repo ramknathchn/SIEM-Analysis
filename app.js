@@ -1198,8 +1198,9 @@ function initTabs() {
   });
 }
 
-// Global Chart Reference for Baseline Profiler
+// Global Chart References for Baseline Profiler
 let baselineProfilerChart = null;
+let profilerMatrixChart = null;
 
 // Render Behavioral Baseline Profiler Screen
 function renderBaselineProfilerScreen() {
@@ -1307,6 +1308,125 @@ function renderBaselineProfilerScreen() {
 
     html += `</tbody></table>`;
     hourlyContainer.innerHTML = html;
+  }
+
+  // Render Chart 3: Risk Score vs Blast Radius Quadrant Matrix Scatter Plot
+  const ctxMatrix = document.getElementById("chart-prof-risk-blast");
+  if (ctxMatrix && typeof Chart !== "undefined") {
+    if (profilerMatrixChart) profilerMatrixChart.destroy();
+
+    const scatterPoints = anomalyEvents.map(e => ({
+      x: e.anomaly_details.risk_score,
+      y: e.anomaly_details.blast_radius_score,
+      user: e.actor.user_name,
+      severity: e.anomaly_details.severity
+    }));
+
+    profilerMatrixChart = new Chart(ctxMatrix, {
+      type: "scatter",
+      data: {
+        datasets: [{
+          label: "Identity Telemetry Anomalies",
+          data: scatterPoints,
+          backgroundColor: scatterPoints.map(p => {
+            if (p.severity === "CRITICAL") return "#ef4444";
+            if (p.severity === "HIGH") return "#f97316";
+            if (p.severity === "FALSE POSITIVE") return "#c084fc";
+            return "#eab308";
+          }),
+          pointRadius: 7,
+          pointHoverRadius: 10
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (context) => {
+                const pt = context.raw;
+                return `${pt.user}: Risk ${pt.x} | Blast ${pt.y} (${pt.severity})`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            title: { display: true, text: "UEBA ML Risk Score (0 - 100)", color: "#38bdf8" },
+            ticks: { color: "#94a3b8" },
+            grid: { color: "rgba(255,255,255,0.05)" },
+            min: 0,
+            max: 100
+          },
+          y: {
+            title: { display: true, text: "Blast Radius Score (0 - 100)", color: "#38bdf8" },
+            ticks: { color: "#94a3b8" },
+            grid: { color: "rgba(255,255,255,0.05)" },
+            min: 0,
+            max: 100
+          }
+        }
+      }
+    });
+  }
+
+  // Render Quadrant Classification Table
+  const matrixContainer = document.getElementById("prof-matrix-table-container");
+  if (matrixContainer) {
+    let tableHtml = `
+      <table class="soc-table">
+        <thead>
+          <tr>
+            <th>Identity / User</th>
+            <th>ML Risk</th>
+            <th>Blast Score</th>
+            <th>Quadrant Classification</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+
+    anomalyEvents.forEach(e => {
+      const risk = e.anomaly_details.risk_score;
+      const blast = e.anomaly_details.blast_radius_score;
+      let quadrant = "";
+      let quadBadge = "";
+      let action = "";
+
+      if (risk >= 50 && blast >= 50) {
+        quadrant = "CRITICAL THREAT ZONE";
+        quadBadge = "badge-critical";
+        action = "Immediate Isolation & Revoke Tokens";
+      } else if (risk < 50 && blast >= 50) {
+        quadrant = "HIGH ENTITLEMENT RISK";
+        quadBadge = "badge-high";
+        action = "Audit Dormant Admin Permissions";
+      } else if (risk >= 50 && blast < 50) {
+        quadrant = "ISOLATED ANOMALY";
+        quadBadge = "badge-medium";
+        action = "Reset User MFA & Password";
+      } else {
+        quadrant = "OPERATIONAL BASELINE";
+        quadBadge = "badge-false-positive";
+        action = "Verify Operational Baseline";
+      }
+
+      tableHtml += `
+        <tr>
+          <td class="table-user">${e.actor.user_name}</td>
+          <td style="font-weight:700">${risk}</td>
+          <td style="font-weight:700">${blast}</td>
+          <td><span class="badge ${quadBadge}">${quadrant}</span></td>
+          <td style="font-size:0.75rem">${action}</td>
+        </tr>
+      `;
+    });
+
+    tableHtml += `</tbody></table>`;
+    matrixContainer.innerHTML = tableHtml;
   }
 }
 
