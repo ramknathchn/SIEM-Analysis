@@ -12,7 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
   
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="styles.css?v=2.8.0">
+  <link rel="stylesheet" href="styles.css?v=2.9.0">
 
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -68,10 +68,10 @@
   <nav class="nav-tabs">
     <button class="tab-btn active" data-tab="triage" onclick="switchTab('triage')">🚨 Anomaly Triage</button>
     <button class="tab-btn" data-tab="baseline" onclick="switchTab('baseline')">📊 Behavioral Baseline Profiler</button>
+    <button class="tab-btn" data-tab="upload" onclick="switchTab('upload')">📤 SIEM Upload & Ingestion</button>
     <button class="tab-btn" data-tab="topology" onclick="switchTab('topology')">🕸️ 1,000+ System Topology</button>
     <button class="tab-btn" data-tab="db-analysis" onclick="switchTab('db-analysis')">💾 SQLite DB Analysis</button>
     <button class="tab-btn" data-tab="download" onclick="switchTab('download')">📥 SIEM Download Center</button>
-    <button class="tab-btn" data-tab="upload" onclick="switchTab('upload')">📤 SIEM Upload & Ingestion</button>
     <button class="tab-btn" data-tab="simulator" onclick="switchTab('simulator')">⚡ Attack Simulator</button>
     <button class="tab-btn" data-tab="catalog" onclick="switchTab('catalog')">📚 Data Sources Catalog</button>
   </nav>
@@ -237,7 +237,52 @@
       </div>
     </div>
 
-    <!-- TAB 3: 1,000+ System Topology & Blast Radius -->
+    <!-- TAB 3: SIEM Upload & Ingestion -->
+    <div id="upload" class="tab-pane">
+      <div class="soc-card">
+        <div class="card-header">
+          <h2 class="card-title">📤 Upload & Ingest SIEM Platform Log Export</h2>
+          <span class="badge badge-info">JSON / CSV Auto-Parser</span>
+        </div>
+        <p style="color:var(--text-secondary); margin-bottom:1.5rem">
+          Upload exported telemetry files from AWS CloudTrail, Microsoft Sentinel, Splunk, Elastic/Wazuh, or Generic OCSF. The ingestion engine automatically normalizes log fields, calculates 90-day baseline deltas, scores blast radius, and streams events directly into the live Anomaly Triage dashboard.
+        </p>
+
+        <!-- Dropzone Container -->
+        <div class="dropzone" id="siem-dropzone" onclick="document.getElementById('file-input').click()">
+          <div class="dropzone-icon">📁</div>
+          <h3 style="color:var(--text-primary); font-size:1.1rem; margin-bottom:0.5rem">Drag & Drop SIEM Log Export File Here</h3>
+          <p style="color:var(--text-secondary); font-size:0.85rem">or click to browse your local computer (.json or .csv)</p>
+          <input type="file" id="file-input" style="display:none" accept=".json,.csv" onchange="handleFileUpload(event)">
+        </div>
+
+        <div id="upload-status" style="margin-top:1rem"></div>
+
+        <div style="margin-top:2rem">
+          <h3 style="color:var(--text-cyber); margin-bottom:0.75rem">Accepted Platform Formats</h3>
+          <div class="grid-equal">
+            <div style="background:var(--bg-surface); padding:1rem; border-radius:8px; border:1px solid var(--border-color)">
+              <strong style="color:var(--text-primary)">1. Generic OCSF (.json / .csv)</strong>
+              <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.25rem">Contains <code>actor.user_name</code> or <code>actor_user</code>, <code>src_endpoint.ip</code>, <code>anomaly_details</code>.</p>
+            </div>
+            <div style="background:var(--bg-surface); padding:1rem; border-radius:8px; border:1px solid var(--border-color)">
+              <strong style="color:var(--text-primary)">2. Microsoft Sentinel KQL (.json / .csv)</strong>
+              <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.25rem">Contains <code>UserPrincipalName</code>, <code>IPAddress</code>, <code>RiskDetail</code>, <code>InvestigationPriority</code>.</p>
+            </div>
+            <div style="background:var(--bg-surface); padding:1rem; border-radius:8px; border:1px solid var(--border-color)">
+              <strong style="color:var(--text-primary)">3. Splunk CIM / RBA (.json / .csv)</strong>
+              <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.25rem">Contains <code>user</code>, <code>src</code>, <code>risk_score</code>, <code>rba_threat_category</code>, <code>ml_anomaly_magnitude</code>.</p>
+            </div>
+            <div style="background:var(--bg-surface); padding:1rem; border-radius:8px; border:1px solid var(--border-color)">
+              <strong style="color:var(--text-primary)">4. Elastic Security & Wazuh (.json / .csv)</strong>
+              <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.25rem">Contains <code>user.email</code> or <code>user_email</code>, <code>source.ip</code>, <code>elastic_ml.anomaly_score</code>.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: 1,000+ System Topology & Blast Radius -->
     <div id="topology" class="tab-pane">
       <div class="soc-card">
         <div class="card-header">
@@ -408,50 +453,7 @@
       </div>
     </div>
 
-    <!-- TAB 4: SIEM Upload & Ingestion -->
-    <div id="upload" class="tab-pane">
-      <div class="soc-card">
-        <div class="card-header">
-          <h2 class="card-title">📤 Upload & Ingest SIEM Platform Log Export</h2>
-          <span class="badge badge-info">JSON / CSV Auto-Parser</span>
-        </div>
-        <p style="color:var(--text-secondary); margin-bottom:1.5rem">
-          Upload exported telemetry files from AWS CloudTrail, Microsoft Sentinel, Splunk, Elastic/Wazuh, or Generic OCSF. The ingestion engine automatically normalizes log fields, calculates 90-day baseline deltas, scores blast radius, and streams events directly into the live Anomaly Triage dashboard.
-        </p>
 
-        <!-- Dropzone Container -->
-        <div class="dropzone" id="siem-dropzone" onclick="document.getElementById('file-input').click()">
-          <div class="dropzone-icon">📁</div>
-          <h3 style="color:var(--text-primary); font-size:1.1rem; margin-bottom:0.5rem">Drag & Drop SIEM Log Export File Here</h3>
-          <p style="color:var(--text-secondary); font-size:0.85rem">or click to browse your local computer (.json or .csv)</p>
-          <input type="file" id="file-input" style="display:none" accept=".json,.csv" onchange="handleFileUpload(event)">
-        </div>
-
-        <div id="upload-status" style="margin-top:1rem"></div>
-
-        <div style="margin-top:2rem">
-          <h3 style="color:var(--text-cyber); margin-bottom:0.75rem">Accepted Platform Formats</h3>
-          <div class="grid-equal">
-            <div style="background:var(--bg-surface); padding:1rem; border-radius:8px; border:1px solid var(--border-color)">
-              <strong style="color:var(--text-primary)">1. Generic OCSF (.json / .csv)</strong>
-              <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.25rem">Contains <code>actor.user_name</code> or <code>actor_user</code>, <code>src_endpoint.ip</code>, <code>anomaly_details</code>.</p>
-            </div>
-            <div style="background:var(--bg-surface); padding:1rem; border-radius:8px; border:1px solid var(--border-color)">
-              <strong style="color:var(--text-primary)">2. Microsoft Sentinel KQL (.json / .csv)</strong>
-              <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.25rem">Contains <code>UserPrincipalName</code>, <code>IPAddress</code>, <code>RiskDetail</code>, <code>InvestigationPriority</code>.</p>
-            </div>
-            <div style="background:var(--bg-surface); padding:1rem; border-radius:8px; border:1px solid var(--border-color)">
-              <strong style="color:var(--text-primary)">3. Splunk CIM / RBA (.json / .csv)</strong>
-              <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.25rem">Contains <code>user</code>, <code>src</code>, <code>risk_score</code>, <code>rba_threat_category</code>, <code>ml_anomaly_magnitude</code>.</p>
-            </div>
-            <div style="background:var(--bg-surface); padding:1rem; border-radius:8px; border:1px solid var(--border-color)">
-              <strong style="color:var(--text-primary)">4. Elastic Security & Wazuh (.json / .csv)</strong>
-              <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.25rem">Contains <code>user.email</code> or <code>user_email</code>, <code>source.ip</code>, <code>elastic_ml.anomaly_score</code>.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <!-- TAB 4: Adversarial Attack Simulator -->
     <div id="simulator" class="tab-pane">
@@ -691,7 +693,7 @@
   </div>
 
   <!-- Local Script -->
-  <script src="app.js?v=2.8.0"></script>
+  <script src="app.js?v=2.9.0"></script>
 
 </body>
 </html>
