@@ -338,6 +338,166 @@ function renderTopologyGraph() {
       Traversed via SQLite 5-Hop Recursive CTE algorithm in <code>caad_topology.db</code>. Score is weighted by criticality, data sensitivity, and hop distance attenuation.
     </p>
   `;
+
+  // Render Visual Node Graph Canvas
+  drawNodeGraphCanvas(entityId, current);
+}
+
+// Interactive HTML5 Canvas Node Graph Engine for Blast Radius
+let activeGraphNodes = [];
+
+function drawNodeGraphCanvas(entryEntityId, currentData) {
+  const canvas = document.getElementById("blast-node-canvas");
+  if (!canvas) return;
+
+  const ctx = canvas.getContext("2d");
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width || 800;
+  canvas.height = rect.height || 380;
+
+  const width = canvas.width;
+  const height = canvas.height;
+  const centerX = width / 2;
+  const centerY = height / 2;
+
+  ctx.clearRect(0, 0, width, height);
+
+  // Define Nodes Array with Coordinates
+  activeGraphNodes = [];
+
+  // Entry Node (Center)
+  const entryNode = {
+    id: entryEntityId,
+    label: entryEntityId.replace("USER_", ""),
+    type: "ENTRY",
+    x: centerX,
+    y: centerY,
+    radius: 22,
+    color: "#ef4444",
+    crit: 10.0,
+    sens: 10.0,
+    hop: 0
+  };
+  activeGraphNodes.push(entryNode);
+
+  // Downstream Radial Layout for Hops
+  const nodes = currentData.nodes;
+  const totalHopNodes = nodes.length;
+  
+  nodes.forEach((n, idx) => {
+    const angle = (idx / totalHopNodes) * Math.PI * 2 - Math.PI / 2;
+    const distance = 85 + (n.hop * 48); // Radial distance based on hop depth
+    const nx = centerX + Math.cos(angle) * distance;
+    const ny = centerY + Math.sin(angle) * distance;
+
+    let ncolor = "#3b82f6";
+    if (n.type === "ROLE") ncolor = "#eab308";
+    else if (n.type === "KEY_VAULT") ncolor = "#00f0ff";
+    else if (n.type === "DATABASE") ncolor = "#10b981";
+    else if (n.type === "STORAGE") ncolor = "#a855f7";
+
+    activeGraphNodes.push({
+      id: n.id,
+      label: n.id,
+      type: n.type,
+      rel: n.rel,
+      x: nx,
+      y: ny,
+      radius: 14 - (n.hop * 1),
+      color: ncolor,
+      crit: n.crit,
+      sens: n.sens,
+      hop: n.hop
+    });
+  });
+
+  // Draw Edge Connection Lines
+  for (let i = 1; i < activeGraphNodes.length; i++) {
+    const targetNode = activeGraphNodes[i];
+    const prevNode = i === 1 ? activeGraphNodes[0] : activeGraphNodes[i - 1];
+
+    ctx.beginPath();
+    ctx.moveTo(prevNode.x, prevNode.y);
+    ctx.lineTo(targetNode.x, targetNode.y);
+    ctx.strokeStyle = "rgba(0, 240, 255, 0.4)";
+    ctx.lineWidth = 2;
+    ctx.setLineDash([4, 4]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Edge Label
+    const midX = (prevNode.x + targetNode.x) / 2;
+    const midY = (prevNode.y + targetNode.y) / 2;
+    ctx.fillStyle = "#64748b";
+    ctx.font = "9px 'JetBrains Mono', monospace";
+    ctx.fillText(targetNode.rel || "CONNECTS_TO", midX, midY);
+  }
+
+  // Draw Nodes
+  activeGraphNodes.forEach(n => {
+    // Glow effect
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, n.radius + 4, 0, Math.PI * 2);
+    ctx.fillStyle = n.color.replace(")", ", 0.25)").replace("rgb", "rgba").replace("#", "rgba(") ? `${n.color}33` : "rgba(0,240,255,0.2)";
+    ctx.fill();
+
+    // Solid Circle
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, n.radius, 0, Math.PI * 2);
+    ctx.fillStyle = n.color;
+    ctx.shadowColor = n.color;
+    ctx.shadowBlur = 10;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    // Border
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Node Label
+    ctx.fillStyle = "#f8fafc";
+    ctx.font = n.hop === 0 ? "bold 11px 'Inter', sans-serif" : "10px 'JetBrains Mono', monospace";
+    ctx.textAlign = "center";
+    ctx.fillText(n.label, n.x, n.y + n.radius + 14);
+  });
+
+  // Setup Canvas Hover Interaction
+  canvas.onmousemove = function(e) {
+    const mouseX = e.offsetX;
+    const mouseY = e.offsetY;
+    let hovered = false;
+
+    activeGraphNodes.forEach(n => {
+      const dist = Math.hypot(mouseX - n.x, mouseY - n.y);
+      if (dist <= n.radius + 5) {
+        canvas.style.cursor = "pointer";
+        hovered = true;
+        
+        // Draw Tooltip
+        ctx.fillStyle = "rgba(11, 16, 27, 0.95)";
+        ctx.strokeStyle = "#00f0ff";
+        ctx.lineWidth = 1;
+        ctx.fillRect(mouseX + 10, mouseY + 10, 220, 75);
+        ctx.strokeRect(mouseX + 10, mouseY + 10, 220, 75);
+
+        ctx.fillStyle = "#00f0ff";
+        ctx.font = "bold 11px sans-serif";
+        ctx.textAlign = "left";
+        ctx.fillText(`${n.id}`, mouseX + 18, mouseY + 28);
+
+        ctx.fillStyle = "#f8fafc";
+        ctx.font = "10px sans-serif";
+        ctx.fillText(`Type: ${n.type} | Hop Depth: ${n.hop}`, mouseX + 18, mouseY + 44);
+        ctx.fillText(`Crit: ${n.crit} | Sensitivity: ${n.sens}`, mouseX + 18, mouseY + 58);
+        ctx.fillText(`Edge Rel: ${n.rel || 'ENTRY_POINT'}`, mouseX + 18, mouseY + 72);
+      }
+    });
+
+    if (!hovered) {
+      canvas.style.cursor = "default";
+    }
+  };
 }
 
 // Tab Switching Handler

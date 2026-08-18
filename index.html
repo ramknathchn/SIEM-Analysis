@@ -144,29 +144,51 @@
     <div id="topology" class="tab-pane">
       <div class="soc-card">
         <div class="card-header">
-          <h2 class="card-title">🕸️ Enterprise Topology & 5-Hop Blast Radius Explorer</h2>
+          <h2 class="card-title">🕸️ Enterprise Topology & Visual Blast Radius Node Graph</h2>
           <span class="badge badge-info">SQLite Database: caad_topology.db</span>
         </div>
-        <p style="color:var(--text-secondary); margin-bottom:1.5rem">
-          Graph traversal engine connected to <strong>1,050 enterprise entities</strong> (AWS EC2, Azure VMs, GCP Compute, S3 buckets, Key Vaults, databases, IAM users & roles) and <strong>2,593 relationship edges</strong> stored in SQLite DB <a href="caad_topology.db" target="_blank" style="color:var(--border-accent)">caad_topology.db</a>.
+        <p style="color:var(--text-secondary); margin-bottom:1.25rem">
+          Interactive graph traversal engine connected to <strong>1,050 enterprise entities</strong> and <strong>2,593 relationship edges</strong> stored in SQLite DB <a href="caad_topology.db" target="_blank" style="color:var(--border-accent)">caad_topology.db</a>. Select an identity to render its 5-hop visual blast radius node graph.
         </p>
 
         <!-- Topology Selector Bar -->
         <div class="filter-bar">
-          <select id="topology-entity-select" class="select-input" style="min-width:300px" onchange="renderTopologyGraph()">
+          <select id="topology-entity-select" class="select-input" style="min-width:320px" onchange="renderTopologyGraph()">
             <option value="USER_ALEX_MORGAN">USER_ALEX_MORGAN (alex.morgan@cloudorg.internal)</option>
             <option value="USER_SARAH_CHEN">USER_SARAH_CHEN (sarah.chen@cloudorg.internal)</option>
             <option value="USER_SVC_CI_DEPLOYER">USER_SVC_CI_DEPLOYER (svc_ci_deployer)</option>
             <option value="USER_DEVOPS_LEAD">USER_DEVOPS_LEAD (devops.lead@cloudorg.internal)</option>
             <option value="USER_SECOPS_AUTOMATION">USER_SECOPS_AUTOMATION (secops.automation)</option>
           </select>
-          <button class="btn btn-primary" onclick="renderTopologyGraph()">🔍 Calculate 5-Hop Blast Radius</button>
+          <button class="btn btn-primary" onclick="renderTopologyGraph()">🔍 Re-Calculate Blast Radius</button>
+        </div>
+
+        <!-- Node Graph Visualizer Canvas Box -->
+        <div style="background:var(--bg-deep); border:1px solid var(--border-color); border-radius:10px; padding:1rem; margin-top:1rem; position:relative">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem">
+            <h3 style="color:var(--text-cyber); font-size:0.9rem; font-weight:700">🎨 Interactive Blast Radius Topology Graph Canvas</h3>
+            <div style="display:flex; gap:0.5rem; font-size:0.75rem">
+              <span style="color:#ef4444">🔴 Compromised Entry</span>
+              <span style="color:#eab308">🟡 Role</span>
+              <span style="color:#00f0ff">🔵 Key Vault</span>
+              <span style="color:#10b981">🟢 Database</span>
+              <span style="color:#3b82f6">🔷 Compute/App</span>
+              <span style="color:#a855f7">🟣 Storage</span>
+            </div>
+          </div>
+
+          <div style="position:relative; width:100%; height:380px; overflow:hidden">
+            <canvas id="blast-node-canvas" style="width:100%; height:100%; display:block; cursor:pointer"></canvas>
+          </div>
+          <p style="font-size:0.75rem; color:var(--text-muted); margin-top:0.5rem; text-align:center">
+            💡 Hover or click any graph node to inspect entity details, criticality weight, and 5-hop edge connection path.
+          </p>
         </div>
 
         <div class="grid-equal" style="margin-top:1.5rem">
           <div>
             <h3 style="color:var(--text-cyber); margin-bottom:0.75rem">🔗 5-Hop Connected Downstream Graph Nodes</h3>
-            <div id="topology-node-list" class="table-container" style="max-height:350px; overflow-y:auto">
+            <div id="topology-node-list" class="table-container" style="max-height:300px; overflow-y:auto">
               <!-- Rendered dynamically by app.js -->
             </div>
           </div>
@@ -178,9 +200,6 @@
               <div class="ai-text" id="topology-blast-summary">
                 <!-- Rendered dynamically by app.js -->
               </div>
-            </div>
-            <div class="code-block" style="margin-top:1rem; font-size:0.75rem">
-              SELECT target_entity_id, hop_depth FROM relationships WHERE source_entity_id = ? ...
             </div>
           </div>
         </div>
