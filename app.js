@@ -1564,27 +1564,13 @@ function exportFilteredTelemetryReport() {
   }
 }
 
-  // Trigger Blob Download for filtered telemetry report
-  const blob = new Blob([reportHtml], { type: "text/html" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `filtered_anomaly_telemetry_report_${new Date().toISOString().slice(0,10)}.html`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-
-  // Also open report in new printable window
-  const printWindow = window.open("", "_blank");
-  if (printWindow) {
-    printWindow.document.write(reportHtml);
-    printWindow.document.close();
-  }
-}
-
 // Render Interactive Chart.js Visualizations
 function renderCharts() {
+  if (typeof Chart === "undefined") {
+    console.warn("Chart.js library is uninitialized or offline; skipping canvas charts.");
+    return;
+  }
+
   // Chart 1: Severity Bar Chart
   const ctxSeverity = document.getElementById("chart-severity");
   if (ctxSeverity) {
