@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Architecture Diagram | Cloud Access Anomaly Detection Platform</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0b101b;
+      --bg-card: #131b2e;
+      --bg-hover: #1b2640;
+      --border-color: #233252;
+      --border-glow: #00f0ff;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent-cyan: #00f0ff;
+      --accent-blue: #3b82f6;
+      --accent-emerald: #10b981;
+      --accent-purple: #a855f7;
+      --accent-rose: #f43f5e;
+      --accent-amber: #f59e0b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-primary);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(0, 240, 255, 0.05) 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(168, 85, 247, 0.05) 0%, transparent 40%);
+    }
+
+    .slide-container {
+      width: 100%;
+      max-width: 1400px;
+      background: rgba(19, 27, 46, 0.7);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 30px rgba(0, 240, 255, 0.1);
+      padding: 2.5rem;
+      position: relative;
+    }
+
+    .slide-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .header-title-group h1 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #ffffff 0%, var(--accent-cyan) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .header-title-group p {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      margin-top: 0.25rem;
+    }
+
+    .header-badges {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.35rem 0.85rem;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .badge-cyan {
+      background: rgba(0, 240, 255, 0.1);
+      color: var(--accent-cyan);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+    }
+
+    .badge-purple {
+      background: rgba(168, 85, 247, 0.1);
+      color: var(--accent-purple);
+      border: 1px solid rgba(168, 85, 247, 0.3);
+    }
+
+    /* Architectural Layer Stack Grid */
+    .arch-stack {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+    }
+
+    .layer-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      position: relative;
+      transition: all 0.3s ease;
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 1.5rem;
+      align-items: center;
+    }
+
+    .layer-card:hover {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .layer-info {
+      border-right: 1px solid var(--border-color);
+      padding-right: 1.5rem;
+    }
+
+    .layer-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.25rem;
+    }
+
+    .layer-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.35rem;
+    }
+
+    .layer-desc {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .layer-components {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+    }
+
+    .comp-block {
+      background: rgba(11, 16, 27, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 0.85rem 1rem;
+      transition: all 0.2s ease;
+    }
+
+    .comp-block:hover {
+      background: var(--bg-hover);
+      border-color: var(--accent-cyan);
+    }
+
+    .comp-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .comp-icon {
+      font-size: 1.1rem;
+    }
+
+    .comp-name {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .comp-detail {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.35;
+    }
+
+    .comp-tech {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-top: 0.5rem;
+    }
+
+    .tech-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--accent-cyan);
+      border: 1px solid rgba(0, 240, 255, 0.2);
+    }
+
+    /* Layer Accent Color Demarcations */
+    .layer-1 { border-left: 4px solid var(--accent-blue); }
+    .layer-2 { border-left: 4px solid var(--accent-purple); }
+    .layer-3 { border-left: 4px solid var(--accent-amber); }
+    .layer-4 { border-left: 4px solid var(--accent-emerald); }
+
+    /* Footer & Presenter Bar */
+    .slide-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 2rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border-color);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .footer-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .footer-right {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .btn-slide {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-slide:hover {
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+    }
+
+    /* Highlight Key Callout Cards */
+    .highlight-card {
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.08) 0%, rgba(168, 85, 247, 0.08) 100%);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="slide-container">
+    <!-- Header -->
+    <header class="slide-header">
+      <div class="header-title-group">
+        <h1>🛡️ Cloud Access Anomaly Detection & UEBA SIEM Platform</h1>
+        <p>Enterprise 4-Tier Layered Component Architecture Diagram</p>
+      </div>
+      <div class="header-badges">
+        <span class="badge badge-cyan">OCSF 1.1 Standard</span>
+        <span class="badge badge-purple">3-Hop Graph Engine</span>
+      </div>
+    </header>
+
+    <!-- Layered Architecture Stack (Not a flowchart!) -->
+    <div class="arch-stack">
+
+      <!-- LAYER 4: SOC Operations & Synthesizer -->
+      <div class="layer-card layer-4">
+        <div class="layer-info">
+          <div class="layer-num">Tier 04 • Presentation</div>
+          <div class="layer-title">SOC Operations & GenAI Synthesis</div>
+          <div class="layer-desc">Interactive dashboard, GenAI narrative engine, and 1-click mitigation playbooks.</div>
+        </div>
+        <div class="layer-components">
+          <div class="comp-block highlight-card">
+            <div class="comp-header">
+              <span class="comp-icon">🤖</span>
+              <span class="comp-name">AI Threat Synthesizer</span>
+            </div>
+            <div class="comp-detail">Converts complex telemetry anomalies into plain English incident briefs and remediation steps.</div>
+            <div class="comp-tech">
+              <span class="tech-pill">Gemini / Ollama</span>
+              <span class="tech-pill">Local LLM</span>
+            </div>
+          </div>
+
+          <div class="comp-block">
+            <div class="comp-header">
+              <span class="comp-icon">🕸️</span>
+              <span class="comp-name">Blast Radius Canvas</span>
+            </div>
+            <div class="comp-detail">HTML5 Canvas interactive node graph visualizing multi-hop entity compromise paths.</div>
+            <div class="comp-tech">
+              <span class="tech-pill">Canvas 2D</span>
+              <span class="tech-pill">Radial Layout</span>
+            </div>
+          </div>
+
+          <div class="comp-block">
+            <div class="comp-header">
+              <span class="comp-icon">⚡</span>
+              <span class="comp-name">Remediation Playbooks</span>
+            </div>
+            <div class="comp-detail">1-Click SOC response scripts (AWS CLI, Azure PowerShell, GCP gcloud) for instant token revocation.</div>
+            <div class="comp-tech">
+              <span class="tech-pill">AWS CLI</span>
+              <span class="tech-pill">Entra ID PS</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LAYER 3: UEBA Detection & Graph Core -->
+      <div class="layer-card layer-3">
+        <div class="layer-info">
+          <div class="layer-num">Tier 03 • Analytics Core</div>
+          <div class="layer-title">UEBA & Graph Blast Radius Engine</div>
+          <div class="layer-desc">Statistical baseline profiling, ML anomaly scoring, and recursive graph blast impact.</div>
+        </div>
+        <div class="layer-components">
+          <div class="comp-block">
+            <div class="comp-header">
+              <span class="comp-icon">📊</span>
+              <span class="comp-name">90-Day Baseline Profiler</span>
+            </div>
+            <div class="comp-detail">Computes identity daily mean (&mu;), std dev (&sigma;), and upper anomaly cutoffs (+3&sigma;).</div>
+            <div class="comp-tech">
+              <span class="tech-pill">Sliding Window</span>
+              <span class="tech-pill">Z-Score Engine</span>
+            </div>
+          </div>
+
+          <div class="comp-block highlight-card">
+            <div class="comp-header">
+              <span class="comp-icon">💾</span>
+              <span class="comp-name">Embedded SQLite Topology DB</span>
+            </div>
+            <div class="comp-detail">Stores 1,050 enterprise entities, 2,593 relationship edges, and 789 privilege mappings in `caad_topology.db`.</div>
+            <div class="comp-tech">
+              <span class="tech-pill">caad_topology.db</span>
+              <span class="tech-pill">SQLite 3</span>
+            </div>
+          </div>
+
+          <div class="comp-block">
+            <div class="comp-header">
+              <span class="comp-icon">📐</span>
+              <span class="comp-name">3-Hop Graph CTE Engine</span>
+            </div>
+            <div class="comp-detail">Recursive SQL graph CTE calculating Blast Radius Impact: S_blast = SUM(C_i * S_i * 1/d_i).</div>
+            <div class="comp-tech">
+              <span class="tech-pill">Recursive CTE</span>
+              <span class="tech-pill">Hop Decay</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LAYER 2: Normalization & Privacy Controls -->
+      <div class="layer-card layer-2">
+        <div class="layer-info">
+          <div class="layer-num">Tier 02 • Data Processing</div>
+          <div class="layer-title">OCSF Normalizer & 3-Tier Privacy</div>
+          <div class="layer-desc">Schema standardization, rulebook evaluation, and 3-tier PII anonymization controller.</div>
+        </div>
+        <div class="layer-components">
+          <div class="comp-block">
+            <div class="comp-header">
+              <span class="comp-icon">🔄</span>
+              <span class="comp-name">OCSF 1.1 Translator</span>
+            </div>
+            <div class="comp-detail">Normalizes raw cloud vendor logs into OCSF Category 3 (IAM) Class 3001/3002 event schemas.</div>
+            <div class="comp-tech">
+              <span class="tech-pill">OCSF v1.1</span>
+              <span class="tech-pill">Auto-Classifier</span>
+            </div>
+          </div>
+
+          <div class="comp-block highlight-card">
+            <div class="comp-header">
+              <span class="comp-icon">🔒</span>
+              <span class="comp-name">3-Tier PII Privacy Controller</span>
+            </div>
+            <div class="comp-detail">Dynamic identity display switching: Hashed (`a***.m****n`), Pseudonymized (`alex.morgan`), or Unmasked.</div>
+            <div class="comp-tech">
+              <span class="tech-pill">Hashed</span>
+              <span class="tech-pill">Pseudonym</span>
+              <span class="tech-pill">Unmasked</span>
+            </div>
+          </div>
+
+          <div class="comp-block">
+            <div class="comp-header">
+              <span class="comp-icon">📋</span>
+              <span class="comp-name">Configurable Rulebook</span>
+            </div>
+            <div class="comp-detail">JSON detection rulebook (`rulebook_config.json`) defining weights and alert thresholds.</div>
+            <div class="comp-tech">
+              <span class="tech-pill">rulebook_config.json</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LAYER 1: Multi-Cloud Ingestion Sources -->
+      <div class="layer-card layer-1">
+        <div class="layer-info">
+          <div class="layer-num">Tier 01 • Ingestion Layer</div>
+          <div class="layer-title">Multi-Cloud Ingestion Adapters</div>
+          <div class="layer-desc">Streaming and batch connectors for major enterprise cloud providers and SIEM exports.</div>
+        </div>
+        <div class="layer-components">
+          <div class="comp-block">
+            <div class="comp-header">
+              <span class="comp-icon">☁️</span>
+              <span class="comp-name">AWS CloudTrail Adapter</span>
+            </div>
+            <div class="comp-detail">Ingests IAM AssumeRole, ConsoleLogin, and S3 API event logs.</div>
+            <div class="comp-tech">
+              <span class="tech-pill">CloudTrail</span>
+            </div>
+          </div>
+
+          <div class="comp-block">
+            <div class="comp-header">
+              <span class="comp-icon">🔷</span>
+              <span class="comp-name">Azure / Entra ID Adapter</span>
+            </div>
+            <div class="comp-detail">Ingests SigninLogs, AzureActivity, and KeyVault access audit logs.</div>
+            <div class="comp-tech">
+              <span class="tech-pill">Sentinel KQL</span>
+            </div>
+          </div>
+
+          <div class="comp-block">
+            <div class="comp-header">
+              <span class="comp-icon">🌐</span>
+              <span class="comp-name">GCP Audit Log Adapter</span>
+            </div>
+            <div class="comp-detail">Ingests GCP Service Account key creation and BigQuery export events.</div>
+            <div class="comp-tech">
+              <span class="tech-pill">GCP Cloud Audit</span>
+            </div>
+          </div>
+
+          <div class="comp-block">
+            <div class="comp-header">
+              <span class="comp-icon">📤</span>
+              <span class="comp-name">Universal SIEM Ingest</span>
+            </div>
+            <div class="comp-detail">Drag-and-drop parser accepting Splunk CIM, Elastic ECS, and Wazuh log exports.</div>
+            <div class="comp-tech">
+              <span class="tech-pill">JSON / CSV</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="slide-footer">
+      <div class="footer-left">
+        <span>© 2026 Cloud Access Anomaly Detection & UEBA SIEM Platform</span>
+        <span>•</span>
+        <span style="color: var(--accent-cyan)">Component Architecture Deck</span>
+      </div>
+      <div class="footer-right">
+        <a href="index.html" class="btn-slide">🖥️ Launch Main App</a>
+        <a href="presentation_deck.html" class="btn-slide">📺 Launch 5-Slide Pitch Deck</a>
+        <button class="btn-slide" onclick="window.print()">🖨️ Print / Save PDF</button>
+      </div>
+    </footer>
+  </div>
+
+</body>
+</html>

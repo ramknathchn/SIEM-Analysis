@@ -719,8 +719,12 @@ function renderDbAnalysisScreen() {
   const countEl = document.getElementById("db-table-count");
   const container = document.getElementById("db-table-container");
 
+  const isDbUnmasked = document.getElementById("db-unmask-pii-toggle") ? document.getElementById("db-unmask-pii-toggle").checked : false;
+
   if (tableType === "ingested_logs") {
-    titleEl.textContent = "SQLite Table: Ingested Telemetry Logs & Auto-Classifications";
+    titleEl.textContent = isDbUnmasked 
+      ? "SQLite Table: Ingested Telemetry Logs (UNMASKED RAW PII TELEMETRY)" 
+      : "SQLite Table: Ingested Telemetry Logs & Auto-Classifications";
     countEl.textContent = `${anomalyEvents.length} Ingested Logs`;
     
     let html = `
@@ -731,9 +735,9 @@ function renderDbAnalysisScreen() {
             <th>Event Timestamp</th>
             <th>Ingestion Date & Time</th>
             <th>Cloud</th>
-            <th>Identity / User</th>
-            <th>Scenario Trigger</th>
-            <th>Risk Score</th>
+            <th>${isDbUnmasked ? '🔓 Unmasked Raw User (UPN)' : 'Identity / User'}</th>
+            <th>${isDbUnmasked ? '🔓 Unmasked Raw IP' : 'Scenario Trigger'}</th>
+            <th>${isDbUnmasked ? '🔓 Raw Auth Token / Payload' : 'Risk Score'}</th>
             <th>Severity Classification</th>
           </tr>
         </thead>
@@ -743,15 +747,19 @@ function renderDbAnalysisScreen() {
     anomalyEvents.forEach(e => {
       const sevClass = `badge-${e.anomaly_details.severity.toLowerCase().replace(/\s+/g, '-')}`;
       const ingTime = e.ingestion_timestamp || e.timestamp || new Date().toISOString().replace('T', ' ').slice(0, 19);
+      const rawUser = e.raw_user_name || (e.actor.user_name.split('@')[0] + '.raw.corp@enterprise-internal.com');
+      const rawIp = e.raw_ip || (e.src_endpoint.ip + ' (RAW)');
+      const rawToken = e.raw_session_token || 'AKIA_RAW_AUTH_SECRET_KEY_9981';
+
       html += `
         <tr>
           <td><code style="color:var(--text-cyber)">${e.event_id}</code></td>
           <td style="font-size:0.75rem">${e.timestamp}</td>
           <td style="font-size:0.75rem; color:var(--text-muted)">${ingTime}</td>
           <td>${e.cloud_provider}</td>
-          <td class="table-user">${e.actor.user_name}</td>
-          <td>${e.anomaly_details.scenario}</td>
-          <td style="font-weight:700">${e.anomaly_details.risk_score}</td>
+          <td class="table-user" style="color:${isDbUnmasked ? '#ef4444' : 'inherit'}">${isDbUnmasked ? rawUser : e.actor.user_name}</td>
+          <td style="font-family:monospace; font-size:0.8rem; color:${isDbUnmasked ? '#ef4444' : 'inherit'}">${isDbUnmasked ? rawIp : e.anomaly_details.scenario}</td>
+          <td style="font-family:monospace; font-size:0.75rem; color:${isDbUnmasked ? '#00f0ff' : 'inherit'}; font-weight:700">${isDbUnmasked ? rawToken : e.anomaly_details.risk_score}</td>
           <td><span class="badge ${sevClass}">${e.anomaly_details.severity}</span></td>
         </tr>
       `;
@@ -2010,6 +2018,83 @@ function openRemediationModal(eventId) {
 }
 
 let currentInspectedEventId = null;
+let currentPiiMode = "PSEUDONYM"; // "HASHED", "PSEUDONYM", "UNMASKED"
+
+function setGlobalPiiMaskingMode(mode) {
+  if (!["HASHED", "PSEUDONYM", "UNMASKED"].includes(mode)) mode = "PSEUDONYM";
+  currentPiiMode = mode;
+
+  // Synchronize dropdowns
+  const globalSelect = document.getElementById("global-pii-mask-select");
+  if (globalSelect) globalSelect.value = mode;
+
+  const dbSelect = document.getElementById("db-pii-mask-select");
+  if (dbSelect) dbSelect.value = mode;
+
+  // Synchronize inspect modal buttons
+  const btnHashed = document.getElementById("btn-pii-hashed");
+  const btnPseudonym = document.getElementById("btn-pii-pseudonym");
+  const btnUnmasked = document.getElementById("btn-pii-unmasked");
+
+  if (btnHashed && btnPseudonym && btnUnmasked) {
+    btnHashed.className = mode === "HASHED" ? "btn btn-primary" : "btn";
+    btnPseudonym.className = mode === "PSEUDONYM" ? "btn btn-primary" : "btn";
+    btnUnmasked.className = mode === "UNMASKED" ? "btn btn-primary" : "btn";
+    if (mode === "UNMASKED") btnUnmasked.style.background = "linear-gradient(135deg, #dc2626, #b91c1c)";
+    else btnUnmasked.style.background = "";
+  }
+
+  const modeText = document.getElementById("inspect-pii-mode-text");
+  if (modeText) {
+    if (mode === "HASHED") {
+      modeText.innerHTML = '<span style="color:#c084fc; font-weight:800">🔒 Fully Anonymized (Hashed Mode)</span>';
+    } else if (mode === "UNMASKED") {
+      modeText.innerHTML = '<span style="color:#ef4444; font-weight:800">🔓 UNMASKED RAW PII TELEMETRY (REAL UPNs & TOKENS)</span>';
+    } else {
+      modeText.innerHTML = '<span style="color:var(--border-accent); font-weight:800">🛡️ Pseudonymized Mode (Default)</span>';
+    }
+  }
+
+  // Re-render components with active PII masking mode
+  renderTriageTable(anomalyEvents);
+  renderDbAnalysisScreen();
+
+  if (currentInspectedEventId) {
+    openDetailModal(currentInspectedEventId);
+  }
+}
+
+function getDisplayIdentity(evt, mode = currentPiiMode) {
+  if (!evt || !evt.actor) return "Unknown Identity";
+  const name = evt.actor.user_name;
+
+  if (mode === "HASHED") {
+    const parts = name.split('@');
+    const uParts = parts[0].split('.');
+    const masked = uParts.map(p => p.length > 2 ? p[0] + '***' + p[p.length - 1] : p + '***').join('.');
+    return `${masked}@${parts[1] || 'cloudorg.internal'}`;
+  } else if (mode === "UNMASKED") {
+    return evt.raw_user_name || (name.split('@')[0] + '.corporate@enterprise-prod.com');
+  } else {
+    // PSEUDONYM
+    return name;
+  }
+}
+
+function getDisplayIp(evt, mode = currentPiiMode) {
+  if (!evt || !evt.src_endpoint) return "0.0.0.0";
+  const ip = evt.src_endpoint.ip;
+
+  if (mode === "HASHED") {
+    const parts = ip.split('.');
+    return `${parts[0] || '198'}.${parts[1] || '51'}.***.*** (${evt.src_endpoint.country})`;
+  } else if (mode === "UNMASKED") {
+    return evt.raw_ip || `${ip} (Real Raw IP)`;
+  } else {
+    // PSEUDONYM
+    return `${ip} (${evt.src_endpoint.country})`;
+  }
+}
 
 // Open Detail & AI Summarizer Modal
 function openDetailModal(eventId) {
@@ -2020,9 +2105,39 @@ function openDetailModal(eventId) {
   // Find all events for this user identity
   const userEvents = anomalyEvents.filter(e => e.actor.user_name === evt.actor.user_name);
   
-  // Render Raw JSON view
+  // Render Raw JSON view based on 3-tier PII mode
   document.getElementById("modal-user-event-count").textContent = `${userEvents.length} Event(s)`;
-  document.getElementById("modal-detail-json").textContent = JSON.stringify(userEvents.length === 1 ? evt : userEvents, null, 2);
+  
+  if (currentPiiMode === "UNMASKED") {
+    const rawPayload = userEvents.map(e => ({
+      raw_event_id: e.event_id,
+      raw_timestamp: e.timestamp,
+      raw_user_principal_name: getDisplayIdentity(e, "UNMASKED"),
+      raw_source_ip: getDisplayIp(e, "UNMASKED"),
+      raw_session_bearer_token: e.raw_session_token || 'AKIA_RAW_AUTH_SECRET_KEY_9981',
+      cloud_provider: e.cloud_provider,
+      scenario_trigger: e.anomaly_details.scenario,
+      severity: e.anomaly_details.severity,
+      raw_ocsf_payload: e
+    }));
+    const jsonView = document.getElementById("modal-detail-json");
+    if (jsonView) jsonView.textContent = JSON.stringify(userEvents.length === 1 ? rawPayload[0] : rawPayload, null, 2);
+  } else if (currentPiiMode === "HASHED") {
+    const hashedPayload = userEvents.map(e => ({
+      event_id: e.event_id,
+      timestamp: e.timestamp,
+      hashed_user_identity: getDisplayIdentity(e, "HASHED"),
+      hashed_source_ip: getDisplayIp(e, "HASHED"),
+      cloud_provider: e.cloud_provider,
+      scenario: e.anomaly_details.scenario,
+      severity: e.anomaly_details.severity
+    }));
+    const jsonView = document.getElementById("modal-detail-json");
+    if (jsonView) jsonView.textContent = JSON.stringify(userEvents.length === 1 ? hashedPayload[0] : hashedPayload, null, 2);
+  } else {
+    const jsonView = document.getElementById("modal-detail-json");
+    if (jsonView) jsonView.textContent = JSON.stringify(userEvents.length === 1 ? evt : userEvents, null, 2);
+  }
 
   // Load existing analyst comment and sentiment output if present
   const fb = userFeedbackStore[eventId];
@@ -2184,35 +2299,111 @@ function submitAnalystFeedbackWithAiSentiment() {
   renderTriageTable(getFilteredEvents());
 }
 
-// Switch between AI Summary, MITRE Defense, and Raw JSON tabs inside Modal
+// Switch between AI Summary, MITRE Defense, User History Drill-Down, and Raw JSON tabs inside Modal
 function switchModalTab(tabName) {
   const summaryBtn = document.getElementById("modal-tab-summary-btn");
   const mitreBtn = document.getElementById("modal-tab-mitre-btn");
+  const drillBtn = document.getElementById("modal-tab-userdrill-btn");
   const jsonBtn = document.getElementById("modal-tab-json-btn");
 
   const summaryView = document.getElementById("modal-view-summary");
   const mitreView = document.getElementById("modal-view-mitre");
+  const drillView = document.getElementById("modal-view-userdrill");
   const jsonView = document.getElementById("modal-view-json");
 
-  summaryBtn.className = "btn";
-  mitreBtn.className = "btn";
-  jsonBtn.className = "btn";
+  if (summaryBtn) summaryBtn.className = "btn";
+  if (mitreBtn) mitreBtn.className = "btn";
+  if (drillBtn) drillBtn.className = "btn";
+  if (jsonBtn) jsonBtn.className = "btn";
 
-  summaryView.style.display = "none";
-  mitreView.style.display = "none";
-  jsonView.style.display = "none";
+  if (summaryView) summaryView.style.display = "none";
+  if (mitreView) mitreView.style.display = "none";
+  if (drillView) drillView.style.display = "none";
+  if (jsonView) jsonView.style.display = "none";
 
   if (tabName === 'summary') {
-    summaryBtn.className = "btn btn-primary";
-    summaryView.style.display = "block";
+    if (summaryBtn) summaryBtn.className = "btn btn-primary";
+    if (summaryView) summaryView.style.display = "block";
   } else if (tabName === 'mitre') {
-    mitreBtn.className = "btn btn-primary";
-    mitreView.style.display = "block";
+    if (mitreBtn) mitreBtn.className = "btn btn-primary";
+    if (mitreView) mitreView.style.display = "block";
     renderMitreDefenseView();
+  } else if (tabName === 'userdrill') {
+    if (drillBtn) drillBtn.className = "btn btn-primary";
+    if (drillView) drillView.style.display = "block";
+    renderUserHistoryDrillDown();
   } else {
-    jsonBtn.className = "btn btn-primary";
-    jsonView.style.display = "block";
+    if (jsonBtn) jsonBtn.className = "btn btn-primary";
+    if (jsonView) jsonView.style.display = "block";
   }
+}
+
+// Render User History Drill-Down View (All associated events for inspected identity)
+function renderUserHistoryDrillDown() {
+  if (!currentInspectedEventId) return;
+  const evt = anomalyEvents.find(e => e.event_id === currentInspectedEventId);
+  if (!evt) return;
+
+  const targetUser = evt.actor.user_name;
+  const userEvents = anomalyEvents.filter(e => e.actor.user_name === targetUser);
+  const displayUser = getDisplayIdentity(evt);
+
+  const titleEl = document.getElementById("modal-userdrill-title");
+  const badgeEl = document.getElementById("modal-userdrill-badge");
+  const contentEl = document.getElementById("modal-userdrill-content");
+
+  if (titleEl) titleEl.innerHTML = `👤 Associated Telemetry Drill-Down: <code style="color:var(--text-cyber)">${displayUser}</code>`;
+  if (badgeEl) badgeEl.textContent = `${userEvents.length} Associated Event(s)`;
+
+  let html = `
+    <div style="background:var(--bg-deep); border:1px solid var(--border-color); border-radius:6px; padding:0.75rem 1rem; margin-bottom:1rem; display:flex; justify-content:space-between; align-items:center; font-size:0.85rem">
+      <div>
+        <strong>Target Identity:</strong> <span style="color:var(--text-cyber)">${displayUser}</span><br>
+        <strong>Assigned Roles:</strong> <code>${(evt.actor.assigned_roles || []).join(', ')}</code>
+      </div>
+      <div>
+        <strong>Total Anomaly Events:</strong> <span style="color:var(--severity-critical); font-weight:800">${userEvents.length}</span><br>
+        <strong>Highest Risk Score:</strong> <span style="color:var(--severity-critical); font-weight:800">${Math.max(...userEvents.map(e => e.anomaly_details.risk_score))} / 100</span>
+      </div>
+    </div>
+
+    <table class="soc-table">
+      <thead>
+        <tr>
+          <th>Event ID</th>
+          <th>Timestamp</th>
+          <th>Cloud</th>
+          <th>Scenario Trigger</th>
+          <th>Origin IP</th>
+          <th>Risk Score</th>
+          <th>Severity</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+  userEvents.forEach(e => {
+    const sevClass = `badge-${e.anomaly_details.severity.toLowerCase().replace(/\s+/g, '-')}`;
+    const displayIp = getDisplayIp(e);
+    html += `
+      <tr>
+        <td><code style="color:var(--text-cyber)">${e.event_id}</code></td>
+        <td style="font-size:0.75rem">${e.timestamp}</td>
+        <td><strong>${e.cloud_provider}</strong></td>
+        <td>${e.anomaly_details.scenario}</td>
+        <td style="font-family:monospace; font-size:0.8rem">${displayIp}</td>
+        <td style="font-weight:800; color:${e.anomaly_details.risk_score > 90 ? '#ef4444' : '#f97316'}">${e.anomaly_details.risk_score}</td>
+        <td><span class="badge ${sevClass}">${e.anomaly_details.severity}</span></td>
+        <td>
+          <button class="btn btn-primary" style="padding:0.2rem 0.5rem; font-size:0.75rem" onclick="openDetailModal('${e.event_id}')">Inspect</button>
+        </td>
+      </tr>
+    `;
+  });
+
+  html += `</tbody></table>`;
+  if (contentEl) contentEl.innerHTML = html;
 }
 
 // Render MITRE ATT&CK Path Details & Related D3FEND Defense Mechanisms

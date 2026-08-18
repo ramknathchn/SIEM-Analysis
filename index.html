@@ -12,7 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
   
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="styles.css?v=3.0.0">
+  <link rel="stylesheet" href="styles.css?v=3.2.0">
 
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -33,8 +33,14 @@
         <span class="pulse-dot"></span>
         <span>LIVE SOC ENGINE ACTIVE</span>
       </div>
+      <select id="global-pii-mask-select" class="select-input" style="font-weight:700; border-color:var(--border-accent); background:var(--bg-card)" onchange="setGlobalPiiMaskingMode(this.value)">
+        <option value="PSEUDONYM" selected>🛡️ PII: Pseudonymized (Default)</option>
+        <option value="HASHED">🔒 PII: Fully Anonymized (Hashed)</option>
+        <option value="UNMASKED">🔓 PII: Unmasked (Forensics)</option>
+      </select>
       <button class="btn" id="theme-toggle-btn" onclick="toggleTheme()">☀️ Light Mode</button>
       <button class="btn btn-primary" onclick="window.open('presentation_deck.html', '_blank')">📺 Pitch Deck PPT</button>
+      <button class="btn" style="border-color:var(--border-accent); color:var(--text-cyber)" onclick="window.open('architecture_slide.html', '_blank')">🏛️ Architecture Slide</button>
       <button class="btn" onclick="openAiConfigModal()">⚙️ AI Config</button>
       <button class="btn" onclick="window.print()">🖨️ Print / PDF Report</button>
     </div>
@@ -369,6 +375,10 @@
             <option value="rulebook">Configurable Detection Rulebook (rulebook_config.json)</option>
           </select>
           <button class="btn btn-primary" onclick="renderDbAnalysisScreen()">🔄 Refresh DB Data</button>
+          <label style="display:inline-flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.85rem; font-weight:700; margin-left:auto">
+            <input type="checkbox" id="db-unmask-pii-toggle" onchange="renderDbAnalysisScreen()">
+            <span style="color:var(--text-cyber)" id="db-unmask-label">🔓 Unmask PII Payload Data</span>
+          </label>
         </div>
 
         <div style="margin-top:1.5rem">
@@ -554,10 +564,21 @@
         <button class="btn" onclick="closeModal('modal-detail')">✕ Close</button>
       </div>
 
+      <!-- 3-Tier PII Masking & Telemetry Switch -->
+      <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-deep); border:1px solid var(--border-color); border-radius:6px; padding:0.5rem 0.75rem; margin-bottom:1rem">
+        <span style="font-size:0.82rem; font-weight:600; color:var(--text-cyber)">🔒 PII Masking Level: <strong id="inspect-pii-mode-text" style="color:var(--border-accent)">🛡️ Pseudonymized Mode</strong></span>
+        <div style="display:flex; gap:0.4rem">
+          <button class="btn" id="btn-pii-hashed" onclick="setGlobalPiiMaskingMode('HASHED')" style="padding:0.25rem 0.6rem; font-size:0.78rem">🔒 Hashed</button>
+          <button class="btn btn-primary" id="btn-pii-pseudonym" onclick="setGlobalPiiMaskingMode('PSEUDONYM')" style="padding:0.25rem 0.6rem; font-size:0.78rem">🛡️ Pseudonym</button>
+          <button class="btn" id="btn-pii-unmasked" onclick="setGlobalPiiMaskingMode('UNMASKED')" style="padding:0.25rem 0.6rem; font-size:0.78rem; border-color:#ef4444; color:#ef4444">🔓 Unmasked</button>
+        </div>
+      </div>
+
       <!-- Tab Switcher inside Modal -->
       <div style="display:flex; gap:0.5rem; margin-bottom:1rem; flex-wrap:wrap">
         <button class="btn btn-primary" id="modal-tab-summary-btn" onclick="switchModalTab('summary')">🤖 AI English Summary</button>
         <button class="btn" id="modal-tab-mitre-btn" onclick="switchModalTab('mitre')">🛡️ MITRE ATT&CK Path & Defense</button>
+        <button class="btn" id="modal-tab-userdrill-btn" onclick="switchModalTab('userdrill')">👤 User History Drill-Down</button>
         <button class="btn" id="modal-tab-json-btn" onclick="switchModalTab('json')">📄 Raw User Logs (JSON)</button>
         <button class="btn" onclick="triggerAiSummarization()" style="margin-left:auto; border-color:var(--border-accent); color:var(--border-accent)">🔄 Re-Summarize Logs</button>
       </div>
@@ -584,7 +605,18 @@
         </div>
       </div>
 
-      <!-- View 3: Raw User Logs (JSON) -->
+      <!-- View 3: User History Drill-Down Tab -->
+      <div id="modal-view-userdrill" style="display:none">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem">
+          <span style="font-size:0.85rem; font-weight:700; color:var(--text-cyber)" id="modal-userdrill-title">👤 All Associated Telemetry Events for Identity</span>
+          <span id="modal-userdrill-badge" class="badge badge-info">0 Events Found</span>
+        </div>
+        <div id="modal-userdrill-content" class="table-container" style="max-height:380px; overflow-y:auto">
+          <!-- Populated dynamically by app.js -->
+        </div>
+      </div>
+
+      <!-- View 4: Raw User Logs (JSON) -->
       <div id="modal-view-json" style="display:none">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem">
           <span style="font-size:0.8rem; color:var(--text-muted)">Showing all telemetry events matching user identity:</span>
@@ -695,7 +727,7 @@
   </div>
 
   <!-- Local Script -->
-  <script src="app.js?v=3.0.0"></script>
+  <script src="app.js?v=3.2.0"></script>
 
 </body>
 </html>
