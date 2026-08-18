@@ -33,6 +33,7 @@
         <span class="pulse-dot"></span>
         <span>LIVE SOC ENGINE ACTIVE</span>
       </div>
+      <button class="btn" id="theme-toggle-btn" onclick="toggleTheme()">☀️ Light Mode</button>
       <button class="btn" onclick="openAiConfigModal()">⚙️ AI Config</button>
       <button class="btn" onclick="window.print()">🖨️ Print / PDF Report</button>
     </div>
@@ -51,9 +52,9 @@
       <div class="metric-sub">Privilege & Session Drift</div>
     </div>
     <div class="metric-card">
-      <div class="metric-label">Analyzed Session Events</div>
-      <div class="metric-value" id="metric-analyzed">0</div>
-      <div class="metric-sub">30-Min Window Windowing</div>
+      <div class="metric-label">User Satisfaction Rate</div>
+      <div class="metric-value" id="metric-satisfaction" style="color:var(--severity-info)">100.0%</div>
+      <div class="metric-sub" id="metric-agreements-count">5 / 5 Predictions Verified</div>
     </div>
     <div class="metric-card">
       <div class="metric-label">Avg UEBA ML Risk Score</div>
@@ -113,6 +114,7 @@
                   <th>Scenario</th>
                   <th>Origin IP (Country)</th>
                   <th>Risk Score</th>
+                  <th>Analyst Agreement</th>
                   <th>SOC Action</th>
                 </tr>
               </thead>

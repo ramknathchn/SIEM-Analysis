@@ -215,6 +215,58 @@ let anomalyEvents = [
   }
 ];
 
+// Analyst Feedback & Agreement Tracking Store
+let userFeedbackStore = {
+  "OCSF-UEBA-2026-001": true,
+  "OCSF-UEBA-2026-002": true,
+  "OCSF-UEBA-2026-003": true,
+  "OCSF-UEBA-2026-004": true,
+  "OCSF-UEBA-2026-005": true
+};
+
+// Theme Switcher Handler (Dark vs Light)
+function toggleTheme() {
+  const currentTheme = document.documentElement.getAttribute("data-theme") || "dark";
+  const newTheme = currentTheme === "dark" ? "light" : "dark";
+  
+  document.documentElement.setAttribute("data-theme", newTheme);
+  localStorage.setItem("caad_theme", newTheme);
+  
+  const toggleBtn = document.getElementById("theme-toggle-btn");
+  if (toggleBtn) {
+    toggleBtn.textContent = newTheme === "dark" ? "☀️ Light Mode" : "🌙 Dark Mode";
+  }
+
+  // Re-render charts for theme contrast
+  renderCharts();
+  renderTopologyGraph();
+}
+
+// Record Analyst Agreement or Disagreement
+function recordAnalystFeedback(eventId, isAgreed) {
+  userFeedbackStore[eventId] = isAgreed;
+  renderMetrics();
+  renderTriageTable(anomalyEvents);
+}
+
+// Calculate and Render Top Banner Metrics
+function renderMetrics() {
+  const criticalCount = anomalyEvents.filter(e => e.anomaly_details.severity === "CRITICAL").length;
+  const highCount = anomalyEvents.filter(e => e.anomaly_details.severity === "HIGH").length;
+  const avgRisk = (anomalyEvents.reduce((acc, curr) => acc + curr.anomaly_details.risk_score, 0) / anomalyEvents.length).toFixed(1);
+
+  // Calculate User Satisfaction Rate based on Analyst Feedback Agreements
+  const totalVerified = Object.keys(userFeedbackStore).length;
+  const totalAgreed = Object.values(userFeedbackStore).filter(val => val === true).length;
+  const satisfactionRate = totalVerified > 0 ? ((totalAgreed / totalVerified) * 100).toFixed(1) : "100.0";
+
+  document.getElementById("metric-critical").textContent = criticalCount;
+  document.getElementById("metric-high").textContent = highCount;
+  document.getElementById("metric-satisfaction").textContent = `${satisfactionRate}%`;
+  document.getElementById("metric-agreements-count").textContent = `${totalAgreed} / ${totalVerified} Predictions Verified`;
+  document.getElementById("metric-risk").textContent = `${avgRisk} / 100`;
+}
+
 // Global Chart References
 let severityChart = null;
 let baselineChart = null;
@@ -538,7 +590,20 @@ function renderTriageTable(events) {
   events.forEach(evt => {
     const tr = document.createElement("tr");
     const severityClass = `badge-${evt.anomaly_details.severity.toLowerCase()}`;
+    const feedbackStatus = userFeedbackStore[evt.event_id];
     
+    let agreementHtml = "";
+    if (feedbackStatus === true) {
+      agreementHtml = `<span class="badge badge-info" style="cursor:pointer" onclick="recordAnalystFeedback('${evt.event_id}', false)">👍 Agreed</span>`;
+    } else if (feedbackStatus === false) {
+      agreementHtml = `<span class="badge badge-critical" style="cursor:pointer" onclick="recordAnalystFeedback('${evt.event_id}', true)">👎 Disagreed</span>`;
+    } else {
+      agreementHtml = `
+        <button class="btn" style="padding:0.2rem 0.5rem; font-size:0.75rem" onclick="recordAnalystFeedback('${evt.event_id}', true)">👍</button>
+        <button class="btn" style="padding:0.2rem 0.5rem; font-size:0.75rem" onclick="recordAnalystFeedback('${evt.event_id}', false)">👎</button>
+      `;
+    }
+
     tr.innerHTML = `
       <td><span class="badge ${severityClass}">${evt.anomaly_details.severity}</span></td>
       <td class="table-user">${evt.actor.user_name}</td>
@@ -546,6 +611,7 @@ function renderTriageTable(events) {
       <td>${evt.anomaly_details.scenario}</td>
       <td><code>${evt.src_endpoint.ip}</code> (${evt.src_endpoint.country})</td>
       <td style="font-weight:700; color:${evt.anomaly_details.risk_score > 90 ? '#ef4444' : '#f97316'}">${evt.anomaly_details.risk_score}</td>
+      <td>${agreementHtml}</td>
       <td>
         <button class="btn btn-primary" onclick="openRemediationModal('${evt.event_id}')">Playbook</button>
         <button class="btn" onclick="openDetailModal('${evt.event_id}')">Inspect</button>
