@@ -1201,33 +1201,48 @@ function drawNodeGraphCanvas(entryEntityId, currentData) {
   }, 50);
 }
 
-// Tab Switching Handler
+// Global Tab Switching Engine
+function switchTab(tabId) {
+  try {
+    const tabs = document.querySelectorAll(".tab-btn");
+    const panes = document.querySelectorAll(".tab-pane");
+
+    tabs.forEach(t => {
+      if (t.dataset.tab === tabId) {
+        t.classList.add("active");
+      } else {
+        t.classList.remove("active");
+      }
+    });
+
+    panes.forEach(p => {
+      if (p.id === tabId) {
+        p.classList.add("active");
+        p.style.display = "block";
+      } else {
+        p.classList.remove("active");
+        p.style.display = "none";
+      }
+    });
+
+    if (tabId === "topology") {
+      renderTopologyGraph();
+    } else if (tabId === "db-analysis") {
+      renderDbAnalysisScreen();
+    } else if (tabId === "baseline") {
+      renderBaselineProfilerScreen();
+    }
+  } catch (err) {
+    console.error(`Error switching to tab ${tabId}:`, err);
+  }
+}
+
 function initTabs() {
   const tabs = document.querySelectorAll(".tab-btn");
   tabs.forEach(tab => {
-    tab.addEventListener("click", () => {
-      try {
-        tabs.forEach(t => t.classList.remove("active"));
-        document.querySelectorAll(".tab-pane").forEach(pane => pane.classList.remove("active"));
-        
-        tab.classList.add("active");
-        const targetPane = document.getElementById(tab.dataset.tab);
-        if (targetPane) {
-          targetPane.classList.add("active");
-        }
-
-        // Auto-render tab content safely
-        const tabName = tab.dataset.tab;
-        if (tabName === "db-analysis") {
-          renderDbAnalysisScreen();
-        } else if (tabName === "topology") {
-          renderTopologyGraph();
-        } else if (tabName === "baseline") {
-          renderBaselineProfilerScreen();
-        }
-      } catch (err) {
-        console.error("Tab switching error:", err);
-      }
+    tab.addEventListener("click", (e) => {
+      e.preventDefault();
+      switchTab(tab.dataset.tab);
     });
   });
 }

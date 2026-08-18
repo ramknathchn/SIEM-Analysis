@@ -12,10 +12,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
   
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="styles.css?v=2.7.0">
+  <link rel="stylesheet" href="styles.css?v=2.8.0">
 
   <!-- Chart.js CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js?v=2.7.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js?v=2.8.0"></script>
 </head>
 <body>
 
@@ -66,14 +66,14 @@
 
   <!-- Navigation Tabs -->
   <nav class="nav-tabs">
-    <button class="tab-btn active" data-tab="triage">🚨 Anomaly Triage</button>
-    <button class="tab-btn" data-tab="baseline">📊 Behavioral Baseline Profiler</button>
-    <button class="tab-btn" data-tab="topology">🕸️ 1,000+ System Topology</button>
-    <button class="tab-btn" data-tab="db-analysis">💾 SQLite DB Analysis</button>
-    <button class="tab-btn" data-tab="download">📥 SIEM Download Center</button>
-    <button class="tab-btn" data-tab="upload">📤 SIEM Upload & Ingestion</button>
-    <button class="tab-btn" data-tab="simulator">⚡ Attack Simulator</button>
-    <button class="tab-btn" data-tab="catalog">📚 Data Sources Catalog</button>
+    <button class="tab-btn active" data-tab="triage" onclick="switchTab('triage')">🚨 Anomaly Triage</button>
+    <button class="tab-btn" data-tab="baseline" onclick="switchTab('baseline')">📊 Behavioral Baseline Profiler</button>
+    <button class="tab-btn" data-tab="topology" onclick="switchTab('topology')">🕸️ 1,000+ System Topology</button>
+    <button class="tab-btn" data-tab="db-analysis" onclick="switchTab('db-analysis')">💾 SQLite DB Analysis</button>
+    <button class="tab-btn" data-tab="download" onclick="switchTab('download')">📥 SIEM Download Center</button>
+    <button class="tab-btn" data-tab="upload" onclick="switchTab('upload')">📤 SIEM Upload & Ingestion</button>
+    <button class="tab-btn" data-tab="simulator" onclick="switchTab('simulator')">⚡ Attack Simulator</button>
+    <button class="tab-btn" data-tab="catalog" onclick="switchTab('catalog')">📚 Data Sources Catalog</button>
   </nav>
 
   <!-- Main Content View Areas -->
@@ -691,7 +691,7 @@
   </div>
 
   <!-- Local Script -->
-  <script src="app.js?v=2.7.0"></script>
+  <script src="app.js?v=2.8.0"></script>
 
 </body>
 </html>
