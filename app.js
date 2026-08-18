@@ -728,7 +728,8 @@ function renderDbAnalysisScreen() {
         <thead>
           <tr>
             <th>Event ID</th>
-            <th>Timestamp</th>
+            <th>Event Timestamp</th>
+            <th>Ingestion Date & Time</th>
             <th>Cloud</th>
             <th>Identity / User</th>
             <th>Scenario Trigger</th>
@@ -741,10 +742,12 @@ function renderDbAnalysisScreen() {
 
     anomalyEvents.forEach(e => {
       const sevClass = `badge-${e.anomaly_details.severity.toLowerCase().replace(/\s+/g, '-')}`;
+      const ingTime = e.ingestion_timestamp || e.timestamp || new Date().toISOString().replace('T', ' ').slice(0, 19);
       html += `
         <tr>
           <td><code style="color:var(--text-cyber)">${e.event_id}</code></td>
           <td style="font-size:0.75rem">${e.timestamp}</td>
+          <td style="font-size:0.75rem; color:var(--text-muted)">${ingTime}</td>
           <td>${e.cloud_provider}</td>
           <td class="table-user">${e.actor.user_name}</td>
           <td>${e.anomaly_details.scenario}</td>
@@ -1203,20 +1206,27 @@ function initTabs() {
   const tabs = document.querySelectorAll(".tab-btn");
   tabs.forEach(tab => {
     tab.addEventListener("click", () => {
-      tabs.forEach(t => t.classList.remove("active"));
-      document.querySelectorAll(".tab-pane").forEach(pane => pane.classList.remove("active"));
-      
-      tab.classList.add("active");
-      const targetPane = document.getElementById(tab.dataset.tab);
-      if (targetPane) targetPane.classList.add("active");
+      try {
+        tabs.forEach(t => t.classList.remove("active"));
+        document.querySelectorAll(".tab-pane").forEach(pane => pane.classList.remove("active"));
+        
+        tab.classList.add("active");
+        const targetPane = document.getElementById(tab.dataset.tab);
+        if (targetPane) {
+          targetPane.classList.add("active");
+        }
 
-      // Auto-render tab content
-      if (tab.dataset.tab === "db-analysis") {
-        renderDbAnalysisScreen();
-      } else if (tab.dataset.tab === "topology") {
-        renderTopologyGraph();
-      } else if (tab.dataset.tab === "baseline") {
-        renderBaselineProfilerScreen();
+        // Auto-render tab content safely
+        const tabName = tab.dataset.tab;
+        if (tabName === "db-analysis") {
+          renderDbAnalysisScreen();
+        } else if (tabName === "topology") {
+          renderTopologyGraph();
+        } else if (tabName === "baseline") {
+          renderBaselineProfilerScreen();
+        }
+      } catch (err) {
+        console.error("Tab switching error:", err);
       }
     });
   });
@@ -1478,8 +1488,11 @@ function renderTriageTable(events) {
       `;
     }
 
+    const ingestionTime = evt.ingestion_timestamp || evt.timestamp || new Date().toISOString().replace('T', ' ').slice(0, 19);
+
     tr.innerHTML = `
       <td><span class="badge ${severityClass}">${evt.anomaly_details.severity}</span></td>
+      <td><span style="font-size:0.75rem; color:var(--text-muted); font-family:monospace">${ingestionTime}</span></td>
       <td class="table-user">${evt.actor.user_name}</td>
       <td><span style="color:var(--text-cyber)">${evt.cloud_provider}</span></td>
       <td>${evt.anomaly_details.scenario}</td>
@@ -1549,6 +1562,7 @@ function exportFilteredTelemetryReport() {
         data-severity="${e.anomaly_details.severity}">
       <td style="font-family:monospace; font-weight:bold">${e.event_id}</td>
       <td style="font-size:0.8rem">${e.timestamp}</td>
+      <td style="font-size:0.8rem; color:#64748b; font-family:monospace">${e.ingestion_timestamp || e.timestamp}</td>
       <td><strong>${e.cloud_provider}</strong></td>
       <td style="font-family:monospace; color:#0284c7">${e.actor.user_name}</td>
       <td>${e.anomaly_details.scenario}</td>
@@ -1730,7 +1744,8 @@ function exportFilteredTelemetryReport() {
       <thead>
         <tr>
           <th>Event ID</th>
-          <th>Timestamp</th>
+          <th>Event Timestamp</th>
+          <th>Ingestion Date & Time</th>
           <th>Cloud</th>
           <th>Identity / User</th>
           <th>Scenario Trigger</th>
@@ -2835,6 +2850,11 @@ function normalizeSiemRecord(raw) {
     userFeedbackStore[record.event_id] = false; // Flagged as False Positive feedback
   } else if (userFeedbackStore[record.event_id] === undefined) {
     userFeedbackStore[record.event_id] = true; // Confirmed True Positive default
+  }
+
+  // Ensure ingestion_timestamp is always recorded
+  if (!record.ingestion_timestamp) {
+    record.ingestion_timestamp = raw.ingestion_timestamp || new Date().toISOString().replace('T', ' ').slice(0, 19);
   }
 
   return record;
