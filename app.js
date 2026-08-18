@@ -998,17 +998,19 @@ function renderTopologyGraph() {
   });
 
   html += `</tbody></table>`;
-  nodeList.innerHTML = html;
+  if (nodeList) nodeList.innerHTML = html;
 
   // Render Summary
-  summaryBox.innerHTML = `
-    <strong>Target Identity:</strong> <code>${entityId}</code><br>
-    <strong>Total Connected 1,000+ Systems:</strong> <span style="color:var(--border-accent); font-weight:700">${current.reachable_count} entities reachable in 5 hops</span><br>
-    <strong>Calculated Blast Radius Score:</strong> <span style="color:var(--severity-critical); font-size:1.4rem; font-weight:800">${current.blast_score}</span><br>
-    <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.5rem">
-      Traversed via SQLite 5-Hop Recursive CTE algorithm in <code>caad_topology.db</code>. Score is weighted by criticality, data sensitivity, and hop distance attenuation.
-    </p>
-  `;
+  if (summaryBox) {
+    summaryBox.innerHTML = `
+      <strong>Target Identity:</strong> <code>${entityId}</code><br>
+      <strong>Total Connected 1,000+ Systems:</strong> <span style="color:var(--border-accent); font-weight:700">${current.reachable_count} entities reachable in 5 hops</span><br>
+      <strong>Calculated Blast Radius Score:</strong> <span style="color:var(--severity-critical); font-size:1.4rem; font-weight:800">${current.blast_score}</span><br>
+      <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.5rem">
+        Traversed via SQLite 5-Hop Recursive CTE algorithm in <code>caad_topology.db</code>. Score is weighted by criticality, data sensitivity, and hop distance attenuation.
+      </p>
+    `;
+  }
 
   // Render Visual Node Graph Canvas
   drawNodeGraphCanvas(entityId, current);
