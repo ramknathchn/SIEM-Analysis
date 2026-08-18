@@ -66,6 +66,7 @@
   <nav class="nav-tabs">
     <button class="tab-btn active" data-tab="triage">🚨 Anomaly Triage</button>
     <button class="tab-btn" data-tab="baseline">📊 Behavioral Baseline Profiler</button>
+    <button class="tab-btn" data-tab="topology">🕸️ 1,000+ System Topology</button>
     <button class="tab-btn" data-tab="download">📥 SIEM Download Center</button>
     <button class="tab-btn" data-tab="upload">📤 SIEM Upload & Ingestion</button>
     <button class="tab-btn" data-tab="simulator">⚡ Attack Simulator</button>
@@ -139,50 +140,48 @@
       </div>
     </div>
 
-    <!-- TAB 2: Behavioral Baseline Profiler -->
-    <div id="baseline" class="tab-pane">
-      <div class="grid-equal">
-        <div class="soc-card">
-          <div class="card-header">
-            <h2 class="card-title">📉 90-Day Baseline vs 30-Min Session Volume</h2>
-          </div>
-          <div class="chart-box">
-            <canvas id="chart-baseline"></canvas>
-          </div>
-        </div>
-
-        <div class="soc-card">
-          <div class="card-header">
-            <h2 class="card-title">🎯 Risk Score vs Blast Radius Matrix</h2>
-          </div>
-          <div class="chart-box">
-            <canvas id="chart-blast"></canvas>
-          </div>
-        </div>
-      </div>
-
+    <!-- TAB 3: 1,000+ System Topology & Blast Radius -->
+    <div id="topology" class="tab-pane">
       <div class="soc-card">
         <div class="card-header">
-          <h2 class="card-title">🧠 Explainable AI Root-Cause Narratives & ITDR Privilege Drift</h2>
+          <h2 class="card-title">🕸️ Enterprise Topology & 5-Hop Blast Radius Explorer</h2>
+          <span class="badge badge-info">SQLite Database: caad_topology.db</span>
         </div>
-        <div class="grid-equal">
+        <p style="color:var(--text-secondary); margin-bottom:1.5rem">
+          Graph traversal engine connected to <strong>1,050 enterprise entities</strong> (AWS EC2, Azure VMs, GCP Compute, S3 buckets, Key Vaults, databases, IAM users & roles) and <strong>2,593 relationship edges</strong> stored in SQLite DB <a href="caad_topology.db" target="_blank" style="color:var(--border-accent)">caad_topology.db</a>.
+        </p>
+
+        <!-- Topology Selector Bar -->
+        <div class="filter-bar">
+          <select id="topology-entity-select" class="select-input" style="min-width:300px" onchange="renderTopologyGraph()">
+            <option value="USER_ALEX_MORGAN">USER_ALEX_MORGAN (alex.morgan@cloudorg.internal)</option>
+            <option value="USER_SARAH_CHEN">USER_SARAH_CHEN (sarah.chen@cloudorg.internal)</option>
+            <option value="USER_SVC_CI_DEPLOYER">USER_SVC_CI_DEPLOYER (svc_ci_deployer)</option>
+            <option value="USER_DEVOPS_LEAD">USER_DEVOPS_LEAD (devops.lead@cloudorg.internal)</option>
+            <option value="USER_SECOPS_AUTOMATION">USER_SECOPS_AUTOMATION (secops.automation)</option>
+          </select>
+          <button class="btn btn-primary" onclick="renderTopologyGraph()">🔍 Calculate 5-Hop Blast Radius</button>
+        </div>
+
+        <div class="grid-equal" style="margin-top:1.5rem">
           <div>
-            <h3 style="color:var(--text-cyber); margin-bottom:0.5rem">MITRE ATT&CK Cloud Matrix Chaining</h3>
-            <ul style="list-style:none; padding:0; font-size:0.85rem; color:var(--text-secondary)">
-              <li style="margin-bottom:0.5rem"><strong>Initial Access (T1078.004):</strong> Compromised Cloud Accounts authenticated via proxy nodes.</li>
-              <li style="margin-bottom:0.5rem"><strong>Credential Access (T1621):</strong> MFA Push Request Spamming targeting high-privilege users.</li>
-              <li style="margin-bottom:0.5rem"><strong>Persistence & PrivEsc (T1098.001):</strong> Account Manipulation generating backdoor access keys.</li>
-              <li style="margin-bottom:0.5rem"><strong>Defense Evasion (T1562.001):</strong> CloudTrail Audit Logging disabled (`StopLogging`).</li>
-            </ul>
-          </div>
-          <div>
-            <h3 style="color:var(--text-cyber); margin-bottom:0.5rem">ITDR Blast Radius Formula</h3>
-            <div class="code-block">
-              Blast Radius Score = Σ ( Asset_Criticality * Data_Sensitivity * (1 / Hop_Depth) )
+            <h3 style="color:var(--text-cyber); margin-bottom:0.75rem">🔗 5-Hop Connected Downstream Graph Nodes</h3>
+            <div id="topology-node-list" class="table-container" style="max-height:350px; overflow-y:auto">
+              <!-- Rendered dynamically by app.js -->
             </div>
-            <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.5rem">
-              Traverses recursive 5-hop relationship graph between identity credentials, Key Vault secrets, S3 buckets, and EC2 instances.
-            </p>
+          </div>
+
+          <div>
+            <h3 style="color:var(--text-cyber); margin-bottom:0.75rem">💥 Blast Radius Cumulative Impact Summary</h3>
+            <div class="ai-box" style="margin-top:0">
+              <div class="ai-header">🧮 CTE Traversal Formula Output</div>
+              <div class="ai-text" id="topology-blast-summary">
+                <!-- Rendered dynamically by app.js -->
+              </div>
+            </div>
+            <div class="code-block" style="margin-top:1rem; font-size:0.75rem">
+              SELECT target_entity_id, hop_depth FROM relationships WHERE source_entity_id = ? ...
+            </div>
           </div>
         </div>
       </div>

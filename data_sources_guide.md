@@ -109,3 +109,83 @@ Output: Session Anomaly Score S_anomaly, Blast Radius Score S_blast
 1. **User Identity Hash Tokenization**: Real identity names are converted to sanitized formats or pseudonyms (`alex.morgan@cloudorg.internal`, `devops.ci@cloudorg.internal`).
 2. **IP Obfuscation**: Public IP addresses are mapped to non-routable documentation ranges (e.g. `198.51.100.x` or `203.0.113.x`) while preserving geographic location metadata for testing impossible travel anomalies.
 3. **Session Tokens**: AWS Access Keys (`AKIA...`), Azure Bearer tokens, and GCP Service Account tokens are replaced with synthetic placeholder tokens (`AKIA_DEMO_EXPIRED_MFA_9981`).
+
+---
+
+## 5. Enterprise Topology & Blast Radius SQLite Database Schema (`caad_topology.db`)
+
+To calculate realistic **Blast Radius Impact**, system interconnections, and IAM privilege propagation across cloud environments, all 1,000+ enterprise entities and graph relationship edges are stored in an embedded SQLite database: **[`caad_topology.db`](file:///c:/antiProjects/CAAD/caad_topology.db)**.
+
+### A. Database Tables & Entity Schemas
+
+#### 1. `entities` Table (1,050 Systems, Applications, & Identities)
+| Column Name | Data Type | Description |
+| :--- | :--- | :--- |
+| `id` | `INTEGER PRIMARY KEY` | Auto-incrementing primary key. |
+| `entity_id` | `TEXT UNIQUE` | Unique identifier (e.g. `USER_ALEX_MORGAN`, `AWS_EC2_PROD_001`, `KMS_PROD_KEY`). |
+| `entity_name` | `TEXT` | Human-readable system or identity name (`alex.morgan@cloudorg.internal`). |
+| `entity_type` | `TEXT` | Entity classification (`USER`, `SERVICE_ACCOUNT`, `ROLE`, `COMPUTE`, `STORAGE`, `DATABASE`, `KEY_VAULT`, `APPLICATION`). |
+| `cloud_provider` | `TEXT` | Origin provider (`AWS`, `Azure`, `GCP`, `On-Prem`). |
+| `criticality_weight` | `REAL` | Business criticality weight (1.0 to 10.0). |
+| `data_sensitivity_weight` | `REAL` | Sensitivity of stored data (1.0 to 10.0). |
+| `status` | `TEXT` | Operating status (`ACTIVE`, `DORMANT`, `SUSPICIOUS`, `COMPROMISED`). |
+
+#### 2. `relationships` Table (2,593 Graph Edges)
+| Column Name | Data Type | Description |
+| :--- | :--- | :--- |
+| `id` | `INTEGER PRIMARY KEY` | Primary key. |
+| `source_entity_id` | `TEXT` | Origin entity ID (`USER_ALEX_MORGAN`). |
+| `target_entity_id` | `TEXT` | Destination system ID (`ROLE_SEC_DORMANT`). |
+| `relationship_type` | `TEXT` | Edge classification (`MEMBER_OF`, `ASSUMES_ROLE`, `READS_SECRET`, `HAS_ACCESS_TO`, `DEPLOYS_TO`, `EXFILTRATED_FROM`, `DELETED_LOGS`). |
+| `hop_distance` | `INTEGER` | Direct edge hop distance (default = `1`). |
+
+#### 3. `identity_privileges` Table (789 IAM Permissions)
+| Column Name | Data Type | Description |
+| :--- | :--- | :--- |
+| `id` | `INTEGER PRIMARY KEY` | Primary key. |
+| `entity_id` | `TEXT` | Associated identity or role ID. |
+| `permission_name` | `TEXT` | IAM permission (`AdministratorAccess`, `s3:GetObject`, `kms:Decrypt`, `KeyVault.Secrets.Read`). |
+| `is_dormant` | `INTEGER` | Boolean flag (1 = dormant permission, 0 = active). |
+| `last_used_timestamp` | `TEXT` | ISO 8601 timestamp of last permission usage. |
+
+---
+
+### B. 5-Hop Recursive CTE Graph Traversal & Blast Radius Formula
+
+The Blast Radius score for any compromised identity is computed using a **5-Hop Recursive Common Table Expression (CTE)** query in SQLite:
+
+```sql
+WITH RECURSIVE graph_traversal(entity_id, path, hop_depth) AS (
+    -- Anchor Member: Find direct dependencies of compromised identity
+    SELECT 
+        target_entity_id AS entity_id,
+        source_entity_id || ' -> ' || target_entity_id AS path,
+        1 AS hop_depth
+    FROM relationships
+    WHERE source_entity_id = 'USER_ALEX_MORGAN'
+
+    UNION ALL
+
+    -- Recursive Member: Traverse downstream system connections up to 5 hops
+    SELECT 
+        r.target_entity_id AS entity_id,
+        gt.path || ' -> ' || r.target_entity_id AS path,
+        gt.hop_depth + 1 AS hop_depth
+    FROM relationships r
+    JOIN graph_traversal gt ON r.source_entity_id = gt.entity_id
+    WHERE gt.hop_depth < 5 AND gt.path NOT LIKE '%' || r.target_entity_id || '%'
+)
+SELECT 
+    gt.entity_id,
+    gt.hop_depth,
+    e.entity_name,
+    e.criticality_weight,
+    e.data_sensitivity_weight,
+    (e.criticality_weight * e.data_sensitivity_weight * (1.0 / gt.hop_depth)) AS contribution_score
+FROM graph_traversal gt
+JOIN entities e ON gt.entity_id = e.entity_id;
+```
+
+#### Mathematical Formula:
+$$\text{Blast Radius Score} = \sum_{i \in \text{Reachable Assets}} \left( \text{Criticality}_i \times \text{Sensitivity}_i \times \frac{1}{\text{Hop Depth}_i} \right)$$
+
