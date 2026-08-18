@@ -16,11 +16,11 @@ flowchart LR
         A4[Uploaded .json / .csv] --> B
     end
 
-    subgraph Analytics & Topology Engine
-        B --> C[30m Sliding Window Sessionizer]
-        C --> D[90-Day Behavioral Baseline]
-        C --> E[Real-Time Feature Delta]
-        D & E --> F[SQLite Topology DB: caad_topology.db]
+    subgraph Rulebook & Topology Engine
+        B --> C[18-Rule Detection Engine: rulebook_config.json]
+        C --> D[30m Sliding Window Sessionizer]
+        D --> E[90-Day Behavioral Baseline]
+        E --> F[SQLite Topology DB: caad_topology.db]
         F --> G[5-Hop Recursive CTE Blast Radius Calculation]
         G --> H[GenAI Incident Synthesizer]
     end
@@ -38,18 +38,30 @@ flowchart LR
 
 ## 3. Core Deliverables & File Directory
 
-### A. Data Engineering & Benchmarks Catalog
-- **[`data_sources_guide.md`](file:///c:/antiProjects/CAAD/data_sources_guide.md)**: Detailed documentation of public benchmarks (flaws.cloud, Splunk BOTS v1–v3, CMU CERT r4.2/r6.2, LANL Cyber1, Microsoft Defender datasets, Stratus Red Team), OCSF/ECS/CIM/KQL schema specifications, sliding window sessionization algorithms, and PII anonymization rules.
-- **SQLite Database Specifications (`caad_topology.db`)**: Full schema documentation for `entities`, `relationships`, and `identity_privileges` tables, along with the 5-Hop Recursive CTE query.
+### A. Configurable Detection Rulebook (`rulebook_config.json`)
+- **[`rulebook_config.json`](file:///c:/antiProjects/CAAD/rulebook_config.json)**: Expanded **18-rule detection catalog** comprising:
+  - **5 False Positive Operational Rules** (`FP-RULE-001` through `005` covering non-malicious baselines, CI/CD deployment bots, vulnerability scanners, maintenance patching windows, and synthetic health monitors).
+  - **13 Threat Anomaly Rules** (`THREAT-RULE-001` through `013` covering Impossible Travel, MFA Push Spamming, Dormant Admin Activation, Mass Exfiltration, CloudTrail Log Erasure, Password Spraying, KMS Encryption Key Access, Cross-Account Assumption, S3 Public Access Removal, Azure Vault Secret Exports, Root Access without Hardware MFA, TOR Exit Node Sign-Ins, and Off-Hours API Access).
 
 ---
 
-### B. Multi-Platform SIEM Sample Datasets (`data/`)
-Pre-populated with 5 realistic cloud anomaly scenarios (Impossible Travel, MFA Push Fatigue Spamming, Dormant Admin Account Activation, Mass S3 Exfiltration, and Audit Log Erasure) across 4 major SIEM standards in both `.json` and `.csv`:
-- **Generic OCSF UEBA**: [`sample_generic_ueba_siem.json`](file:///c:/antiProjects/CAAD/data/sample_generic_ueba_siem.json) & [`sample_generic_ueba_siem.csv`](file:///c:/antiProjects/CAAD/data/sample_generic_ueba_siem.csv)
-- **Microsoft Sentinel (KQL)**: [`sample_microsoft_sentinel.json`](file:///c:/antiProjects/CAAD/data/sample_microsoft_sentinel.json) & [`sample_microsoft_sentinel.csv`](file:///c:/antiProjects/CAAD/data/sample_microsoft_sentinel.csv)
-- **Splunk CIM / RBA**: [`sample_splunk_cim.json`](file:///c:/antiProjects/CAAD/data/sample_splunk_cim.json) & [`sample_splunk_cim.csv`](file:///c:/antiProjects/CAAD/data/sample_splunk_cim.csv)
-- **Elastic Security & Wazuh**: [`sample_elastic_wazuh.json`](file:///c:/antiProjects/CAAD/data/sample_elastic_wazuh.json) & [`sample_elastic_wazuh.csv`](file:///c:/antiProjects/CAAD/data/sample_elastic_wazuh.csv)
+### B. Pre-Evaluated Telemetry Sample Events (15 Events)
+Pre-populated with **15 multi-cloud sample events** across AWS, Azure, GCP, and Okta pre-evaluated against the 18 detection rules in `rulebook_config.json`:
+1. `OCSF-UEBA-2026-001`: Impossible Travel Velocity (`CRITICAL`, AWS)
+2. `OCSF-UEBA-2026-002`: MFA Fatigue Push Prompt Spamming (`HIGH`, Azure)
+3. `OCSF-UEBA-2026-003`: Dormant Admin Account Reactivation (`CRITICAL`, AWS)
+4. `OCSF-UEBA-2026-004`: Mass Cloud Storage Exfiltration (`HIGH`, GCP)
+5. `OCSF-UEBA-2026-005`: Audit Trail Log Tampering & Deletion (`CRITICAL`, AWS)
+6. `OCSF-UEBA-2026-006`: Cloud Password Spraying Attack Burst (`HIGH`, Azure)
+7. `OCSF-UEBA-2026-007`: Unassigned KMS Master Encryption Key Access (`CRITICAL`, AWS)
+8. `OCSF-UEBA-2026-008`: Cross-Account IAM Role Assumption Drift (`HIGH`, AWS)
+9. `OCSF-UEBA-2026-009`: S3 Bucket Public Access Block Removal (`CRITICAL`, AWS)
+10. `OCSF-UEBA-2026-010`: Azure Key Vault Bulk Secret Export Burst (`HIGH`, Azure)
+11. `OCSF-UEBA-2026-011`: Root Account Authentication without Hardware MFA (`CRITICAL`, AWS)
+12. `OCSF-UEBA-2026-012`: Anonymized Proxy & TOR Exit Node Access (`HIGH`, Okta)
+13. `OCSF-UEBA-2026-013`: Authorized Vulnerability Scanner (`FALSE POSITIVE`, AWS)
+14. `OCSF-UEBA-2026-014`: Scheduled CI/CD Deployment Bot (`FALSE POSITIVE`, AWS)
+15. `OCSF-UEBA-2026-015`: Automated Synthetic Health Check Monitor (`FALSE POSITIVE`, GCP)
 
 ---
 
@@ -64,7 +76,7 @@ Pre-populated with 5 realistic cloud anomaly scenarios (Impossible Travel, MFA P
 - **[`index.html`](file:///c:/antiProjects/CAAD/index.html)**:
   - Header bar with Theme Switcher (`☀️ Light Mode` / `🌙 Dark Mode`) and AI Configuration modal trigger.
   - Metrics banner with **Model Detection Accuracy (%)** and **Satisfaction Count** KPI card.
-  - 7 interactive tabs: `🚨 Anomaly Triage`, `📊 Behavioral Baseline Profiler`, `🕸️ 1,000+ System Topology`, `📥 SIEM Download Center`, `📤 SIEM Upload & Ingestion`, `⚡ Attack Simulator`, `📚 Data Sources Catalog`.
+  - 8 interactive tabs: `🚨 Anomaly Triage`, `📊 Behavioral Baseline Profiler`, `🕸️ 1,000+ System Topology`, `💾 SQLite DB Analysis`, `📥 SIEM Download Center`, `📤 SIEM Upload & Ingestion`, `⚡ Attack Simulator`, `📚 Data Sources Catalog`.
   - Triage Table with **Detection Accuracy & Feedback** column (`👍 Confirmed` / `👎 False Positive`) and severity dropdown supporting **`FALSE POSITIVE`**.
   - Inspect Modal with tabs for **`🤖 AI English Summary`**, **`🛡️ MITRE ATT&CK Path & Defense`**, and **`📄 Raw User Logs (JSON)`**.
 - **[`styles.css`](file:///c:/antiProjects/CAAD/styles.css)**:
@@ -72,45 +84,17 @@ Pre-populated with 5 realistic cloud anomaly scenarios (Impossible Travel, MFA P
   - Badge styles including `.badge-false-positive`.
   - Print/PDF report stylesheet for executive reporting.
 - **[`app.js`](file:///c:/antiProjects/CAAD/app.js)**:
-  - Universal drag-and-drop SIEM file upload parser for `.json` and `.csv`.
-  - User feedback tracking, **Model Detection Accuracy (%)**, and **Satisfaction Count** calculator.
-  - Automatic severity update to `FALSE POSITIVE` upon analyst disagreement feedback.
+  - Universal SIEM file parser for `.json` and `.csv` drag-and-drop uploads.
+  - Rulebook False Positive auto-classification engine (`normalizeSiemRecord`).
+  - Analyst feedback tracking (`👍 Confirmed` / `👎 False Positive`) and real-time **Model Detection Accuracy** and **Satisfaction Count** calculator.
+  - SQLite DB Telemetry Analysis Screen (`renderDbAnalysisScreen`).
   - HTML5 Canvas **Blast Radius Visual Node Graph Engine** with radial layout, color-coded node taxonomy, and hover tooltips.
   - GenAI Incident Summarizer & Easy English MITRE ATT&CK/D3FEND Countermeasures generator.
 
 ---
 
-## 4. Key Feature Walkthroughs & User Guide
-
-### 1. Theme Switcher (Dark & Light Modes)
-- Click **`☀️ Light Mode`** or **`🌙 Dark Mode`** in the top header bar to toggle the UI theme instantly.
-- Theme preferences are saved to local storage, and all Chart.js graphs and Canvas node visuals automatically adjust contrast.
-
-### 2. Detection Accuracy & Satisfaction Count Tracking
-- In **`🚨 Anomaly Triage`**, click **`👍 Confirmed`** (True Positive) or **`👎 False Positive`** on any row.
-- Clicking **`👎 False Positive`** updates the anomaly's severity badge to **`FALSE POSITIVE`** so analysts immediately see the situation.
-- The top banner metric **Model Detection Accuracy** and **Satisfaction Count** automatically recalculates:
-  $$\text{Model Detection Accuracy} = \left( \frac{\text{Confirmed True Positives}}{\text{Total Analyst Reviews}} \right) \times 100\%$$
-  $$\text{Satisfaction Count} = \text{Total Thumbs-Up Likes}$$
-
-### 3. Interactive Visual Blast Radius Node Graph
-- Navigate to **`🕸️ 1,000+ System Topology`**.
-- Select any compromised identity (e.g. `USER_ALEX_MORGAN` or `USER_SARAH_CHEN`).
-- The HTML5 Canvas renders an interactive node-link graph displaying downstream roles, Key Vaults, databases, and compute nodes color-coded by entity type with hover inspection tooltips.
-
-### 4. Inspect Modal: AI English Summary & Easy MITRE ATT&CK Path
-- Click **`Inspect`** on any triage anomaly row.
-- View **`🤖 AI English Summary`** for a 3-sentence plain English incident report.
-- Switch to **`🛡️ MITRE ATT&CK Path & Defense`** for an easy English breakdown of **What the Attacker Did**, **Why It Matters**, and **How to Fix & Defend**, alongside mapped MITRE D3FEND countermeasures.
-
-### 5. SIEM File Upload & Ingestion
-- Navigate to **`📤 SIEM Upload & Ingestion`**.
-- Drag & drop any `.json` or `.csv` SIEM export file onto the dropzone box to auto-parse, normalize, and merge events into the active triage dashboard.
-
----
-
-## 5. GitHub Repository Integration
+## 4. GitHub Repository Integration
 
 - **Target Repository**: [https://github.com/ramknathchn/SIEM-Analysis](https://github.com/ramknathchn/SIEM-Analysis)
 - **Branch**: `main`
-- **Latest Commit**: Added Detection Accuracy metrics, Satisfaction Count tracking, FALSE POSITIVE severity level, theme switching, SQLite topology DB, and visual Blast Radius Node Graph Canvas.
+- **Latest Commit**: Expanded 18-rule detection catalog, 15 pre-evaluated sample events, SQLite DB analysis screen, and theme switching.

@@ -1,14 +1,14 @@
 {
   "rulebook_metadata": {
-    "version": "2.1.0",
-    "name": "Cloud Access Anomaly & False Positive Detection Rulebook",
-    "description": "Configurable rule catalog for multi-cloud telemetry ingestion, baseline delta scoring, and false positive auto-classification."
+    "version": "2.5.0",
+    "name": "Cloud Access Anomaly & Threat Detection Rulebook",
+    "description": "Expanded 18-rule detection catalog covering multi-cloud UEBA telemetry, MITRE ATT&CK TTP mapping, and automated False Positive operational classification."
   },
   "false_positive_rules": [
     {
       "rule_id": "FP-RULE-001",
-      "rule_name": "Non-Malicious Operational Baseline Event",
-      "description": "Auto-classifies events explicitly marked as non-malicious operational baselines as FALSE POSITIVE.",
+      "rule_name": "Verified Non-Malicious Operational Baseline",
+      "description": "Auto-classifies events explicitly verified as non-malicious operational baselines as FALSE POSITIVE.",
       "conditions": {
         "text_keywords": ["non-malicious", "operational baseline", "verified safe", "false positive"],
         "max_risk_score": 35.0
@@ -17,12 +17,42 @@
     },
     {
       "rule_id": "FP-RULE-002",
-      "rule_name": "Low Risk Scheduled CI/CD Service Account",
-      "description": "Identifies scheduled CI/CD pipeline service accounts executing routine deployment tasks.",
+      "rule_name": "Scheduled CI/CD Deployment Service Account",
+      "description": "Identifies automated CI/CD pipeline service accounts executing routine container deployments.",
       "conditions": {
-        "account_type": "SERVICE_ACCOUNT",
+        "text_keywords": ["service_account", "svc_ci_cd", "github_actions", "jenkins_deployer"],
         "max_risk_score": 30.0,
-        "max_session_events": 50
+        "max_session_events": 60
+      },
+      "action": "SET_SEVERITY_FALSE_POSITIVE"
+    },
+    {
+      "rule_id": "FP-RULE-003",
+      "rule_name": "Authorized Vulnerability & Compliance Security Scanner",
+      "description": "Flags approved internal vulnerability scanning engines executing API security audits.",
+      "conditions": {
+        "text_keywords": ["sec_scanner", "qualys_auditor", "tenable_agent", "inspector_bot"],
+        "max_risk_score": 40.0
+      },
+      "action": "SET_SEVERITY_FALSE_POSITIVE"
+    },
+    {
+      "rule_id": "FP-RULE-004",
+      "rule_name": "Approved Maintenance Window Infrastructure Update",
+      "description": "Classifies bulk EC2/VM status changes performed during scheduled weekend maintenance windows.",
+      "conditions": {
+        "text_keywords": ["maintenance_window", "patching_cycle", "approved_change"],
+        "max_risk_score": 35.0
+      },
+      "action": "SET_SEVERITY_FALSE_POSITIVE"
+    },
+    {
+      "rule_id": "FP-RULE-005",
+      "rule_name": "Automated Synthetic Health Check Monitor",
+      "description": "Classifies high-frequency synthetic ping monitors checking cloud application endpoints.",
+      "conditions": {
+        "text_keywords": ["health_check", "synthetic_monitor", "datadog_agent"],
+        "max_risk_score": 25.0
       },
       "action": "SET_SEVERITY_FALSE_POSITIVE"
     }
@@ -32,31 +62,160 @@
       "rule_id": "THREAT-RULE-001",
       "rule_name": "Impossible Travel Velocity Threshold",
       "conditions": {
+        "text_keywords": ["travel", "velocity", "impossible"],
         "min_speed_mph": 3000,
         "min_risk_score": 90.0
       },
       "assigned_severity": "CRITICAL",
-      "mitre_id": "T1078.004"
+      "mitre_id": "T1078.004",
+      "mitre_name": "Valid Accounts: Cloud Accounts",
+      "tactic": "Initial Access & Privilege Escalation"
     },
     {
       "rule_id": "THREAT-RULE-002",
-      "rule_name": "MFA Fatigue Push Notification Spamming",
+      "rule_name": "MFA Push Fatigue Prompt Spamming",
       "conditions": {
+        "text_keywords": ["mfa", "fatigue", "push"],
         "min_rejected_prompts": 30,
         "min_risk_score": 85.0
       },
       "assigned_severity": "HIGH",
-      "mitre_id": "T1621"
+      "mitre_id": "T1621",
+      "mitre_name": "Multi-Factor Authentication Request Generation",
+      "tactic": "Credential Access"
     },
     {
       "rule_id": "THREAT-RULE-003",
       "rule_name": "Dormant Administrative Account Reactivation",
       "conditions": {
+        "text_keywords": ["dormant", "reactivation", "backdoor"],
         "min_dormant_days": 90,
         "min_risk_score": 95.0
       },
       "assigned_severity": "CRITICAL",
-      "mitre_id": "T1098.001"
+      "mitre_id": "T1098.001",
+      "mitre_name": "Account Manipulation: Additional Credentials",
+      "tactic": "Persistence & Privilege Escalation"
+    },
+    {
+      "rule_id": "THREAT-RULE-004",
+      "rule_name": "Mass Cloud Data Storage Exfiltration",
+      "conditions": {
+        "text_keywords": ["exfiltration", "storage", "egress", "s3"],
+        "min_risk_score": 88.0
+      },
+      "assigned_severity": "HIGH",
+      "mitre_id": "T1567.002",
+      "mitre_name": "Exfiltration to Cloud Storage",
+      "tactic": "Exfiltration"
+    },
+    {
+      "rule_id": "THREAT-RULE-005",
+      "rule_name": "Audit Log Deletion & Defense Evasion",
+      "conditions": {
+        "text_keywords": ["stoplogging", "delete", "audit", "cloudtrail"],
+        "min_risk_score": 95.0
+      },
+      "assigned_severity": "CRITICAL",
+      "mitre_id": "T1562.001",
+      "mitre_name": "Impair Defenses: Disable Cloud Logs",
+      "tactic": "Defense Evasion"
+    },
+    {
+      "rule_id": "THREAT-RULE-006",
+      "rule_name": "Cloud Password Spraying Attack Burst",
+      "conditions": {
+        "text_keywords": ["spray", "password", "auth_failed"],
+        "min_risk_score": 82.0
+      },
+      "assigned_severity": "HIGH",
+      "mitre_id": "T1110.003",
+      "mitre_name": "Brute Force: Password Spraying",
+      "tactic": "Credential Access"
+    },
+    {
+      "rule_id": "THREAT-RULE-007",
+      "rule_name": "Unassigned KMS Master Encryption Key Access",
+      "conditions": {
+        "text_keywords": ["kms", "key", "decrypt"],
+        "min_risk_score": 91.0
+      },
+      "assigned_severity": "CRITICAL",
+      "mitre_id": "T1552.004",
+      "mitre_name": "Unsecured Credentials: Private Keys",
+      "tactic": "Credential Access"
+    },
+    {
+      "rule_id": "THREAT-RULE-008",
+      "rule_name": "Cross-Account IAM Role Assumption Drift",
+      "conditions": {
+        "text_keywords": ["assume_role", "cross_account", "sts"],
+        "min_risk_score": 87.0
+      },
+      "assigned_severity": "HIGH",
+      "mitre_id": "T1078.004",
+      "mitre_name": "Valid Accounts: Cloud Accounts",
+      "tactic": "Privilege Escalation"
+    },
+    {
+      "rule_id": "THREAT-RULE-009",
+      "rule_name": "S3 Bucket Public Access Block Removal",
+      "conditions": {
+        "text_keywords": ["public_access", "s3_policy", "bucket"],
+        "min_risk_score": 94.0
+      },
+      "assigned_severity": "CRITICAL",
+      "mitre_id": "T1530",
+      "mitre_name": "Data from Cloud Storage Object",
+      "tactic": "Exfiltration"
+    },
+    {
+      "rule_id": "THREAT-RULE-010",
+      "rule_name": "Azure Key Vault Bulk Secret Export Burst",
+      "conditions": {
+        "text_keywords": ["keyvault", "secret_export", "getsecret"],
+        "min_risk_score": 89.0
+      },
+      "assigned_severity": "HIGH",
+      "mitre_id": "T1555.006",
+      "mitre_name": "Credentials from Password Stores",
+      "tactic": "Credential Access"
+    },
+    {
+      "rule_id": "THREAT-RULE-011",
+      "rule_name": "Root Account Authentication without Hardware MFA",
+      "conditions": {
+        "text_keywords": ["root", "no_mfa", "console"],
+        "min_risk_score": 97.0
+      },
+      "assigned_severity": "CRITICAL",
+      "mitre_id": "T1078.001",
+      "mitre_name": "Valid Accounts: Default Accounts",
+      "tactic": "Initial Access"
+    },
+    {
+      "rule_id": "THREAT-RULE-012",
+      "rule_name": "Anonymized Proxy & TOR Exit Node Access",
+      "conditions": {
+        "text_keywords": ["tor", "proxy", "vpn_anon"],
+        "min_risk_score": 86.0
+      },
+      "assigned_severity": "HIGH",
+      "mitre_id": "T1090.003",
+      "mitre_name": "Proxy: Multi-hop Proxy",
+      "tactic": "Command & Control"
+    },
+    {
+      "rule_id": "THREAT-RULE-013",
+      "rule_name": "Unusual Off-Hours Production API Access",
+      "conditions": {
+        "text_keywords": ["off_hours", "weekend_burst", "api"],
+        "min_risk_score": 78.0
+      },
+      "assigned_severity": "MEDIUM",
+      "mitre_id": "T1078",
+      "mitre_name": "Valid Accounts",
+      "tactic": "Initial Access"
     }
   ]
 }

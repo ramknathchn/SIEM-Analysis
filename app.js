@@ -212,6 +212,379 @@ let anomalyEvents = [
         cli_command: "aws cloudtrail start-logging --name prod-security-trail && aws s3api put-bucket-policy --bucket cloudtrail-logs-org --policy file://secure-policy.json"
       }
     }
+  },
+  {
+    event_id: "OCSF-UEBA-2026-006",
+    timestamp: "2026-08-18T12:02:15Z",
+    category_name: "Identity & Access Management",
+    class_name: "Credential Access & Password Spraying",
+    cloud_provider: "Azure / Entra ID",
+    actor: {
+      user_name: "external_attacker_net",
+      user_arn: "entra://cloudorg.onmicrosoft.com/users/spray_target",
+      assigned_roles: ["MultipleUserTargets"]
+    },
+    src_endpoint: {
+      ip: "198.51.100.89",
+      country: "Romania",
+      city: "Bucharest",
+      isp: "Datacenter-Hosts"
+    },
+    anomaly_details: {
+      scenario: "Cloud Password Spraying Attack Burst",
+      severity: "HIGH",
+      risk_score: 84.5,
+      blast_radius_score: 75.0,
+      baseline_90d_avg_daily_events: 10,
+      session_30m_event_count: 540,
+      baseline_delta_ratio: 54.00,
+      mitre_attack: {
+        technique_id: "T1110.003",
+        technique_name: "Brute Force: Password Spraying",
+        tactic: "Credential Access"
+      },
+      genai_explanation: "Rapid automated sign-in attempts against 140 distinct user accounts using single passwords per iteration to evade smart lockout thresholds.",
+      remediation_playbook: {
+        action: "Enforce Smart Lockout & Block IP",
+        cli_command: "New-MgPolicyConditionalAccessPolicy -DisplayName 'Block Spray IP Range' -State 'Enabled'"
+      }
+    }
+  },
+  {
+    event_id: "OCSF-UEBA-2026-007",
+    timestamp: "2026-08-18T12:15:30Z",
+    category_name: "Resource Access & IAM",
+    class_name: "Privilege Escalation & KMS Access",
+    cloud_provider: "AWS",
+    actor: {
+      user_name: "contractor.dev@cloudorg.internal",
+      user_arn: "arn:aws:iam::123456789012:user/contractor.dev",
+      assigned_roles: ["ContractorRole"]
+    },
+    src_endpoint: {
+      ip: "203.0.113.111",
+      country: "Ukraine",
+      city: "Kyiv",
+      isp: "ISP-Global-Transit"
+    },
+    anomaly_details: {
+      scenario: "Unassigned KMS Master Encryption Key Access",
+      severity: "CRITICAL",
+      risk_score: 93.2,
+      blast_radius_score: 96.0,
+      baseline_90d_avg_daily_events: 5,
+      session_30m_event_count: 140,
+      baseline_delta_ratio: 28.00,
+      mitre_attack: {
+        technique_id: "T1552.004",
+        technique_name: "Unsecured Credentials: Private Keys",
+        tactic: "Credential Access"
+      },
+      genai_explanation: "Contractor account accessed production KMS decryption keys outside baseline entitlement policy.",
+      remediation_playbook: {
+        action: "Revoke KMS Key Policy Permissions",
+        cli_command: "aws kms put-key-policy --key-id kms-prod-data-key --policy-name default --policy file://restricted.json"
+      }
+    }
+  },
+  {
+    event_id: "OCSF-UEBA-2026-008",
+    timestamp: "2026-08-18T12:30:00Z",
+    category_name: "Identity & Access Management",
+    class_name: "Cross-Account IAM Role Assumption",
+    cloud_provider: "AWS",
+    actor: {
+      user_name: "partner.auditor@externalorg.com",
+      user_arn: "arn:aws:sts::123456789012:assumed-role/PartnerAuditRole/session-01",
+      assigned_roles: ["PartnerAuditRole"]
+    },
+    src_endpoint: {
+      ip: "198.51.100.23",
+      country: "Netherlands",
+      city: "Amsterdam",
+      isp: "Equinix-NL"
+    },
+    anomaly_details: {
+      scenario: "Cross-Account IAM Role Assumption Drift",
+      severity: "HIGH",
+      risk_score: 88.0,
+      blast_radius_score: 89.5,
+      baseline_90d_avg_daily_events: 2,
+      session_30m_event_count: 85,
+      baseline_delta_ratio: 42.50,
+      mitre_attack: {
+        technique_id: "T1078.004",
+        technique_name: "Valid Accounts: Cloud Accounts",
+        tactic: "Privilege Escalation"
+      },
+      genai_explanation: "External partner role assumed cross-account session without ExternalId validation.",
+      remediation_playbook: {
+        action: "Update Trust Policy & Require ExternalId",
+        cli_command: "aws iam update-assume-role-policy --role-name PartnerAuditRole --policy-document file://strict-trust.json"
+      }
+    }
+  },
+  {
+    event_id: "OCSF-UEBA-2026-009",
+    timestamp: "2026-08-18T12:45:10Z",
+    category_name: "Data Storage Telemetry",
+    class_name: "Public Storage Exposure",
+    cloud_provider: "AWS",
+    actor: {
+      user_name: "app.builder@cloudorg.internal",
+      user_arn: "arn:aws:iam::123456789012:user/app.builder",
+      assigned_roles: ["S3Developer"]
+    },
+    src_endpoint: {
+      ip: "203.0.113.55",
+      country: "India",
+      city: "Bengaluru",
+      isp: "Airtel-IN"
+    },
+    anomaly_details: {
+      scenario: "S3 Bucket Public Access Block Removal",
+      severity: "CRITICAL",
+      risk_score: 95.4,
+      blast_radius_score: 97.5,
+      baseline_90d_avg_daily_events: 20,
+      session_30m_event_count: 95,
+      baseline_delta_ratio: 4.75,
+      mitre_attack: {
+        technique_id: "T1530",
+        technique_name: "Data from Cloud Storage Object",
+        tactic: "Exfiltration"
+      },
+      genai_explanation: "Public access block removed from production S3 customer database backup bucket.",
+      remediation_playbook: {
+        action: "Re-enable Public Access Block",
+        cli_command: "aws s3control put-public-access-block --account-id 123456789012 --public-access-block-configuration BlockPublicAcls=true,IgnorePublicAcls=true"
+      }
+    }
+  },
+  {
+    event_id: "OCSF-UEBA-2026-010",
+    timestamp: "2026-08-18T13:00:22Z",
+    category_name: "Resource Access & IAM",
+    class_name: "Key Vault Secret Extraction",
+    cloud_provider: "Azure / Entra ID",
+    actor: {
+      user_name: "finance.analyst@cloudorg.internal",
+      user_arn: "entra://cloudorg.onmicrosoft.com/users/finance.analyst",
+      assigned_roles: ["KeyVaultReader"]
+    },
+    src_endpoint: {
+      ip: "198.51.100.77",
+      country: "United Kingdom",
+      city: "London",
+      isp: "BT-Group-UK"
+    },
+    anomaly_details: {
+      scenario: "Azure Key Vault Bulk Secret Export Burst",
+      severity: "HIGH",
+      risk_score: 89.1,
+      blast_radius_score: 91.0,
+      baseline_90d_avg_daily_events: 15,
+      session_30m_event_count: 220,
+      baseline_delta_ratio: 14.67,
+      mitre_attack: {
+        technique_id: "T1555.006",
+        technique_name: "Credentials from Password Stores",
+        tactic: "Credential Access"
+      },
+      genai_explanation: "High-volume secret reading burst downloading 42 database passwords and SSL certificates.",
+      remediation_playbook: {
+        action: "Rotate Vault Secrets & Revoke Key Vault Access",
+        cli_command: "az keyvault purge --name financial-secrets-vault"
+      }
+    }
+  },
+  {
+    event_id: "OCSF-UEBA-2026-011",
+    timestamp: "2026-08-18T13:10:05Z",
+    category_name: "Identity & Access Management",
+    class_name: "Root Account Console Access",
+    cloud_provider: "AWS",
+    actor: {
+      user_name: "root",
+      user_arn: "arn:aws:iam::123456789012:root",
+      assigned_roles: ["AccountOwner"]
+    },
+    src_endpoint: {
+      ip: "203.0.113.201",
+      country: "Poland",
+      city: "Warsaw",
+      isp: "Orange-PL"
+    },
+    anomaly_details: {
+      scenario: "Root Account Authentication without Hardware MFA",
+      severity: "CRITICAL",
+      risk_score: 97.8,
+      blast_radius_score: 100.0,
+      baseline_90d_avg_daily_events: 0,
+      session_30m_event_count: 45,
+      baseline_delta_ratio: 45.00,
+      mitre_attack: {
+        technique_id: "T1078.001",
+        technique_name: "Valid Accounts: Default Accounts",
+        tactic: "Initial Access"
+      },
+      genai_explanation: "AWS Root account logged into management console without physical hardware FIDO2 key requirement.",
+      remediation_playbook: {
+        action: "Lock Root Credentials & Enforce Hardware FIDO2",
+        cli_command: "aws iam create-virtual-mfa-device --mfa-device-name RootHardwareKey"
+      }
+    }
+  },
+  {
+    event_id: "OCSF-UEBA-2026-012",
+    timestamp: "2026-08-18T13:18:40Z",
+    category_name: "Identity & Access Management",
+    class_name: "TOR Exit Node Sign-In",
+    cloud_provider: "Okta / Cloud",
+    actor: {
+      user_name: "support.engineer@cloudorg.internal",
+      user_arn: "okta://cloudorg.okta.com/users/support.engineer",
+      assigned_roles: ["SupportTier2"]
+    },
+    src_endpoint: {
+      ip: "185.220.101.5",
+      country: "Germany",
+      city: "Berlin",
+      isp: "TOR-Exit-Node-DE"
+    },
+    anomaly_details: {
+      scenario: "Anonymized Proxy & TOR Exit Node Access",
+      severity: "HIGH",
+      risk_score: 86.4,
+      blast_radius_score: 80.0,
+      baseline_90d_avg_daily_events: 40,
+      session_30m_event_count: 110,
+      baseline_delta_ratio: 2.75,
+      mitre_attack: {
+        technique_id: "T1090.003",
+        technique_name: "Proxy: Multi-hop Proxy",
+        tactic: "Command & Control"
+      },
+      genai_explanation: "Authentication request routed through verified active TOR exit node IP address.",
+      remediation_playbook: {
+        action: "Enforce Anonymized Network Blocking Policy",
+        cli_command: "Okta-Zone-Update -ZoneId 'TOR_Block_Zone' -AddIp '185.220.101.5'"
+      }
+    }
+  },
+  {
+    event_id: "OCSF-UEBA-2026-013",
+    timestamp: "2026-08-18T13:25:00Z",
+    category_name: "Security Auditing",
+    class_name: "Authorized Security Audit",
+    cloud_provider: "AWS",
+    actor: {
+      user_name: "qualys_auditor_bot",
+      user_arn: "arn:aws:iam::123456789012:user/qualys_auditor_bot",
+      assigned_roles: ["SecurityAudit"]
+    },
+    src_endpoint: {
+      ip: "64.39.96.10",
+      country: "United States",
+      city: "Redwood City",
+      isp: "Qualys-Inc"
+    },
+    anomaly_details: {
+      scenario: "Authorized Vulnerability & Compliance Security Scanner",
+      severity: "FALSE POSITIVE",
+      original_severity: "LOW",
+      risk_score: 22.1,
+      blast_radius_score: 30.0,
+      baseline_90d_avg_daily_events: 500,
+      session_30m_event_count: 480,
+      baseline_delta_ratio: 0.96,
+      mitre_attack: {
+        technique_id: "T1595",
+        technique_name: "Active Scanning",
+        tactic: "Reconnaissance"
+      },
+      genai_explanation: "Automated vulnerability scanner checking security configurations. Verified non-malicious operational baseline.",
+      remediation_playbook: {
+        action: "No Action Required - Approved Security Scanner",
+        cli_command: "# Approved Operational Baseline"
+      }
+    }
+  },
+  {
+    event_id: "OCSF-UEBA-2026-014",
+    timestamp: "2026-08-18T13:30:12Z",
+    category_name: "DevOps Pipeline",
+    class_name: "CI/CD Deployment Job",
+    cloud_provider: "AWS",
+    actor: {
+      user_name: "github_actions_bot",
+      user_arn: "arn:aws:iam::123456789012:role/GitHubActionsRunner",
+      assigned_roles: ["DeployerRole"]
+    },
+    src_endpoint: {
+      ip: "140.82.112.4",
+      country: "United States",
+      city: "Seattle",
+      isp: "GitHub-Inc"
+    },
+    anomaly_details: {
+      scenario: "Scheduled CI/CD Deployment Service Account",
+      severity: "FALSE POSITIVE",
+      original_severity: "LOW",
+      risk_score: 18.5,
+      blast_radius_score: 25.0,
+      baseline_90d_avg_daily_events: 250,
+      session_30m_event_count: 240,
+      baseline_delta_ratio: 0.96,
+      mitre_attack: {
+        technique_id: "T1072",
+        technique_name: "Software Deployment Tools",
+        tactic: "Execution"
+      },
+      genai_explanation: "Scheduled GitHub Actions workflow updating microservice container images in EKS cluster. Verified non-malicious operational baseline.",
+      remediation_playbook: {
+        action: "No Action Required - Approved CI/CD Pipeline",
+        cli_command: "# Approved Operational Baseline"
+      }
+    }
+  },
+  {
+    event_id: "OCSF-UEBA-2026-015",
+    timestamp: "2026-08-18T13:35:45Z",
+    category_name: "Infrastructure Management",
+    class_name: "Maintenance Window Patching",
+    cloud_provider: "GCP",
+    actor: {
+      user_name: "datadog_agent_svc",
+      user_arn: "serviceAccount:datadog-agent@cloudorg.iam.gserviceaccount.com",
+      assigned_roles: ["MonitoringViewer"]
+    },
+    src_endpoint: {
+      ip: "34.201.20.12",
+      country: "United States",
+      city: "Ashburn",
+      isp: "Google-Cloud Platform"
+    },
+    anomaly_details: {
+      scenario: "Automated Synthetic Health Check Monitor",
+      severity: "FALSE POSITIVE",
+      original_severity: "LOW",
+      risk_score: 15.0,
+      blast_radius_score: 18.0,
+      baseline_90d_avg_daily_events: 1200,
+      session_30m_event_count: 1180,
+      baseline_delta_ratio: 0.98,
+      mitre_attack: {
+        technique_id: "T1082",
+        technique_name: "System Information Discovery",
+        tactic: "Discovery"
+      },
+      genai_explanation: "Synthetic Datadog health check querying application status endpoints. Verified non-malicious operational baseline.",
+      remediation_playbook: {
+        action: "No Action Required - Approved Health Monitor",
+        cli_command: "# Approved Operational Baseline"
+      }
+    }
   }
 ];
 
@@ -221,7 +594,17 @@ let userFeedbackStore = {
   "OCSF-UEBA-2026-002": true,
   "OCSF-UEBA-2026-003": true,
   "OCSF-UEBA-2026-004": true,
-  "OCSF-UEBA-2026-005": true
+  "OCSF-UEBA-2026-005": true,
+  "OCSF-UEBA-2026-006": true,
+  "OCSF-UEBA-2026-007": true,
+  "OCSF-UEBA-2026-008": true,
+  "OCSF-UEBA-2026-009": true,
+  "OCSF-UEBA-2026-010": true,
+  "OCSF-UEBA-2026-011": true,
+  "OCSF-UEBA-2026-012": true,
+  "OCSF-UEBA-2026-013": false,
+  "OCSF-UEBA-2026-014": false,
+  "OCSF-UEBA-2026-015": false
 };
 
 // Theme Switcher Handler (Dark vs Light)
@@ -481,33 +864,36 @@ function renderDbAnalysisScreen() {
 
   } else if (tableType === "rulebook") {
     titleEl.textContent = "Configurable SIEM Log Detection Rulebook (rulebook_config.json)";
-    countEl.textContent = "Active Rule Catalog";
+    countEl.textContent = "18 Active Rules Catalog";
 
     container.innerHTML = `
-      <pre class="code-block" style="max-height:380px">{
+      <pre class="code-block" style="max-height:400px; font-size:0.8rem">{
   "rulebook_metadata": {
-    "name": "Cloud Access Anomaly & False Positive Detection Rulebook",
-    "version": "2.1.0"
+    "name": "Cloud Access Anomaly & Threat Detection Rulebook",
+    "version": "2.5.0",
+    "total_rules": 18
   },
   "false_positive_rules": [
-    {
-      "rule_id": "FP-RULE-001",
-      "rule_name": "Non-Malicious Operational Baseline Event",
-      "conditions": {
-        "keywords": ["non-malicious", "operational baseline", "verified safe"],
-        "max_risk_score": 35.0
-      },
-      "action": "SET_SEVERITY_FALSE_POSITIVE"
-    }
+    { "rule_id": "FP-RULE-001", "name": "Verified Non-Malicious Operational Baseline" },
+    { "rule_id": "FP-RULE-002", "name": "Scheduled CI/CD Deployment Service Account" },
+    { "rule_id": "FP-RULE-003", "name": "Authorized Vulnerability & Compliance Security Scanner" },
+    { "rule_id": "FP-RULE-004", "name": "Approved Maintenance Window Infrastructure Update" },
+    { "rule_id": "FP-RULE-005", "name": "Automated Synthetic Health Check Monitor" }
   ],
   "threat_anomaly_rules": [
-    {
-      "rule_id": "THREAT-RULE-001",
-      "rule_name": "Impossible Travel Velocity Threshold",
-      "conditions": { "min_speed_mph": 3000, "min_risk_score": 90.0 },
-      "assigned_severity": "CRITICAL",
-      "mitre_id": "T1078.004"
-    }
+    { "rule_id": "THREAT-RULE-001", "name": "Impossible Travel Velocity Threshold", "mitre": "T1078.004", "severity": "CRITICAL" },
+    { "rule_id": "THREAT-RULE-002", "name": "MFA Push Fatigue Prompt Spamming", "mitre": "T1621", "severity": "HIGH" },
+    { "rule_id": "THREAT-RULE-003", "name": "Dormant Administrative Account Reactivation", "mitre": "T1098.001", "severity": "CRITICAL" },
+    { "rule_id": "THREAT-RULE-004", "name": "Mass Cloud Data Storage Exfiltration", "mitre": "T1567.002", "severity": "HIGH" },
+    { "rule_id": "THREAT-RULE-005", "name": "Audit Log Deletion & Defense Evasion", "mitre": "T1562.001", "severity": "CRITICAL" },
+    { "rule_id": "THREAT-RULE-006", "name": "Cloud Password Spraying Attack Burst", "mitre": "T1110.003", "severity": "HIGH" },
+    { "rule_id": "THREAT-RULE-007", "name": "Unassigned KMS Master Encryption Key Access", "mitre": "T1552.004", "severity": "CRITICAL" },
+    { "rule_id": "THREAT-RULE-008", "name": "Cross-Account IAM Role Assumption Drift", "mitre": "T1078.004", "severity": "HIGH" },
+    { "rule_id": "THREAT-RULE-009", "name": "S3 Bucket Public Access Block Removal", "mitre": "T1530", "severity": "CRITICAL" },
+    { "rule_id": "THREAT-RULE-010", "name": "Azure Key Vault Bulk Secret Export Burst", "mitre": "T1555.006", "severity": "HIGH" },
+    { "rule_id": "THREAT-RULE-011", "name": "Root Account Authentication without Hardware MFA", "mitre": "T1078.001", "severity": "CRITICAL" },
+    { "rule_id": "THREAT-RULE-012", "name": "Anonymized Proxy & TOR Exit Node Access", "mitre": "T1090.003", "severity": "HIGH" },
+    { "rule_id": "THREAT-RULE-013", "name": "Unusual Off-Hours Production API Access", "mitre": "T1078", "severity": "MEDIUM" }
   ]
 }</pre>
     `;
