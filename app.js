@@ -1271,14 +1271,15 @@ function renderBaselineProfilerScreen() {
   const userSelect = document.getElementById("baseline-user-select");
   if (!userSelect) return;
 
-  // Populate User Options if empty
-  if (userSelect.children.length === 0) {
-    let optionsHtml = "";
-    anomalyEvents.forEach(e => {
-      optionsHtml += `<option value="${e.event_id}">${e.actor.user_name} (${e.cloud_provider} - ${e.anomaly_details.scenario})</option>`;
-    });
-    userSelect.innerHTML = optionsHtml;
-  }
+  // Always update User Options using active PII mode
+  const currentVal = userSelect.value;
+  let optionsHtml = "";
+  anomalyEvents.forEach(e => {
+    const dispName = getDisplayIdentity(e);
+    const selectedAttr = (currentVal && e.event_id === currentVal) ? "selected" : "";
+    optionsHtml += `<option value="${e.event_id}" ${selectedAttr}>${dispName} (${e.cloud_provider} - ${e.anomaly_details.scenario})</option>`;
+  });
+  userSelect.innerHTML = optionsHtml;
 
   const selectedEvtId = userSelect.value || anomalyEvents[0].event_id;
   const evt = anomalyEvents.find(e => e.event_id === selectedEvtId) || anomalyEvents[0];
@@ -2024,6 +2025,19 @@ function setGlobalPiiMaskingMode(mode) {
   if (!["HASHED", "PSEUDONYM", "UNMASKED"].includes(mode)) mode = "PSEUDONYM";
   currentPiiMode = mode;
 
+  // Synchronize top page controller buttons
+  const topHashed = document.getElementById("top-pii-hashed");
+  const topPseudonym = document.getElementById("top-pii-pseudonym");
+  const topUnmasked = document.getElementById("top-pii-unmasked");
+
+  if (topHashed && topPseudonym && topUnmasked) {
+    topHashed.className = mode === "HASHED" ? "btn btn-primary" : "btn";
+    topPseudonym.className = mode === "PSEUDONYM" ? "btn btn-primary" : "btn";
+    topUnmasked.className = mode === "UNMASKED" ? "btn btn-primary" : "btn";
+    if (mode === "UNMASKED") topUnmasked.style.background = "linear-gradient(135deg, #dc2626, #b91c1c)";
+    else topUnmasked.style.background = "";
+  }
+
   // Synchronize dropdowns
   const globalSelect = document.getElementById("global-pii-mask-select");
   if (globalSelect) globalSelect.value = mode;
@@ -2055,9 +2069,11 @@ function setGlobalPiiMaskingMode(mode) {
     }
   }
 
-  // Re-render components with active PII masking mode
-  renderTriageTable(anomalyEvents);
-  renderDbAnalysisScreen();
+  // Re-render ALL screens across the entire application instantly
+  renderTriageTable(getFilteredEvents());
+  try { renderBaselineProfilerScreen(); } catch(e) {}
+  try { renderTopologyGraph(); } catch(e) {}
+  try { renderDbAnalysisScreen(); } catch(e) {}
 
   if (currentInspectedEventId) {
     openDetailModal(currentInspectedEventId);

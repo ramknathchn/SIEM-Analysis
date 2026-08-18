@@ -12,7 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
   
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="styles.css?v=3.2.0">
+  <link rel="stylesheet" href="styles.css?v=3.3.0">
 
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -45,6 +45,23 @@
       <button class="btn" onclick="window.print()">🖨️ Print / PDF Report</button>
     </div>
   </header>
+
+  <!-- Prominent Top Page Global PII Masking Controller Bar -->
+  <section style="background:linear-gradient(135deg, var(--bg-card) 0%, rgba(0, 240, 255, 0.05) 100%); border:1px solid var(--border-color); border-radius:10px; padding:0.75rem 1.25rem; margin-bottom:1.25rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; box-shadow:0 4px 12px rgba(0,0,0,0.3)">
+    <div style="display:flex; align-items:center; gap:0.75rem">
+      <span style="font-size:1.2rem">🔒</span>
+      <div>
+        <strong style="font-size:0.9rem; color:var(--text-primary)">Global PII Anonymization & Telemetry Privacy Mode</strong>
+        <p style="font-size:0.78rem; color:var(--text-secondary)">Controls identity name masking, hashing, and IP obfuscation across <strong>ALL pages, tables, graphs, and modals</strong>.</p>
+      </div>
+    </div>
+    
+    <div style="display:flex; align-items:center; gap:0.5rem; background:var(--bg-deep); padding:0.35rem 0.5rem; border-radius:8px; border:1px solid var(--border-color)">
+      <button class="btn" id="top-pii-hashed" onclick="setGlobalPiiMaskingMode('HASHED')" style="font-size:0.8rem; font-weight:700">🔒 Hashed (a***.m****n)</button>
+      <button class="btn btn-primary" id="top-pii-pseudonym" onclick="setGlobalPiiMaskingMode('PSEUDONYM')" style="font-size:0.8rem; font-weight:700">🛡️ Pseudonymized (Default)</button>
+      <button class="btn" id="top-pii-unmasked" onclick="setGlobalPiiMaskingMode('UNMASKED')" style="font-size:0.8rem; font-weight:700; border-color:#ef4444; color:#ef4444">🔓 Unmasked (Raw PII)</button>
+    </div>
+  </section>
 
   <!-- Metrics Banner Bar -->
   <section class="metrics-banner">
@@ -727,7 +744,7 @@
   </div>
 
   <!-- Local Script -->
-  <script src="app.js?v=3.2.0"></script>
+  <script src="app.js?v=3.3.0"></script>
 
 </body>
 </html>
