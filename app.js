@@ -242,11 +242,28 @@ function toggleTheme() {
   renderTopologyGraph();
 }
 
-// Record Analyst Agreement or Disagreement
+// Record Analyst Feedback for Detection Accuracy & False Positives
 function recordAnalystFeedback(eventId, isAgreed) {
   userFeedbackStore[eventId] = isAgreed;
+
+  const evt = anomalyEvents.find(e => e.event_id === eventId);
+  if (evt) {
+    if (!evt.anomaly_details.original_severity) {
+      evt.anomaly_details.original_severity = evt.anomaly_details.severity;
+    }
+
+    if (isAgreed === false) {
+      // User flags as False Positive -> update severity to FALSE POSITIVE
+      evt.anomaly_details.severity = "FALSE POSITIVE";
+    } else {
+      // User confirms prediction -> restore original severity
+      evt.anomaly_details.severity = evt.anomaly_details.original_severity || "CRITICAL";
+    }
+  }
+
   renderMetrics();
   renderTriageTable(anomalyEvents);
+  renderCharts();
 }
 
 // Calculate and Render Top Banner Metrics
@@ -255,16 +272,25 @@ function renderMetrics() {
   const highCount = anomalyEvents.filter(e => e.anomaly_details.severity === "HIGH").length;
   const avgRisk = (anomalyEvents.reduce((acc, curr) => acc + curr.anomaly_details.risk_score, 0) / anomalyEvents.length).toFixed(1);
 
-  // Calculate User Satisfaction Rate based on Analyst Feedback Agreements
+  // Calculate Model Detection Accuracy & Satisfaction Count
   const totalVerified = Object.keys(userFeedbackStore).length;
   const totalAgreed = Object.values(userFeedbackStore).filter(val => val === true).length;
-  const satisfactionRate = totalVerified > 0 ? ((totalAgreed / totalVerified) * 100).toFixed(1) : "100.0";
+  const accuracyRate = totalVerified > 0 ? ((totalAgreed / totalVerified) * 100).toFixed(1) : "100.0";
 
-  document.getElementById("metric-critical").textContent = criticalCount;
-  document.getElementById("metric-high").textContent = highCount;
-  document.getElementById("metric-satisfaction").textContent = `${satisfactionRate}%`;
-  document.getElementById("metric-agreements-count").textContent = `${totalAgreed} / ${totalVerified} Predictions Verified`;
-  document.getElementById("metric-risk").textContent = `${avgRisk} / 100`;
+  const accuracyEl = document.getElementById("metric-accuracy");
+  if (accuracyEl) accuracyEl.textContent = `${accuracyRate}%`;
+  
+  const countEl = document.getElementById("metric-satisfaction-count");
+  if (countEl) countEl.textContent = `Satisfaction Count: ${totalAgreed} Likes / ${totalVerified} Reviews`;
+
+  const criticalEl = document.getElementById("metric-critical");
+  if (criticalEl) criticalEl.textContent = criticalCount;
+
+  const highEl = document.getElementById("metric-high");
+  if (highEl) highEl.textContent = highCount;
+
+  const riskEl = document.getElementById("metric-risk");
+  if (riskEl) riskEl.textContent = `${avgRisk} / 100`;
 }
 
 // Global Chart References
@@ -589,18 +615,18 @@ function renderTriageTable(events) {
   
   events.forEach(evt => {
     const tr = document.createElement("tr");
-    const severityClass = `badge-${evt.anomaly_details.severity.toLowerCase()}`;
+    const severityClass = `badge-${evt.anomaly_details.severity.toLowerCase().replace(/\s+/g, '-')}`;
     const feedbackStatus = userFeedbackStore[evt.event_id];
     
     let agreementHtml = "";
     if (feedbackStatus === true) {
-      agreementHtml = `<span class="badge badge-info" style="cursor:pointer" onclick="recordAnalystFeedback('${evt.event_id}', false)">👍 Agreed</span>`;
+      agreementHtml = `<span class="badge badge-info" style="cursor:pointer" onclick="recordAnalystFeedback('${evt.event_id}', false)" title="Confirmed Prediction - Click to mark False Positive">👍 Confirmed</span>`;
     } else if (feedbackStatus === false) {
-      agreementHtml = `<span class="badge badge-critical" style="cursor:pointer" onclick="recordAnalystFeedback('${evt.event_id}', true)">👎 Disagreed</span>`;
+      agreementHtml = `<span class="badge badge-false-positive" style="cursor:pointer" onclick="recordAnalystFeedback('${evt.event_id}', true)" title="Flagged False Positive - Click to confirm">👎 False Positive</span>`;
     } else {
       agreementHtml = `
-        <button class="btn" style="padding:0.2rem 0.5rem; font-size:0.75rem" onclick="recordAnalystFeedback('${evt.event_id}', true)">👍</button>
-        <button class="btn" style="padding:0.2rem 0.5rem; font-size:0.75rem" onclick="recordAnalystFeedback('${evt.event_id}', false)">👎</button>
+        <button class="btn" style="padding:0.2rem 0.5rem; font-size:0.75rem" onclick="recordAnalystFeedback('${evt.event_id}', true)" title="Agree / Confirm">👍</button>
+        <button class="btn" style="padding:0.2rem 0.5rem; font-size:0.75rem" onclick="recordAnalystFeedback('${evt.event_id}', false)" title="Disagree / False Positive">👎</button>
       `;
     }
 
@@ -610,7 +636,7 @@ function renderTriageTable(events) {
       <td><span style="color:var(--text-cyber)">${evt.cloud_provider}</span></td>
       <td>${evt.anomaly_details.scenario}</td>
       <td><code>${evt.src_endpoint.ip}</code> (${evt.src_endpoint.country})</td>
-      <td style="font-weight:700; color:${evt.anomaly_details.risk_score > 90 ? '#ef4444' : '#f97316'}">${evt.anomaly_details.risk_score}</td>
+      <td style="font-weight:700; color:${evt.anomaly_details.severity === 'FALSE POSITIVE' ? '#c084fc' : (evt.anomaly_details.risk_score > 90 ? '#ef4444' : '#f97316')}">${evt.anomaly_details.risk_score}</td>
       <td>${agreementHtml}</td>
       <td>
         <button class="btn btn-primary" onclick="openRemediationModal('${evt.event_id}')">Playbook</button>

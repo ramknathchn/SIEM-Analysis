@@ -52,9 +52,9 @@
       <div class="metric-sub">Privilege & Session Drift</div>
     </div>
     <div class="metric-card">
-      <div class="metric-label">User Satisfaction Rate</div>
-      <div class="metric-value" id="metric-satisfaction" style="color:var(--severity-info)">100.0%</div>
-      <div class="metric-sub" id="metric-agreements-count">5 / 5 Predictions Verified</div>
+      <div class="metric-label">Model Detection Accuracy</div>
+      <div class="metric-value" id="metric-accuracy" style="color:var(--severity-info)">100.0%</div>
+      <div class="metric-sub" id="metric-satisfaction-count">Satisfaction Count: 5 Likes / 5 Reviews</div>
     </div>
     <div class="metric-card">
       <div class="metric-label">Avg UEBA ML Risk Score</div>
@@ -94,6 +94,7 @@
               <option value="CRITICAL">CRITICAL</option>
               <option value="HIGH">HIGH</option>
               <option value="MEDIUM">MEDIUM</option>
+              <option value="FALSE POSITIVE">FALSE POSITIVE</option>
             </select>
             <select id="provider-select" class="select-input" onchange="filterEvents()">
               <option value="ALL">All Cloud Providers</option>
@@ -114,7 +115,7 @@
                   <th>Scenario</th>
                   <th>Origin IP (Country)</th>
                   <th>Risk Score</th>
-                  <th>Analyst Agreement</th>
+                  <th>Detection Accuracy & Feedback</th>
                   <th>SOC Action</th>
                 </tr>
               </thead>

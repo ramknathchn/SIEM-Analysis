@@ -29,7 +29,7 @@ flowchart LR
         H --> I[4-Platform SIEM Download Center]
         H --> J[Interactive Visual Blast Radius Canvas Node Graph]
         H --> K[Explainable AI Log Summarizer]
-        H --> L[Analyst Feedback & User Satisfaction Metric Engine]
+        H --> L[Model Detection Accuracy & Satisfaction Count Engine]
         H --> M[Dark & Light Mode Theme Switcher]
     </div>
 ```
@@ -63,15 +63,18 @@ Pre-populated with 5 realistic cloud anomaly scenarios (Impossible Travel, MFA P
 ### D. Interactive Web Dashboard Components
 - **[`index.html`](file:///c:/antiProjects/CAAD/index.html)**:
   - Header bar with Theme Switcher (`☀️ Light Mode` / `🌙 Dark Mode`) and AI Configuration modal trigger.
-  - Metrics banner with **User Satisfaction Rate (%)** and prediction verification count.
+  - Metrics banner with **Model Detection Accuracy (%)** and **Satisfaction Count** KPI card.
   - 7 interactive tabs: `🚨 Anomaly Triage`, `📊 Behavioral Baseline Profiler`, `🕸️ 1,000+ System Topology`, `📥 SIEM Download Center`, `📤 SIEM Upload & Ingestion`, `⚡ Attack Simulator`, `📚 Data Sources Catalog`.
+  - Triage Table with **Detection Accuracy & Feedback** column (`👍 Confirmed` / `👎 False Positive`) and severity dropdown supporting **`FALSE POSITIVE`**.
   - Inspect Modal with tabs for **`🤖 AI English Summary`**, **`🛡️ MITRE ATT&CK Path & Defense`**, and **`📄 Raw User Logs (JSON)`**.
 - **[`styles.css`](file:///c:/antiProjects/CAAD/styles.css)**:
   - Dual-theme CSS custom variables (`:root` dark SOC slate & `[data-theme="light"]` clean light theme).
+  - Badge styles including `.badge-false-positive`.
   - Print/PDF report stylesheet for executive reporting.
 - **[`app.js`](file:///c:/antiProjects/CAAD/app.js)**:
   - Universal drag-and-drop SIEM file upload parser for `.json` and `.csv`.
-  - Analyst feedback tracking (`👍 Agree` / `👎 Disagree`) and real-time **User Satisfaction Rate** calculator.
+  - User feedback tracking, **Model Detection Accuracy (%)**, and **Satisfaction Count** calculator.
+  - Automatic severity update to `FALSE POSITIVE` upon analyst disagreement feedback.
   - HTML5 Canvas **Blast Radius Visual Node Graph Engine** with radial layout, color-coded node taxonomy, and hover tooltips.
   - GenAI Incident Summarizer & Easy English MITRE ATT&CK/D3FEND Countermeasures generator.
 
@@ -83,10 +86,12 @@ Pre-populated with 5 realistic cloud anomaly scenarios (Impossible Travel, MFA P
 - Click **`☀️ Light Mode`** or **`🌙 Dark Mode`** in the top header bar to toggle the UI theme instantly.
 - Theme preferences are saved to local storage, and all Chart.js graphs and Canvas node visuals automatically adjust contrast.
 
-### 2. Analyst Feedback & User Satisfaction Calculation
-- In the **`🚨 Anomaly Triage`** table, click **`👍 Agreed`** or **`👎 Disagreed`** on any prediction row.
-- The top banner metric **User Satisfaction Rate** automatically recalculates:
-  $$\text{User Satisfaction Rate} = \left( \frac{\text{Agreed Predictions}}{\text{Total Verified Predictions}} \right) \times 100\%$$
+### 2. Detection Accuracy & Satisfaction Count Tracking
+- In **`🚨 Anomaly Triage`**, click **`👍 Confirmed`** (True Positive) or **`👎 False Positive`** on any row.
+- Clicking **`👎 False Positive`** updates the anomaly's severity badge to **`FALSE POSITIVE`** so analysts immediately see the situation.
+- The top banner metric **Model Detection Accuracy** and **Satisfaction Count** automatically recalculates:
+  $$\text{Model Detection Accuracy} = \left( \frac{\text{Confirmed True Positives}}{\text{Total Analyst Reviews}} \right) \times 100\%$$
+  $$\text{Satisfaction Count} = \text{Total Thumbs-Up Likes}$$
 
 ### 3. Interactive Visual Blast Radius Node Graph
 - Navigate to **`🕸️ 1,000+ System Topology`**.
@@ -108,4 +113,4 @@ Pre-populated with 5 realistic cloud anomaly scenarios (Impossible Travel, MFA P
 
 - **Target Repository**: [https://github.com/ramknathchn/SIEM-Analysis](https://github.com/ramknathchn/SIEM-Analysis)
 - **Branch**: `main`
-- **Latest Commit**: Included theme switcher, analyst feedback tracking, SQLite topology DB, and visual Blast Radius Node Graph Canvas.
+- **Latest Commit**: Added Detection Accuracy metrics, Satisfaction Count tracking, FALSE POSITIVE severity level, theme switching, SQLite topology DB, and visual Blast Radius Node Graph Canvas.

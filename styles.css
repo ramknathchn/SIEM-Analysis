@@ -332,6 +332,7 @@ body {
 .badge-high { background: rgba(249, 115, 22, 0.2); color: var(--severity-high); border: 1px solid rgba(249, 115, 22, 0.4); }
 .badge-medium { background: rgba(234, 179, 8, 0.2); color: var(--severity-medium); border: 1px solid rgba(234, 179, 8, 0.4); }
 .badge-low { background: rgba(59, 130, 246, 0.2); color: var(--severity-low); border: 1px solid rgba(59, 130, 246, 0.4); }
+.badge-false-positive { background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); }
 
 /* Table Styling */
 .table-container {
