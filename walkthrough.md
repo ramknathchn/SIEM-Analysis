@@ -30,7 +30,7 @@ flowchart LR
         H --> J[Interactive Visual Blast Radius Canvas Node Graph]
         H --> K[Explainable AI Log Summarizer]
         H --> L[Model Detection Accuracy & Satisfaction Count Engine]
-        H --> M[Filtered Telemetry Export with Inspection Content]
+        H --> M[In-Report Interactive Filters for Exported Document]
         H --> N[Dark & Light Mode Theme Switcher]
     </div>
 ```
@@ -39,16 +39,15 @@ flowchart LR
 
 ## 3. Core Deliverables & File Directory
 
-### A. Filtered Anomaly Telemetry Export Feature
-- **`📊 Export Telemetry Report` Button**: Added to **`🚨 Anomaly Triage`** header and filter bar.
-- **Filter-Aware Export**: Exports only anomaly records matching active search terms, severity filters (`CRITICAL`, `HIGH`, `FALSE POSITIVE`), and cloud provider filters (`AWS`, `Azure`, `GCP`).
-- **Tabulated Structure**: Includes a master tabulated summary table listing all matching events.
-- **Complete Inspect Content Export**: Includes full inspection details for EVERY filtered event:
-  - 🤖 **Plain English AI Summary & Baseline Delta Analysis**.
-  - ⛓️ **Technical MITRE ATT&CK Execution Path Stepper** (Steps 1–5).
-  - 🛡️ **Mapped MITRE D3FEND Countermeasures & NIST SP 800-53 Controls Table**.
-  - ⚡ **SOC 1-Click Remediation Playbook CLI / PowerShell Commands**.
-- **Dual Export Modes**: Generates a `.html` Blob download and opens an interactive printable PDF export window (`window.print()`).
+### A. In-Report Interactive Filtering for Exported Reports
+- **6 Dedicated Field Filters embedded directly in the exported HTML document**:
+  1. **Event ID Filter**: Search box targeting specific Event IDs (e.g., `OCSF-UEBA-2026-001`).
+  2. **Cloud Provider Filter**: Dropdown selector (`AWS`, `Azure`, `GCP`, `Okta`).
+  3. **Identity / User Filter**: Search box targeting user accounts (e.g., `alex.morgan`, `sarah.chen`).
+  4. **Country Filter**: Search box targeting origin IP countries (e.g., `Germany`, `Russia`, `China`).
+  5. **Scenario Trigger Filter**: Search box targeting attack scenario names (e.g., `Impossible Travel`, `MFA Fatigue`).
+  6. **Severity Filter**: Dropdown selector (`CRITICAL`, `HIGH`, `MEDIUM`, `FALSE POSITIVE`).
+- **Synchronized Row & Inspection Filtering**: Real-time JavaScript execution dynamically shows/hides both the master summary table rows AND corresponding inspection cards while updating a visible count badge (`X / Y Visible`).
 
 ---
 
@@ -70,7 +69,7 @@ Pre-populated with **15 multi-cloud sample events** across AWS, Azure, GCP, and 
 ### E. Interactive Web Dashboard Components
 - **[`index.html`](file:///c:/antiProjects/CAAD/index.html)** & **[`app.js`](file:///c:/antiProjects/CAAD/app.js)**:
   - 8-tab structure (`Triage`, `Baseline`, `Topology`, `SQLite DB Analysis`, `SIEM Download`, `Upload`, `Simulator`, `Catalog`).
-  - `exportFilteredTelemetryReport()` implementation.
+  - `exportFilteredTelemetryReport()` implementation with embedded client-side filtering script.
   - HTML5 Canvas **Blast Radius Visual Node Graph Visualizer**.
   - Dark & Light Mode Theme Switcher.
 
@@ -80,4 +79,4 @@ Pre-populated with **15 multi-cloud sample events** across AWS, Azure, GCP, and 
 
 - **Target Repository**: [https://github.com/ramknathchn/SIEM-Analysis](https://github.com/ramknathchn/SIEM-Analysis)
 - **Branch**: `main`
-- **Latest Commit**: Filtered telemetry export feature with full inspect content, 18-rule catalog, SQLite DB analysis screen, and theme switching.
+- **Latest Commit**: In-report interactive filter feature for exported HTML documents (Event ID, Cloud, User, Country, Scenario, Severity), 18-rule catalog, SQLite DB analysis screen, and theme switching.

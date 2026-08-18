@@ -1251,7 +1251,7 @@ function filterEvents() {
   renderTriageTable(filtered);
 }
 
-// Export Filtered Telemetry Table with Full Inspect Content
+// Export Filtered Telemetry Table with Full Inspect Content & In-Report Interactive Filters
 function exportFilteredTelemetryReport() {
   const filtered = getFilteredEvents();
   if (!filtered || filtered.length === 0) {
@@ -1270,9 +1270,15 @@ function exportFilteredTelemetryReport() {
   const highCount = filtered.filter(e => e.anomaly_details.severity === "HIGH").length;
   const fpCount = filtered.filter(e => e.anomaly_details.severity === "FALSE POSITIVE").length;
 
-  // Build Tabulated Telemetry Rows
+  // Build Tabulated Telemetry Rows with Data Attributes for In-Report Filtering
   let summaryRowsHtml = filtered.map(e => `
-    <tr>
+    <tr class="exp-table-row"
+        data-event-id="${e.event_id}"
+        data-cloud="${e.cloud_provider}"
+        data-user="${e.actor.user_name}"
+        data-country="${e.src_endpoint.country}"
+        data-scenario="${e.anomaly_details.scenario}"
+        data-severity="${e.anomaly_details.severity}">
       <td style="font-family:monospace; font-weight:bold">${e.event_id}</td>
       <td style="font-size:0.8rem">${e.timestamp}</td>
       <td><strong>${e.cloud_provider}</strong></td>
@@ -1285,14 +1291,20 @@ function exportFilteredTelemetryReport() {
     </tr>
   `).join("");
 
-  // Build Detailed Inspect Content Sections
+  // Build Detailed Inspect Content Sections with Data Attributes for In-Report Filtering
   let inspectSectionsHtml = filtered.map((e, index) => {
-    const userEvents = anomalyEvents.filter(x => x.actor.user_name === e.actor.user_name);
     const aiSummaryText = e.anomaly_details.genai_explanation;
     const mitreViewHtml = buildMitreDefenseView(e);
 
     return `
-      <div style="page-break-inside:avoid; border:1px solid #cbd5e1; border-radius:8px; padding:1.25rem; margin-bottom:1.5rem; background:#ffffff; box-shadow:0 2px 8px rgba(0,0,0,0.05)">
+      <div class="exp-inspect-card"
+           data-event-id="${e.event_id}"
+           data-cloud="${e.cloud_provider}"
+           data-user="${e.actor.user_name}"
+           data-country="${e.src_endpoint.country}"
+           data-scenario="${e.anomaly_details.scenario}"
+           data-severity="${e.anomaly_details.severity}"
+           style="page-break-inside:avoid; border:1px solid #cbd5e1; border-radius:8px; padding:1.25rem; margin-bottom:1.5rem; background:#ffffff; box-shadow:0 2px 8px rgba(0,0,0,0.05)">
         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #0284c7; padding-bottom:0.5rem; margin-bottom:1rem">
           <h3 style="margin:0; color:#0f172a; font-size:1.1rem">
             #${index + 1} Inspection Details: <span style="color:#0284c7">${e.event_id}</span> - ${e.actor.user_name}
@@ -1335,17 +1347,25 @@ function exportFilteredTelemetryReport() {
     `;
   }).join("");
 
-  // Complete HTML Document String
+  // Complete Interactive HTML Document String
   const reportHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Cloud Anomaly Telemetry & Inspection Report</title>
+  <title>Interactive Cloud Anomaly Telemetry & Inspection Report</title>
   <style>
     body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #0f172a; background: #f8fafc; margin: 0; padding: 2rem; }
     h1 { color: #0284c7; margin-bottom: 0.2rem; font-size: 1.6rem; }
     .header-sub { color: #64748b; font-size: 0.88rem; margin-bottom: 1.5rem; }
     .meta-box { background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; display: flex; gap: 2rem; font-size: 0.88rem; }
+    
+    /* Interactive Filter Bar Styles inside Exported Document */
+    .report-filter-bar { background: #ffffff; border: 2px solid #0284c7; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.08); }
+    .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0.75rem; margin-top: 0.5rem; }
+    .filter-group { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.8rem; font-weight: bold; color: #334155; }
+    .filter-input { padding: 0.45rem 0.6rem; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.82rem; outline: none; }
+    .filter-input:focus { border-color: #0284c7; box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2); }
+
     .table-container { width: 100%; overflow-x: auto; margin-bottom: 2rem; }
     table { width: 100%; border-collapse: collapse; background: #ffffff; border-radius: 8px; overflow: hidden; border: 1px solid #cbd5e1; font-size: 0.85rem; }
     th { background: #f1f5f9; color: #334155; padding: 0.75rem; text-align: left; border-bottom: 2px solid #cbd5e1; }
@@ -1358,7 +1378,7 @@ function exportFilteredTelemetryReport() {
     .badge-info { background: #e0f2fe; color: #0284c7; border: 1px solid #7dd3fc; }
     @media print {
       body { padding: 0; background: #ffffff; }
-      .no-print { display: none; }
+      .no-print { display: none !important; }
     }
   </style>
 </head>
@@ -1370,23 +1390,69 @@ function exportFilteredTelemetryReport() {
   </div>
 
   <h1>📊 Active Cloud Access Anomaly Telemetry Report</h1>
-  <div class="header-sub">Exported Filtered Anomaly Dataset with Complete AI Inspection & MITRE ATT&CK/D3FEND Breakdown</div>
+  <div class="header-sub">Interactive Filter-Enabled Telemetry Report with Full AI Inspection & MITRE ATT&CK/D3FEND Breakdown</div>
 
   <div class="meta-box">
     <div>
-      <strong>Report Timestamp:</strong> ${timestamp}<br>
-      <strong>Search Query Filter:</strong> ${query}<br>
+      <strong>Report Generated:</strong> ${timestamp}<br>
+      <strong>Master Export Filter:</strong> ${query}<br>
       <strong>Severity Filter:</strong> ${severityFilter}
     </div>
     <div>
       <strong>Cloud Provider Filter:</strong> ${providerFilter}<br>
-      <strong>Total Filtered Anomalies:</strong> ${filtered.length} Record(s)<br>
+      <strong>Total Exported Records:</strong> ${filtered.length} Record(s)<br>
       <strong>Average ML Risk Score:</strong> ${avgRisk} / 100
     </div>
     <div>
       <strong>Critical Alerts:</strong> ${criticalCount}<br>
       <strong>High Risk Anomalies:</strong> ${highCount}<br>
       <strong>False Positives:</strong> ${fpCount}
+    </div>
+  </div>
+
+  <!-- Interactive Document Filter Bar -->
+  <div class="report-filter-bar no-print">
+    <div style="display:flex; justify-content:space-between; align-items:center">
+      <strong style="color:#0284c7; font-size:0.95rem">🔍 IN-REPORT INTERACTIVE TELEMETRY FILTERS</strong>
+      <span id="exp-visible-count" class="badge badge-info">${filtered.length} / ${filtered.length} Visible</span>
+    </div>
+    <div class="filter-grid">
+      <div class="filter-group">
+        <label for="exp-filter-event-id">Event ID:</label>
+        <input type="text" id="exp-filter-event-id" class="filter-input" placeholder="e.g. OCSF-UEBA-2026-001" onkeyup="filterReportRows()">
+      </div>
+      <div class="filter-group">
+        <label for="exp-filter-cloud">Cloud Provider:</label>
+        <select id="exp-filter-cloud" class="filter-input" onchange="filterReportRows()">
+          <option value="ALL">All Cloud Providers</option>
+          <option value="AWS">AWS</option>
+          <option value="Azure">Azure / Entra ID</option>
+          <option value="GCP">GCP</option>
+          <option value="Okta">Okta / Cloud</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="exp-filter-user">Identity / User:</label>
+        <input type="text" id="exp-filter-user" class="filter-input" placeholder="e.g. alex.morgan" onkeyup="filterReportRows()">
+      </div>
+      <div class="filter-group">
+        <label for="exp-filter-country">Country:</label>
+        <input type="text" id="exp-filter-country" class="filter-input" placeholder="e.g. Germany, Russia" onkeyup="filterReportRows()">
+      </div>
+      <div class="filter-group">
+        <label for="exp-filter-scenario">Scenario Trigger:</label>
+        <input type="text" id="exp-filter-scenario" class="filter-input" placeholder="e.g. Impossible Travel" onkeyup="filterReportRows()">
+      </div>
+      <div class="filter-group">
+        <label for="exp-filter-severity">Severity:</label>
+        <select id="exp-filter-severity" class="filter-input" onchange="filterReportRows()">
+          <option value="ALL">All Severities</option>
+          <option value="CRITICAL">CRITICAL</option>
+          <option value="HIGH">HIGH</option>
+          <option value="MEDIUM">MEDIUM</option>
+          <option value="FALSE POSITIVE">FALSE POSITIVE</option>
+        </select>
+      </div>
     </div>
   </div>
 
@@ -1406,17 +1472,97 @@ function exportFilteredTelemetryReport() {
           <th>Severity</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody id="exp-tbody">
         ${summaryRowsHtml}
       </tbody>
     </table>
   </div>
 
   <h2>2. Detailed Telemetry Inspection & MITRE ATT&CK/D3FEND Breakdown</h2>
-  ${inspectSectionsHtml}
+  <div id="exp-inspect-container">
+    ${inspectSectionsHtml}
+  </div>
+
+  <!-- Client-Side Filter Script for Exported Document -->
+  <script>
+    function filterReportRows() {
+      const eid = (document.getElementById('exp-filter-event-id').value || '').toLowerCase().trim();
+      const cloud = document.getElementById('exp-filter-cloud').value;
+      const user = (document.getElementById('exp-filter-user').value || '').toLowerCase().trim();
+      const country = (document.getElementById('exp-filter-country').value || '').toLowerCase().trim();
+      const scenario = (document.getElementById('exp-filter-scenario').value || '').toLowerCase().trim();
+      const severity = document.getElementById('exp-filter-severity').value;
+
+      const rows = document.querySelectorAll('.exp-table-row');
+      const inspects = document.querySelectorAll('.exp-inspect-card');
+      let visibleCount = 0;
+
+      rows.forEach(r => {
+        const rEid = (r.getAttribute('data-event-id') || '').toLowerCase();
+        const rCloud = r.getAttribute('data-cloud') || '';
+        const rUser = (r.getAttribute('data-user') || '').toLowerCase();
+        const rCountry = (r.getAttribute('data-country') || '').toLowerCase();
+        const rScenario = (r.getAttribute('data-scenario') || '').toLowerCase();
+        const rSeverity = r.getAttribute('data-severity') || '';
+
+        const matchEid = !eid || rEid.includes(eid);
+        const matchCloud = cloud === 'ALL' || rCloud.includes(cloud);
+        const matchUser = !user || rUser.includes(user);
+        const matchCountry = !country || rCountry.includes(country);
+        const matchScenario = !scenario || rScenario.includes(scenario);
+        const matchSeverity = severity === 'ALL' || rSeverity === severity;
+
+        const isMatch = matchEid && matchCloud && matchUser && matchCountry && matchScenario && matchSeverity;
+        r.style.display = isMatch ? '' : 'none';
+        if (isMatch) visibleCount++;
+      });
+
+      inspects.forEach(c => {
+        const cEid = (c.getAttribute('data-event-id') || '').toLowerCase();
+        const cCloud = c.getAttribute('data-cloud') || '';
+        const cUser = (c.getAttribute('data-user') || '').toLowerCase();
+        const cCountry = (c.getAttribute('data-country') || '').toLowerCase();
+        const cScenario = (c.getAttribute('data-scenario') || '').toLowerCase();
+        const cSeverity = c.getAttribute('data-severity') || '';
+
+        const matchEid = !eid || cEid.includes(eid);
+        const matchCloud = cloud === 'ALL' || cCloud.includes(cloud);
+        const matchUser = !user || cUser.includes(user);
+        const matchCountry = !country || cCountry.includes(country);
+        const matchScenario = !scenario || cScenario.includes(scenario);
+        const matchSeverity = severity === 'ALL' || cSeverity === severity;
+
+        c.style.display = (matchEid && matchCloud && matchUser && matchCountry && matchScenario && matchSeverity) ? '' : 'none';
+      });
+
+      const countBadge = document.getElementById('exp-visible-count');
+      if (countBadge) {
+        countBadge.textContent = visibleCount + ' / ' + rows.length + ' Visible';
+      }
+    }
+  </script>
 
 </body>
 </html>`;
+
+  // Trigger Blob Download for filtered telemetry report
+  const blob = new Blob([reportHtml], { type: "text/html" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `filtered_anomaly_telemetry_report_${new Date().toISOString().slice(0,10)}.html`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  // Also open report in new printable window
+  const printWindow = window.open("", "_blank");
+  if (printWindow) {
+    printWindow.document.write(reportHtml);
+    printWindow.document.close();
+  }
+}
 
   // Trigger Blob Download for filtered telemetry report
   const blob = new Blob([reportHtml], { type: "text/html" });
