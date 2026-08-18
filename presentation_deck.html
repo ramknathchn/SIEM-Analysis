@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cloud Access Anomaly Detection & UEBA SIEM - Executive Presentation</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Mermaid.js for Dark Mode Architectural Flowchart -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+  <style>
+    :root {
+      --bg-dark: #06090e;
+      --bg-card: #0b101b;
+      --bg-deep: #020408;
+      --border-color: #1e293b;
+      --border-accent: #00f0ff;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --text-cyber: #38bdf8;
+      --critical: #ef4444;
+      --high: #f97316;
+      --medium: #eab308;
+      --low: #3b82f6;
+      --purple: #c084fc;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-primary);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Presentation Header Bar */
+    .deck-header {
+      height: 60px;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 2rem;
+      z-index: 100;
+    }
+
+    .brand-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--text-cyber);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      letter-spacing: 0.5px;
+    }
+
+    .nav-controls {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .btn {
+      background: #0f172a;
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .btn:hover {
+      border-color: var(--border-accent);
+      color: var(--border-accent);
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.25);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #0284c7, #0369a1);
+      border-color: #38bdf8;
+      color: #fff;
+    }
+
+    .slide-counter {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      color: var(--text-cyber);
+      background: var(--bg-deep);
+      padding: 0.35rem 0.75rem;
+      border-radius: 4px;
+      border: 1px solid var(--border-color);
+    }
+
+    /* Slide Container */
+    .slide-viewport {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .slide {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      padding: 2.5rem 4rem;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(20px) scale(0.98);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0) scale(1);
+    }
+
+    /* Slide Header Formatting */
+    .slide-meta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--border-accent);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 0.5rem;
+    }
+
+    .slide-title {
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: #ffffff;
+      line-height: 1.2;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(90deg, #ffffff, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .slide-subtitle {
+      font-size: 1.05rem;
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+      max-width: 900px;
+    }
+
+    /* Professional Grid Cards */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; }
+    .grid-3-2 { display: grid; grid-template-columns: 3fr 2fr; gap: 1.5rem; }
+
+    .glass-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s ease;
+    }
+
+    .glass-card:hover {
+      border-color: var(--border-accent);
+    }
+
+    .glass-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 3px;
+      background: linear-gradient(90deg, var(--border-accent), transparent);
+    }
+
+    .card-icon {
+      font-size: 1.8rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .card-text {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .pill-badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      margin-top: 0.75rem;
+    }
+
+    .badge-crit { background: rgba(239, 68, 68, 0.15); color: var(--critical); border: 1px solid rgba(239, 68, 68, 0.4); }
+    .badge-accent { background: rgba(0, 240, 255, 0.15); color: var(--border-accent); border: 1px solid rgba(0, 240, 255, 0.4); }
+    .badge-purple { background: rgba(192, 132, 252, 0.15); color: var(--purple); border: 1px solid rgba(192, 132, 252, 0.4); }
+    .badge-warn { background: rgba(245, 158, 11, 0.15); color: var(--medium); border: 1px solid rgba(245, 158, 11, 0.4); }
+
+    /* Mermaid Architecture Box */
+    .mermaid-box {
+      background: var(--bg-deep);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 380px;
+    }
+
+    /* Slide Footer Progress Bar */
+    .deck-footer {
+      height: 4px;
+      background: var(--bg-deep);
+      position: relative;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--border-accent), #3b82f6);
+      width: 20%;
+      transition: width 0.3s ease;
+    }
+
+    /* Math Formula Highlighting */
+    .formula-box {
+      background: var(--bg-deep);
+      border-left: 4px solid var(--border-accent);
+      padding: 0.75rem 1rem;
+      margin: 0.75rem 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: #38bdf8;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header Navigation Bar -->
+  <header class="deck-header">
+    <div class="brand-title">
+      <span>🛡️</span> CLOUD ACCESS ANOMALY DETECTION & UEBA SIEM PLATFORM
+    </div>
+    
+    <div class="nav-controls">
+      <button class="btn" onclick="prevSlide()">◀ Previous</button>
+      <span class="slide-counter" id="slide-num">Slide 1 / 5</span>
+      <button class="btn" onclick="nextSlide()">Next ▶</button>
+      <button class="btn btn-primary" onclick="toggleFullscreen()">📺 Fullscreen</button>
+    </div>
+  </header>
+
+  <!-- Slide Viewport -->
+  <div class="slide-viewport">
+
+    <!-- SLIDE 1: PROBLEM STATEMENT -->
+    <section class="slide active" id="slide-1">
+      <div>
+        <div class="slide-meta">SLIDE 01 / PROBLEM STATEMENT</div>
+        <h1 class="slide-title">The Challenges in Modern Cloud SOC Operations</h1>
+        <p class="slide-subtitle">Traditional static SIEM rules fail against identity drift, alert fatigue, and multi-cloud log overload.</p>
+      </div>
+
+      <div class="grid-4">
+        <div class="glass-card">
+          <div class="card-icon">⚡</div>
+          <h3 class="card-title">Cloud Log Overload & Fatigue</h3>
+          <p class="card-text">Millions of daily events across AWS CloudTrail, Azure Entra ID, GCP Audit, and Okta cause critical threats to be lost in noise.</p>
+          <span class="pill-badge badge-crit">High False Positives</span>
+        </div>
+
+        <div class="glass-card">
+          <div class="card-icon">🔑</div>
+          <h3 class="card-title">Identity Drift & Credential Misuse</h3>
+          <p class="card-text">80%+ of cloud breaches exploit valid credentials (MFA push spamming, impossible travel velocity, dormant admin reactivation).</p>
+          <span class="pill-badge badge-warn">Unnoticed Drift</span>
+        </div>
+
+        <div class="glass-card">
+          <div class="card-icon">💥</div>
+          <h3 class="card-title">Blast Radius Blind Spots</h3>
+          <p class="card-text">SOC analysts cannot immediately visualize how a compromised identity propagates through IAM roles, secrets, and database tables.</p>
+          <span class="pill-badge badge-crit">No Entitlement Graph</span>
+        </div>
+
+        <div class="glass-card">
+          <div class="card-icon">📋</div>
+          <h3 class="card-title">Opaque & Fragmented Logs</h3>
+          <p class="card-text">Raw JSON logs require manual correlation across MITRE ATT&CK tactics, D3FEND countermeasures, and response CLI commands.</p>
+          <span class="pill-badge badge-purple">High Mean Time To Respond</span>
+        </div>
+      </div>
+
+      <div style="font-size: 0.85rem; color: var(--text-muted); text-align: right;">Use Left / Right Arrow Keys to navigate</div>
+    </section>
+
+    <!-- SLIDE 2: PROPOSED SOLUTION -->
+    <section class="slide" id="slide-2">
+      <div>
+        <div class="slide-meta">SLIDE 02 / PROPOSED SOLUTION</div>
+        <h1 class="slide-title">Local-First UEBA SIEM & Explainable AI Engine</h1>
+        <p class="slide-subtitle">Combining OCSF schema normalization, 90-day statistical baselines, 5-hop graph CTEs, and AI incident synthesis.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="glass-card">
+          <div class="card-icon">🌐</div>
+          <h3 class="card-title">1. Unified Multi-Cloud OCSF 1.1 Normalizer</h3>
+          <p class="card-text">Standardizes raw logs from AWS, Azure, GCP, and Okta into normalized OCSF 1.1, Splunk CIM, Microsoft Sentinel KQL, and Elastic ECS schemas.</p>
+          <span class="pill-badge badge-accent">Multi-Platform Ingestion</span>
+        </div>
+
+        <div class="glass-card">
+          <div class="card-icon">📈</div>
+          <h3 class="card-title">2. 90-Day Statistical Baseline Engine</h3>
+          <p class="card-text">Calculates historical daily mean (&mu;), standard deviation (&sigma;), and 30-minute session velocity spikes (+3&sigma;) to isolate true anomalies.</p>
+          <span class="pill-badge badge-accent">Sliding Window Sessionizer</span>
+        </div>
+
+        <div class="glass-card">
+          <div class="card-icon">🕸️</div>
+          <h3 class="card-title">3. SQLite 5-Hop Graph CTE & Canvas Node Graph</h3>
+          <p class="card-text">Runs a 5-hop recursive CTE query on caad_topology.db (1,050 entities, 2,593 edges) to render real-time visual blast radius graphs.</p>
+          <div class="formula-box">Blast Radius = &sum; ( Criticality &times; Sensitivity &times; 1/Hop_Depth )</div>
+        </div>
+
+        <div class="glass-card">
+          <div class="card-icon">🤖</div>
+          <h3 class="card-title">4. Explainable AI & Sentiment Engine</h3>
+          <p class="card-text">Generates plain English summaries, maps MITRE ATT&CK paths (T1078.004, T1621), D3FEND tables, 1-click CLI playbooks, and analyst AI sentiment scoring.</p>
+          <span class="pill-badge badge-purple">Real-Time Satisfaction Index</span>
+        </div>
+      </div>
+
+      <div style="font-size: 0.85rem; color: var(--text-muted); text-align: right;">Use Left / Right Arrow Keys to navigate</div>
+    </section>
+
+    <!-- SLIDE 3: ARCHITECTURAL DIAGRAM -->
+    <section class="slide" id="slide-3">
+      <div>
+        <div class="slide-meta">SLIDE 03 / SYSTEM ARCHITECTURE</div>
+        <h1 class="slide-title">4-Layer End-to-End Pipeline Architecture</h1>
+        <p class="slide-subtitle">From multi-cloud log ingestion to rulebook evaluation, graph CTE traversal, and interactive SOC dashboard deliverables.</p>
+      </div>
+
+      <div class="mermaid-box">
+        <div class="mermaid">
+        flowchart LR
+            subgraph L1["Layer 1: Ingestion"]
+                AWS[AWS CloudTrail] --> NORM[OCSF Normalizer]
+                AZ[Azure SigninLogs] --> NORM
+                GCP[GCP Audit Logs] --> NORM
+            end
+
+            subgraph L2["Layer 2: UEBA Engine"]
+                NORM --> RULE[18-Rule Config: rulebook_config.json]
+                RULE --> SESS[30m Sessionizer]
+                SESS --> BASE[90-Day Baseline Profiler]
+            end
+
+            subgraph L3["Layer 3: Topology DB"]
+                BASE --> DB[(caad_topology.db)]
+                DB --> CTE[5-Hop Recursive CTE Graph]
+                CTE --> AI[Explainable GenAI Synthesizer]
+            end
+
+            subgraph L4["Layer 4: Interactive Dashboard"]
+                AI --> TRIAGE[🚨 Anomaly Triage & Filter Exporter]
+                AI --> CANVAS[🕸️ Visual Blast Radius Node Canvas]
+                AI --> SENT[🧠 Analyst AI Sentiment Engine]
+            end
+        </div>
+      </div>
+
+      <div style="font-size: 0.85rem; color: var(--text-muted); text-align: right;">Use Left / Right Arrow Keys to navigate</div>
+    </section>
+
+    <!-- SLIDE 4: EXISTING FEATURES -->
+    <section class="slide" id="slide-4">
+      <div>
+        <div class="slide-meta">SLIDE 04 / PRODUCTION FEATURES</div>
+        <h1 class="slide-title">Key Capabilities Delivered in Platform</h1>
+        <p class="slide-subtitle">Production-ready SOC capabilities implemented, tested locally, and committed to GitHub.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="glass-card">
+          <h3 class="card-title">📖 Configurable Rulebook (`rulebook_config.json`)</h3>
+          <p class="card-text">18-rule catalog comprising 5 False Positive operational rules and 13 Threat Anomaly rules evaluating real-time log telemetry.</p>
+          <span class="pill-badge badge-accent">18 Rules Catalog</span>
+        </div>
+
+        <div class="glass-card">
+          <h3 class="card-title">🕸️ HTML5 Canvas Visual Node Graph</h3>
+          <p class="card-text">Renders entry nodes, radial 5-hop connections, edge relationship labels, and interactive hover tooltips in real-time.</p>
+          <span class="pill-badge badge-accent">Interactive Canvas Engine</span>
+        </div>
+
+        <div class="glass-card">
+          <h3 class="card-title">🎯 Risk Score vs. Blast Radius Quadrant Matrix</h3>
+          <p class="card-text">2D scatter plot mapping ML Risk Score vs. Blast Radius Score across 4 threat quadrants (Critical Threat Zone, High Entitlement Risk, etc.).</p>
+          <span class="pill-badge badge-purple">Behavioral Vector Matrix</span>
+        </div>
+
+        <div class="glass-card">
+          <h3 class="card-title">🧠 Analyst Text Feedback & AI Sentiment Engine</h3>
+          <p class="card-text">Captures analyst natural-language comments on alerts, computes AI sentiment scores (-1.0 to +1.0), and tracks overall User Satisfaction Index (%).</p>
+          <span class="pill-badge badge-crit">User Satisfaction KPI</span>
+        </div>
+
+        <div class="glass-card">
+          <h3 class="card-title">📊 Filtered Telemetry & Inspection Exporter</h3>
+          <p class="card-text">Exports tabulated telemetry reports with in-report filter controls (Event ID, Cloud, User, Country, Scenario, Severity) and complete AI summaries.</p>
+          <span class="pill-badge badge-accent">Dual Blob / PDF Exporter</span>
+        </div>
+
+        <div class="glass-card">
+          <h3 class="card-title">🌙 SOC Dark & Light Mode Theme Switcher</h3>
+          <p class="card-text">CSS variable theme switcher providing seamless toggle between dark SOC slate (#06090e) and light slate (#f1f5f9).</p>
+          <span class="pill-badge badge-purple">Dynamic Theme Switcher</span>
+        </div>
+      </div>
+
+      <div style="font-size: 0.85rem; color: var(--text-muted); text-align: right;">Use Left / Right Arrow Keys to navigate</div>
+    </section>
+
+    <!-- SLIDE 5: PLANNED ENHANCEMENTS -->
+    <section class="slide" id="slide-5">
+      <div>
+        <div class="slide-meta">SLIDE 05 / STRATEGIC ROADMAP</div>
+        <h1 class="slide-title">Future Enhancements & Roadmap Phase</h1>
+        <p class="slide-subtitle">Strategic capabilities planned for next platform release phase.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="glass-card">
+          <div class="card-icon">⚡</div>
+          <h3 class="card-title">1. Real-Time Streaming Backend Webhooks</h3>
+          <p class="card-text">Upgrade ingestion pipeline from file uploads to live WebSocket/gRPC telemetry streams from AWS EventBridge, Azure Event Hubs, and GCP Pub/Sub.</p>
+          <span class="pill-badge badge-accent">Phase 2 Stream Engine</span>
+        </div>
+
+        <div class="glass-card">
+          <div class="card-icon">📄</div>
+          <h3 class="card-title">2. Automated Headless Chrome PDF Pipeline</h3>
+          <p class="card-text">Integrate server-side PDF generation (Puppeteer/Playwright) to auto-email printable CISO executive reports on scheduled cron timers (/schedule).</p>
+          <span class="pill-badge badge-purple">Scheduled PDF Emailer</span>
+        </div>
+
+        <div class="glass-card">
+          <div class="card-icon">🧠</div>
+          <h3 class="card-title">3. Local LLM Fine-Tuning on Enterprise Baselines</h3>
+          <p class="card-text">Fine-tune lightweight local models (Ollama / Llama-3-8B) on historical 90-day baseline logs for zero-latency offline incident summarization.</p>
+          <span class="pill-badge badge-accent">Offline Llama-3 LLM</span>
+        </div>
+
+        <div class="glass-card">
+          <div class="card-icon">⚡</div>
+          <h3 class="card-title">4. Automated SOAR Playbooks via Terraform & Ansible</h3>
+          <p class="card-text">Connect 1-Click SOC remediation playbooks directly to cloud APIs (AWS Boto3, Azure SDK) for automated IAM role revocation and IP blocking.</p>
+          <span class="pill-badge badge-crit">Automated Active Response</span>
+        </div>
+      </div>
+
+      <div style="font-size: 0.85rem; color: var(--text-muted); text-align: right;">End of Presentation Deck</div>
+    </section>
+
+  </div>
+
+  <!-- Bottom Footer Progress Bar -->
+  <footer class="deck-footer">
+    <div class="progress-bar" id="progress-bar"></div>
+  </footer>
+
+  <script>
+    // Initialize Mermaid Diagrams
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      flowchart: { curve: 'basis' }
+    });
+
+    let currentSlide = 1;
+    const totalSlides = 5;
+
+    function updateSlide() {
+      document.querySelectorAll('.slide').forEach((slide, index) => {
+        if (index + 1 === currentSlide) {
+          slide.classList.add('active');
+        } else {
+          slide.classList.remove('active');
+        }
+      });
+
+      document.getElementById('slide-num').textContent = `Slide ${currentSlide} / ${totalSlides}`;
+      document.getElementById('progress-bar').style.width = `${(currentSlide / totalSlides) * 100}%`;
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides) {
+        currentSlide++;
+        updateSlide();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 1) {
+        currentSlide--;
+        updateSlide();
+      }
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+
+    // Keyboard Navigation Listener
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        prevSlide();
+      }
+    });
+  </script>
+</body>
+</html>
