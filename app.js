@@ -1138,7 +1138,7 @@ function drawNodeGraphCanvas(entryEntityId, currentData) {
       // Glow effect
       ctx.beginPath();
       ctx.arc(n.x, n.y, n.radius + 4, 0, Math.PI * 2);
-      ctx.fillStyle = n.color.replace(")", ", 0.25)").replace("rgb", "rgba").replace("#", "rgba(") ? `${n.color}33` : "rgba(0,240,255,0.2)";
+      ctx.fillStyle = "rgba(0, 240, 255, 0.25)";
       ctx.fill();
 
       // Solid Circle
@@ -1225,13 +1225,20 @@ function switchTab(tabId) {
       }
     });
 
-    if (tabId === "topology") {
-      renderTopologyGraph();
-    } else if (tabId === "db-analysis") {
-      renderDbAnalysisScreen();
-    } else if (tabId === "baseline") {
-      renderBaselineProfilerScreen();
-    }
+    // Trigger tab rendering after DOM layout updates
+    setTimeout(() => {
+      try {
+        if (tabId === "topology") {
+          renderTopologyGraph();
+        } else if (tabId === "db-analysis") {
+          renderDbAnalysisScreen();
+        } else if (tabId === "baseline") {
+          renderBaselineProfilerScreen();
+        }
+      } catch (e) {
+        console.error("Tab content render error:", e);
+      }
+    }, 10);
   } catch (err) {
     console.error(`Error switching to tab ${tabId}:`, err);
   }
