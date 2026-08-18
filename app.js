@@ -732,24 +732,173 @@ function openDetailModal(eventId) {
   document.getElementById("modal-detail").classList.add("active");
 }
 
-// Switch between AI Summary and Raw JSON tabs inside Modal
+// Switch between AI Summary, MITRE Defense, and Raw JSON tabs inside Modal
 function switchModalTab(tabName) {
   const summaryBtn = document.getElementById("modal-tab-summary-btn");
+  const mitreBtn = document.getElementById("modal-tab-mitre-btn");
   const jsonBtn = document.getElementById("modal-tab-json-btn");
+
   const summaryView = document.getElementById("modal-view-summary");
+  const mitreView = document.getElementById("modal-view-mitre");
   const jsonView = document.getElementById("modal-view-json");
+
+  summaryBtn.className = "btn";
+  mitreBtn.className = "btn";
+  jsonBtn.className = "btn";
+
+  summaryView.style.display = "none";
+  mitreView.style.display = "none";
+  jsonView.style.display = "none";
 
   if (tabName === 'summary') {
     summaryBtn.className = "btn btn-primary";
-    jsonBtn.className = "btn";
     summaryView.style.display = "block";
-    jsonView.style.display = "none";
+  } else if (tabName === 'mitre') {
+    mitreBtn.className = "btn btn-primary";
+    mitreView.style.display = "block";
+    renderMitreDefenseView();
   } else {
-    summaryBtn.className = "btn";
     jsonBtn.className = "btn btn-primary";
-    summaryView.style.display = "none";
     jsonView.style.display = "block";
   }
+}
+
+// Render MITRE ATT&CK Path Details & Related D3FEND Defense Mechanisms
+function renderMitreDefenseView() {
+  if (!currentInspectedEventId) return;
+  const evt = anomalyEvents.find(e => e.event_id === currentInspectedEventId);
+  if (!evt) return;
+
+  const mitreContainer = document.getElementById("modal-mitre-content");
+  mitreContainer.innerHTML = buildMitreDefenseView(evt);
+}
+
+// Build Detailed MITRE ATT&CK Path & D3FEND Defense Table
+function buildMitreDefenseView(evt) {
+  const techId = evt.anomaly_details.mitre_attack.technique_id;
+  const techName = evt.anomaly_details.mitre_attack.technique_name;
+  const tactic = evt.anomaly_details.mitre_attack.tactic;
+  const provider = evt.cloud_provider;
+  const scenario = evt.anomaly_details.scenario;
+  const user = evt.actor.user_name;
+  const ip = evt.src_endpoint.ip;
+
+  // Comprehensive ATT&CK Chained Attack Path
+  const attackPathSteps = [
+    { step: 1, tactic: "Initial Access", tid: "T1078.004", name: "Valid Accounts: Cloud Accounts", desc: `Attacker authenticated as user ${user} via origin IP ${ip} using valid session tokens.` },
+    { step: 2, tactic: "Credential Access", tid: "T1621", name: "MFA Request Generation", desc: "Push notification spamming executed until user approved login or session was hijacked." },
+    { step: 3, tactic: "Privilege Escalation", tid: "T1098.001", name: "Account Manipulation", desc: "Inline backdoor IAM admin policies or roles attached to gain full cloud tenancy access." },
+    { step: 4, tactic: "Defense Evasion", tid: "T1562.001", name: "Disable Cloud Security Logs", desc: "CloudTrail logging disabled (StopLogging) or diagnostic log stream policies removed." },
+    { step: 5, tactic: "Exfiltration", tid: "T1567.002", name: "Exfiltration to Cloud Storage", desc: "Automated high-rate egress downloading sensitive customer databases and backup blobs." }
+  ];
+
+  // MITRE D3FEND Defense Mechanisms Mapped to Scenario
+  const d3fendDefenseMap = [
+    {
+      code: "D3-MFA",
+      category: "Credential Hardening",
+      name: "Hardware FIDO2 Multi-Factor Authentication",
+      desc: "Enforce FIDO2 WebAuthn security keys and block vulnerable push notification / SMS fallback.",
+      nist: "IA-2(1), IA-8",
+      action: "Mandate hardware key sign-in for all admin roles."
+    },
+    {
+      code: "D3-ILM",
+      category: "Network Defense",
+      name: "Inbound Traffic Filtering & Geo-IP Fencing",
+      desc: `Restrict access to verified corporate CIDR blocks and block high-risk IP range ${ip}.`,
+      nist: "AC-17, SC-7",
+      action: "Apply Conditional Access location policy."
+    },
+    {
+      code: "D3-IAM",
+      category: "Identity Governance",
+      name: "Privileged Access Management & Least Privilege",
+      desc: "Conduct daily dormant privilege reviews and automatically strip unused inline admin permissions.",
+      nist: "AC-2(2), AC-6",
+      action: "Detach unassigned IAM policies immediately."
+    },
+    {
+      code: "D3-ALM",
+      category: "Audit Security",
+      name: "Audit Log Immutability & S3 Object Lock",
+      desc: "Configure CloudTrail S3 audit buckets with Write-Once-Read-Many (WORM) Object Lock and MFA Delete.",
+      nist: "AU-9, AU-11",
+      action: "Enable CloudTrail S3 Object Lock in compliance mode."
+    },
+    {
+      code: "D3-CAE",
+      category: "Access Evaluation",
+      name: "Continuous Access Evaluation (CAE)",
+      desc: "Enable real-time token revocation to immediately terminate active session bearer tokens upon risk alert.",
+      nist: "AC-12, SC-23",
+      action: "Invoke Revoke-MgUserSignInSession / aws iam revoke-security-credentials."
+    }
+  ];
+
+  // Render Attack Path Stepper HTML
+  let pathHtml = attackPathSteps.map(s => `
+    <div style="background:var(--bg-surface); border:1px solid var(--border-color); border-radius:8px; padding:0.85rem; margin-bottom:0.6rem; display:flex; gap:0.75rem; align-items:center">
+      <div style="background:linear-gradient(135deg, #00f0ff 0%, #3b82f6 100%); color:#000; font-weight:800; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.8rem">
+        ${s.step}
+      </div>
+      <div style="flex-grow:1">
+        <div style="display:flex; justify-content:space-between">
+          <strong style="color:var(--text-primary); font-size:0.85rem">${s.tactic}</strong>
+          <code style="color:#38bdf8; font-size:0.8rem">${s.tid}: ${s.name}</code>
+        </div>
+        <div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.2rem">${s.desc}</div>
+      </div>
+    </div>
+  `).join("");
+
+  // Render Defense Mechanisms Table HTML
+  let defenseRows = d3fendDefenseMap.map(d => `
+    <tr>
+      <td><strong style="color:var(--border-accent); font-family:var(--font-mono)">${d.code}</strong></td>
+      <td><span class="badge badge-info">${d.category}</span></td>
+      <td style="color:var(--text-primary); font-weight:600">${d.name}</td>
+      <td style="font-size:0.8rem; color:var(--text-secondary)">${d.desc}</td>
+      <td><code>${d.nist}</code></td>
+    </tr>
+  `).join("");
+
+  return `
+    <div class="ai-box" style="margin-top:0; border-color:var(--border-accent)">
+      <div class="ai-header" style="justify-content:space-between">
+        <span>🛡️ MITRE ATT&CK CHAINED ATTACK PATH Breakdown</span>
+        <span class="badge badge-critical">${tactic} (${techId})</span>
+      </div>
+      <div class="ai-text" style="font-size:0.85rem; margin-top:0.5rem">
+        Identified attack vector on <strong>${provider}</strong> targeting identity <code>${user}</code> via <code>${techName}</code>.
+      </div>
+    </div>
+
+    <div style="margin-top:1rem">
+      <h3 style="color:var(--text-cyber); font-size:0.9rem; margin-bottom:0.75rem">⛓️ End-to-End TTP Attack Execution Sequence</h3>
+      ${pathHtml}
+    </div>
+
+    <div style="margin-top:1.5rem">
+      <h3 style="color:var(--severity-info); font-size:0.9rem; margin-bottom:0.75rem">🛡️ Mapped MITRE D3FEND Defense Countermeasures</h3>
+      <div class="table-container">
+        <table class="soc-table">
+          <thead>
+            <tr>
+              <th>D3FEND ID</th>
+              <th>Category</th>
+              <th>Defense Mechanism</th>
+              <th>Security Control Description</th>
+              <th>NIST Control</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${defenseRows}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
 }
 
 // Trigger AI Log Summarization Animation & Generation

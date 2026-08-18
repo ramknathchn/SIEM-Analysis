@@ -420,10 +420,11 @@
       </div>
 
       <!-- Tab Switcher inside Modal -->
-      <div style="display:flex; gap:0.5rem; margin-bottom:1rem">
+      <div style="display:flex; gap:0.5rem; margin-bottom:1rem; flex-wrap:wrap">
         <button class="btn btn-primary" id="modal-tab-summary-btn" onclick="switchModalTab('summary')">🤖 AI English Summary</button>
+        <button class="btn" id="modal-tab-mitre-btn" onclick="switchModalTab('mitre')">🛡️ MITRE ATT&CK Path & Defense</button>
         <button class="btn" id="modal-tab-json-btn" onclick="switchModalTab('json')">📄 Raw User Logs (JSON)</button>
-        <button class="btn" onclick="triggerAiSummarization()" style="margin-left:auto; border-color:var(--border-accent); color:var(--border-accent)">🔄 Re-Summarize Logs with AI</button>
+        <button class="btn" onclick="triggerAiSummarization()" style="margin-left:auto; border-color:var(--border-accent); color:var(--border-accent)">🔄 Re-Summarize Logs</button>
       </div>
 
       <!-- View 1: AI English Log Summary -->
@@ -441,7 +442,14 @@
         </div>
       </div>
 
-      <!-- View 2: Raw User Logs (JSON) -->
+      <!-- View 2: MITRE ATT&CK Path & Related Defense Mechanisms -->
+      <div id="modal-view-mitre" style="display:none">
+        <div id="modal-mitre-content">
+          <!-- Populated by app.js -->
+        </div>
+      </div>
+
+      <!-- View 3: Raw User Logs (JSON) -->
       <div id="modal-view-json" style="display:none">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem">
           <span style="font-size:0.8rem; color:var(--text-muted)">Showing all telemetry events matching user identity:</span>
